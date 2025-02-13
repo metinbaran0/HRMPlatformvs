@@ -1,0 +1,122 @@
+
+/* Navbar Genel Stil */
+.navbar {
+  background: linear-gradient(90deg, rgba(44, 62, 80, 1) 0%, rgba(52, 152, 219, 1) 100%);
+  padding: 15px 20px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Logo Hover Efekti */
+.navbar-brand:hover .d-inline-block {
+  transform: rotate(360deg);
+  transition: transform 0.4s ease;
+}
+
+/* Navbar Link Stilleri */
+.navbar .nav-link {
+  color: white !important;
+  font-weight: 500;
+}
+
+.navbar .nav-link:hover {
+  color: #f1c40f !important;
+  border-bottom: 2px solid #f1c40f;
+  padding-bottom: 5px;
+  transition: all 0.3s ease;
+}
+
+/* Dropdown Menü Tasarımı */
+.custom-dropdown {
+  background-color: #34495e;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.3);
+  border: none;
+  min-width: 300px;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  position: absolute; /* Dropdown'un doğru şekilde konumlanması için */
+  z-index: 1000; /* Üstte görünmesini sağlamak için */
+  display: none; /* Başlangıçta gizli */
+}
+
+/* Dropdown Grid Yapısı */
+.dropdown-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  padding: 10px;
+}
+
+/* Dropdown Öğeleri */
+.custom-dropdown .dropdown-item {
+  background: #2c3e50;
+  color: rgb(255, 255, 255) !important;
+  padding: 15px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border-radius: 10px;
+  border: 1px solid transparent;
+}
+
+/* Hover Efekti */
+.custom-dropdown .dropdown-item:hover {
+  background-color: #f1c40f;
+  color: black !important;
+  border: 1px solid #f1c40f;
+  transform: scale(1.05);
+}
+
+/* İkon Stili */
+.dropdown-icon {
+  font-size: 24px;
+  margin-bottom: 5px;
+}
+
+/* Açıklama Metni */
+.custom-dropdown .dropdown-item small {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+/* Dropdown Açılma Efekti (Hover ile açılacak şekilde) */
+.nav-item.dropdown:hover .custom-dropdown {
+  opacity: 1;
+  transform: translateY(0);
+  display: block; /* Hover ile menüyü göster */
+}
+
+/* Butonlar */
+.navbar .btn {
+  font-weight: bold;
+  border-radius: 5px;
+}
+
+/* Toggler Icon (Navbar açma butonu) */
+.navbar-toggler-icon {
+  background-color: #f1c40f; /* Renk seçeneği */
+  border-radius: 3px;
+  transition: background-color 0.3s ease;
+}
+
+.navbar-toggler-icon:hover {
+  background-color: #f39c12; /* Hover efekti */
+}
+
+/* Mobil Uyum */
+@media (max-width: 768px) {
+  .dropdown-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  /* Navbar'ın Mobilde Daha Yatay Olması İçin */
+  .navbar .nav-link {
+    padding: 10px 0;
+  }
+}
