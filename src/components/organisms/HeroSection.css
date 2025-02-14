@@ -1,107 +1,114 @@
 .hero-section {
   min-height: 100vh;
   width: 100%;
-  background-color: rgb(120, 217, 172); 
+  background: linear-gradient(135deg, #1453b3, #f39c12);
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 50px 0;
+  align-items: center;
+  padding: 50px 20px;
   text-align: center;
   position: relative;
+  overflow: hidden;
 }
 
-.hero-section .highlight {
-  color: #ffc107; 
+.hero-title {
+  font-size: 3rem;
   font-weight: bold;
+  margin-bottom: 1rem;
 }
 
-.img-fluid {
-  max-width: 100%;
-  height: auto;
+.hero-description {
+  font-size: 1.125rem;
+  margin-bottom: 1.5rem;
+  max-width: 2xl;
 }
 
-/* Görsellerin Konumlandırılması */
 .hero-images {
   position: relative;
-  height: 600px; /* Görseller arasındaki mesafeyi artırdık */
+  height: 600px;
   width: 100%;
-  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .hero-image {
   position: absolute;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease;
 }
 
-/* 1. Resim */
 .image-1 {
-  top: -60px;
-  left: 5%;
-  width: 45%; /* Görselin boyutunu küçülttük */
-}
-
-/* 2. Resim */
-.image-2 {
-  top: -60px;
-  right: 5%;
-  width: 45%; /* Görselin boyutunu küçülttük */
-}
-
-/* 3. Resim */
-.image-3 {
-  top: 180px; /* 1. resmin biraz altına kaydırdık */
-  left: 25%;
-  width: 30%; /* Görselin boyutunu küçülttük */
-}
-
-/* 4. Resim */
-.image-4 {
-  top: 250px; /* 3. resmin biraz altına kaydırdık */
-  left: 50%;
+  top: 1%;
+  left: 1%;
   width: 20%;
-  transform: translateX(-50%); /* Ortalanması için */
 }
 
-/* 5. Resim */
+.image-2 {
+  top: 1%;
+  right: 1%;
+  width: 20%;
+}
+
+.image-3 {
+  top: 300px;
+  left: 10%; /* 3. görseli sola çekiyoruz */
+  width: 20%;
+}
+
+.image-4 {
+  top: 350px; /* Butonun hemen altına yerleştiriyoruz */
+  left: 50%; /* Ortalamak için */
+  transform: translateX(-50%); /* Yatayda tam ortada */
+  width: 20%;
+}
+
 .image-5 {
-  top: 180px; /* 3. resmin hizasında olacak */
-  right: 25%;
-  width: 30%; /* Görselin boyutunu küçülttük */
-}
-
-.image-4-container {
-  position: relative;
-  text-align: center;
+  top: 300px;
+  right: 10%; /* 5. görseli sağa çekiyoruz */
+  width: 20%;
 }
 
 .free-trial-btn {
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 10px 20px;
-  background-color: #f1c40f;
-  color: #2c3e50;
+  padding: 15px 40px;
+  background: linear-gradient(135deg, #1453b3, #f39c12);
+  color: white;
+  font-size: 1.125rem;
   font-weight: bold;
   border: none;
-  border-radius: 5px;
-  transition: all 0.3s ease;
+  border-radius: 50px;
+  cursor: pointer;
+  text-transform: uppercase;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  outline: none;
+  transition: all 0.3s ease-in-out;
 }
 
 .free-trial-btn:hover {
-  background-color: #f39c12;
-  color: white;
+  background: linear-gradient(135deg, #351eb8, #0c71a0);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+  transform: scale(1.1);
+}
+
+.free-trial-btn:active {
+  transform: scale(0.95);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
 /* Responsive Düzenlemeler */
 @media (max-width: 768px) {
+  .hero-images {
+    flex-direction: column;
+    align-items: center;
+  }
+
   .hero-image {
-    top: 10px;
-    left: 0;
-    width: 60%;
+    width: 50%;
+    top: initial;
+    left: initial;
   }
 
   .image-2, .image-4 {
-    left: 0;
+    left: initial;
   }
 }
