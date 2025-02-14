@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "./HeroSection.css";
 import { motion } from "framer-motion";
+import MultiCardCarousel from "./MultiCardCarousel";
+import UygulamaSlider from "./UygulamaSlider";
 
 const HeroSection: React.FC = () => {
   const [scrollY, setScrollY] = useState(0);
@@ -21,7 +23,7 @@ const HeroSection: React.FC = () => {
   };
 
   return (
-    <section className="hero-section">
+    <div><section className="hero-section">
       <motion.h1
         className="hero-title"
         initial={{ opacity: 0, y: -50 }}
@@ -61,7 +63,13 @@ const HeroSection: React.FC = () => {
           Ücretsiz Deneyin
         </motion.button>
       </motion.div>
+
+      
     </section>
+    <MultiCardCarousel/>
+    <UygulamaSlider/>
+    </div>
+
   );
 };
 
