@@ -5,26 +5,25 @@ import "./MultiCardCarousel.css";
 
 const MultiCardCarousel = () => {
   useEffect(() => {
-  const items = document.querySelectorAll<HTMLElement>(".carousel .carousel-item");
+    const items = document.querySelectorAll<HTMLElement>(".carousel .carousel-item");
 
-  items.forEach((el) => {
-    const minPerSlide = 3;
-    let next: HTMLElement | null = el.nextElementSibling as HTMLElement;
-    for (let i = 1; i < minPerSlide; i++) {
-      if (!next) {
-        next = items[0] as HTMLElement;
+    // Carousel öğelerini çoğaltmak
+    items.forEach((el) => {
+      const minPerSlide = 5;
+      let next: HTMLElement | null = el.nextElementSibling as HTMLElement;
+      for (let i = 1; i < minPerSlide; i++) {
+        if (!next) {
+          next = items[0] as HTMLElement;
+        }
+        let cloneChild = next.cloneNode(true) as HTMLElement;
+        el.appendChild(cloneChild.firstElementChild as HTMLElement);
+        next = next.nextElementSibling as HTMLElement;
       }
-      let cloneChild = next.cloneNode(true) as HTMLElement;
-      el.appendChild(cloneChild.firstElementChild as HTMLElement);
-      next = next.nextElementSibling as HTMLElement;
-    }
-  });
-}, []);
-
+    });
+  }, []);
 
   return (
     <div className="container text-center my-3">
-     
       <div className="row mx-auto my-auto justify-content-center">
         <div id="multiCardCarousel" className="carousel slide" data-bs-ride="carousel">
           <div className="carousel-inner" role="listbox">
@@ -38,12 +37,7 @@ const MultiCardCarousel = () => {
               </div>
             ))}
           </div>
-          <button className="carousel-control-prev" type="button" data-bs-target="#multiCardCarousel" data-bs-slide="prev">
-            <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-          </button>
-          <button className="carousel-control-next" type="button" data-bs-target="#multiCardCarousel" data-bs-slide="next">
-            <span className="carousel-control-next-icon" aria-hidden="true"></span>
-          </button>
+         
         </div>
       </div>
     </div>
