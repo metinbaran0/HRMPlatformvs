@@ -12,8 +12,6 @@ function HomePage() {
     <div>
      <Navbar />
        <HeroSection />
-       <Yorum/>
-       <Footer/>
      
    </div>
   );
