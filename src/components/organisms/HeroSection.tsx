@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from "react";
-import "./HeroSection.css";
 import { motion } from "framer-motion";
 import MultiCardCarousel from "./MultiCardCarousel";
 import UygulamaSlider from "./UygulamaSlider";
+import "./HeroSection.css";
+
+// Eksik olan translateImage fonksiyonunu tanımlıyoruz
+const translateImage = (scrollY: number, factor: number, axis: "X" | "Y") => {
+  return `translate${axis}(${scrollY * factor}px)`;
+};
 
 const HeroSection: React.FC = () => {
   const [scrollY, setScrollY] = useState(0);
@@ -42,9 +47,9 @@ const HeroSection: React.FC = () => {
 
         <motion.div
           className="hero-images"
-          initial={{ opacity: 0, scale: 0.5 }}
+          initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.05, duration: 0.05 }}
+          transition={{ delay: 0.5, duration: 0.8 }}
         >
           {[1, 2, 3, 4, 5].map((i) => (
             <img
@@ -53,13 +58,12 @@ const HeroSection: React.FC = () => {
               alt={`Platform Kullanımı ${i}`}
               className={`hero-image image-${i}`}
               style={{
-                transform: `translate${i === 1 || i === 4 ? "X" : "Y"}(${i === 3 ? -scrollY * 0.2 : scrollY * 0.2}px)`,
-                transition: "transform 0.3s ease-in-out",
-                transformOrigin: "center center",
-                ...(hoveredImage === i ? { transform: "scale(1.2)" } : {})
+                transform: translateImage(
+                  scrollY,
+                  i === 2 || i === 3 ? 0.3 : 0.4,
+                  i === 4 || i === 5 ? "Y" : "X"
+                ),
               }}
-              onMouseEnter={() => setHoveredImage(i)}
-              onMouseLeave={() => setHoveredImage(null)}
             />
           ))}
           <motion.button className="free-trial-btn" whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
@@ -67,14 +71,8 @@ const HeroSection: React.FC = () => {
           </motion.button>
         </motion.div>
       </section>
-      
-      <div className="multi-card-carousel">
-        
-      </div>
-
-      <div className="uygulama-slider">
-        
-      </div>
+      <MultiCardCarousel />
+      <UygulamaSlider />
     </div>
   );
 };
