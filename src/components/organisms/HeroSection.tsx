@@ -66,8 +66,8 @@ const HeroSection: React.FC = () => {
 
       
     </section>
-    <MultiCardCarousel/>
-    <UygulamaSlider/>
+    {/* <MultiCardCarousel/>
+    <UygulamaSlider/> */}
     </div>
 
   );
