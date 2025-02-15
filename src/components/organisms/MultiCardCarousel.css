@@ -1,44 +1,182 @@
-@media (max-width: 767px) {
-  .carousel-inner .carousel-item > div {
-      display: none;
-  }
-  .carousel-inner .carousel-item > div:first-child {
-      display: block;
-  }
-}
-
-.carousel-inner .carousel-item.active,
-.carousel-inner .carousel-item-next,
-.carousel-inner .carousel-item-prev {
+/* Carousel ayarları */
+.carousel-inner {
   display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden; /* Taşan öğelerin görünmemesini sağlar */
+  width: 100%; /* Tam genişlik */
 }
 
-/* medium and up screens */
-@media (min-width: 768px) {
-  
-  .carousel-inner .carousel-item-end.active,
-  .carousel-inner .carousel-item-next {
-    transform: translateX(25%);
-  }
-  
-  .carousel-inner .carousel-item-start.active, 
-  .carousel-inner .carousel-item-prev {
-    transform: translateX(-25%);
-  }
+/* Her bir carousel-item için stil */
+.carousel-inner .carousel-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 1s ease-in-out; /* Yavaş geçiş */
+  width: 100%; /* Tam genişlikte olacak */
 }
 
-.carousel-inner .carousel-item-end,
-.carousel-inner .carousel-item-start { 
-transform: translateX(0);
+/* Dönüşüm ve gizleme */
+.carousel-inner .carousel-item > div {
+  display: block;
 }
 
-
+/* Kartların boyutları ve stil */
 .card {
-  width: 200px;
-  height: 200px;
+  width: 250px;
+  height: 250px;
   border: none;
+  border-radius: 10px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .img-fluid {
-  border-radius: 80px;
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+}
+
+.img-fluid:hover {
+  transform: scale(1.1);
+}
+
+/* Media Query: 768px ve üzeri ekranlar için */
+@media (min-width: 768px) {
+  .carousel-inner .carousel-item {
+    display: flex;
+    justify-content: center;
+  }
+
+  /* Geçiş ve hareket */
+  .carousel-inner .carousel-item-next,
+  .carousel-inner .carousel-item-prev {
+    transform: translateX(100%);
+  }
+
+  .carousel-inner .carousel-item-start,
+  .carousel-inner .carousel-item-prev {
+    transform: translateX(-100%);
+  }
+
+  .carousel-inner .carousel-item-end,
+  .carousel-inner .carousel-item-start {
+    transform: translateX(0);
+  }
+}
+
+/* Mobile düzenlemeler */
+@media (max-width: 767px) {
+  .carousel-inner .carousel-item > div {
+    display: block;
+  }
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+  background-color: #000;
+  border-radius: 50%;
+}
+
+/* Sonsuz döngü efekti için ana container */
+.carousel-inner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  width: 100%;
+}
+
+/* İlk carousel için sola hareket */
+.carousel-inner:nth-child(odd) {
+  animation: moveLeft 60s linear infinite;
+}
+
+/* İkinci carousel için sağa hareket */
+.carousel-inner:nth-child(even) {
+  animation: moveRight 60s linear infinite;
+}
+
+/* Sola hareket animasyonu */
+@keyframes moveLeft {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+/* Sağa hareket animasyonu */
+@keyframes moveRight {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* carousel-item için animasyon */
+@keyframes carouselAnimationInner {
+  0% {
+    transform: translateX(0); /* Başlangıçta öğe başlangıç konumunda */
+  }
+  25% {
+    transform: translateX(100%); /* Öğeyi sağa kaydır */
+  }
+  50% {
+    transform: translateX(0); /* Öğeyi tekrar sıfırlayalım */
+  }
+  75% {
+    transform: translateX(-100%); /* Öğeyi sola kaydır */
+  }
+  100% {
+    transform: translateX(0); /* Öğeyi tekrar başlangıç noktasına geri getir */
+  }
+}
+
+/* carousel-item için tam ters animasyon */
+@keyframes carouselAnimationItem {
+  100% {
+    transform: translateX(0); /* Başlangıçta öğe başlangıç konumunda */
+  }
+  75% {
+    transform: translateX(100%); /* Öğeyi sola kaydır */
+  }
+  50% {
+    transform: translateX(0); /* Öğeyi tekrar sıfırlayalım */
+  }
+  25% {
+    transform: translateX(-100%); /* Öğeyi sağa kaydır */
+  }
+  0% {
+    transform: translateX(0); /* Öğeyi tekrar başlangıç noktasına geri getir */
+  }
+}
+
+/* Her bir carousel-item için animasyonu uygula */
+.carousel-inner .carousel-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: carouselAnimationItem 60s linear infinite; /* Sonsuz döngüde hareket */
+  transition: transform 1s ease-in-out; /* Yavaş geçiş */
+  width: 100%; /* Tam genişlikte olacak */
+}
+
+/* Mobile düzenlemeler */
+@media (max-width: 767px) {
+  .carousel-inner .carousel-item > div {
+    display: block;
+  }
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+  background-color: #000;
+  border-radius: 50%;
 }

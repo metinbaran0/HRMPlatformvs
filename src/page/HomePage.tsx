@@ -10,7 +10,8 @@ function HomePage() {
     <div>
      <Navbar />
        <HeroSection />
-     
+       <MultiCardCarousel />
+       <UygulamaSlider />
    </div>
   );
 }
