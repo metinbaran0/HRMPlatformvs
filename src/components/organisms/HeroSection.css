@@ -1,0 +1,142 @@
+html {
+  scroll-behavior: smooth;
+}
+.hero-section {
+  min-height: 100vh;
+  width: 100%;
+  background: linear-gradient(135deg, #1453b3, #f39c12);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 10px;
+  text-align: center;
+  position: relative;
+  overflow: visible; 
+}
+/* MultiCardCarousel için */
+.multi-card-carousel {
+  margin-top: 50px; /* Yukarıdan 50px boşluk ekliyoruz */
+  margin-bottom: 50px;
+
+}
+
+/* UygulamaSlider için */
+.uygulama-slider {
+  margin-top: 50px; /* Yukarıdan 50px boşluk ekliyoruz */
+}
+.hero-title {
+  font-size: 3rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.hero-description {
+  font-size: 1.125rem;
+  margin-bottom: -5rem;
+  max-width: 2xl;
+}
+.hero-title, .hero-description {
+  position: relative;
+  top: -20rem; /* Başlık ve açıklama her ikisini de yukarı kaydıracaktır */
+}
+
+.hero-images {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  top: -50px; /* Tüm resimlerin pozisyonunu biraz yukarıya kaydırıyoruz */
+}
+
+.hero-image {
+  position: absolute;
+  transition: transform 0.3s ease;
+  width: 15%; /* Görsellerin boyutunu küçültüyoruz */
+  transform-origin: center center; 
+}
+
+
+.image-1 {
+    top: 100px;
+    left: 0; /* Solu biraz kaydırıyoruz */
+    width: 15%; /* Daha küçük yapıyoruz */
+    transform: translateX(-60%); /* Bu, öğeyi sola 10% kadar kaydırır */
+   
+}
+
+.image-2 {
+  top: 45px;
+  right: 500px; /* Sağı biraz kaydırıyoruz */
+ 
+}
+
+.image-3 {
+  top: 100px; /* 3. görseli daha yukarı taşıyoruz */
+  left: 400px; /* 3. görseli sola çekiyoruz */
+  width: 15%; /* Daha küçük yapıyoruz */
+  
+}
+
+.image-4 {
+  top: 100px; /* 4. görselin pozisyonunu yukarıya alıyoruz */
+  left: 650px;
+ 
+}
+
+.image-5 {
+  top: 1px; 
+  right: 12%; 
+  width: 15%; 
+}
+
+
+
+.free-trial-btn {
+  padding: 15px 40px;
+  background: linear-gradient(135deg, #1453b3, #f39c12);
+  color: white;
+  font-size: 1.125rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  text-transform: uppercase;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  outline: none;
+  transition: all 0.3s ease-in-out;
+ margin-top: -200px;
+}
+
+.free-trial-btn:hover {
+  background: linear-gradient(135deg, #351eb8, #0c71a0);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+  transform: scale(1.1);
+  box-shadow: none !important; 
+  display: block;
+}
+
+.free-trial-btn:active {
+  transform: scale(0.95);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive Düzenlemeler */
+@media (max-width: 768px) {
+  .hero-images {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hero-image {
+    width: 50%;
+    top: initial;
+    left: initial;
+  }
+
+  .image-2, .image-4 {
+    left: initial;
+  }
+}
