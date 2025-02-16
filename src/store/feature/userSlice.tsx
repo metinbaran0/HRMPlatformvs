@@ -6,6 +6,7 @@ import { IRegisterRequest } from "../../model/IRegisterRequest";
 import { ILoginRequest } from "../../model/ILoginRequest";
 import swal from "sweetalert";
 import { IBaseResponse } from "../../model/IBaseResponse";
+import { error } from "console";
 
 
 // Kullanıcı state'inin tipini tanımlıyoruz
@@ -41,20 +42,49 @@ const initialUserState: UserState = {
 };
 
 // Login işlemi için async thunk
+// export const fetchRegister = createAsyncThunk(
+//   'auth/fetchRegister',
+//  async (payload: IRegisterRequest)=>{
+//       const response = await fetch(
+//           apis.userService+'/register',{
+//               method: 'POST',
+//               headers:{
+//                   'Content-Type': 'application/json'
+//               },
+//               body: JSON.stringify(payload)
+//           }).then(data=>data.json())
+//       return response;
+//  }
+// )
 export const fetchRegister = createAsyncThunk(
   'auth/fetchRegister',
- async (payload: IRegisterRequest)=>{
-      const response = await fetch(
-          apis.userService+'/register',{
-              method: 'POST',
-              headers:{
-                  'Content-Type': 'application/json'
-              },
-              body: JSON.stringify(payload)
-          }).then(data=>data.json())
-      return response;
- }
-)
+  async (payload: IRegisterRequest, { rejectWithValue }) => {
+    try {
+      const response = await fetch(apis.userService + '/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+       
+      });
+     
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        return rejectWithValue(errorData);
+      }
+
+      const responseData = await response.json();
+
+      // API yanıtındaki `data` alanını döndürüyoruz.
+      return responseData.data;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
 export const fetchLogin = createAsyncThunk(
   'auth/fetchLogin',
   async(payload: ILoginRequest)=>{
