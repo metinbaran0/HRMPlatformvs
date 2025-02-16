@@ -373,3 +373,18 @@ body {
     }
   }
   
+  .cta-buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+  }
+  
+  .register-link button {
+    background: transparent;
+    border: 2px solid #39A2DB;
+    
+    &:hover {
+      background: rgba(57, 162, 219, 0.1);
+    }
+  }
+  

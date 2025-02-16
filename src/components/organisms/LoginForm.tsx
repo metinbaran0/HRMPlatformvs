@@ -10,7 +10,7 @@ interface LoginFormProps {
     password: string;
     repassword: string;
   }
-  error: string;
+  error?: string;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (e: React.FormEvent) => void;
   onToggleMode: () => void;
@@ -45,7 +45,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
           {!isLoginMode && (
           <div className="name-inputs">
            <FormField
-          type="repassword"
+          type="password"
           name="repassword"
           placeholder="Şifre Onay"
           value={formData.repassword}
