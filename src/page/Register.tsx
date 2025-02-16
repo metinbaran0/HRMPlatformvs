@@ -11,8 +11,8 @@ const Register = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const [password, setPassword] = useState('');
-    const [rePassword, setRePassword] = useState('');
-    const [email, setEmail] = useState('');
+  const [rePassword, setRePassword] = useState('');
+  const [email, setEmail] = useState('');
   const { error } = useSelector((state: RootState) => state.user);
 
   const [showText, setShowText] = useState(false);
@@ -37,7 +37,11 @@ const Register = () => {
       return;
     }
 
-    dispatch(fetchRegister({ email,password,rePassword }));
+    dispatch(fetchRegister({ email, password, rePassword }))
+      .unwrap()
+      .then(data => {
+        console.log("Register Success:", data); // data sadece true/false dönecek
+      })
   };
 
   const handleCtaClick = () => {
