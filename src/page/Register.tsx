@@ -3,13 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import LoginForm from '../components/organisms/LoginForm';
 import Button from '../components/atoms/Button';
 import './Login.css';
-import { fetchLogin } from '../store/feature/userSlice';
+import { fetchRegister } from '../store/feature/userSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../store';
 
-const Login = () => {
+const Register = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
+  const [password, setPassword] = useState('');
+    const [rePassword, setRePassword] = useState('');
+    const [email, setEmail] = useState('');
   const { error } = useSelector((state: RootState) => state.user);
 
   const [showText, setShowText] = useState(false);
@@ -30,19 +33,19 @@ const Login = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.email || !formData.password) {
+    if (!formData.email || !formData.password || !formData.repassword) {
       return;
     }
 
-    dispatch(fetchLogin(formData));
+    dispatch(fetchRegister({ email,password,rePassword }));
   };
 
   const handleCtaClick = () => {
     setShowText(!showText);
   };
 
-  const navigateToRegister = () => {
-    navigate('/register');
+  const navigateToLogin = () => {
+    navigate('/login');
   };
 
   return (
@@ -53,16 +56,19 @@ const Login = () => {
         </Button>
         <div className={`text ${showText ? 'show-hide' : ''}`}>
           <div className="form-header">
-            <h2>Giriş Yap</h2>
+            <Button className="back-btn" onClick={navigateToLogin}>
+              <i className="fas fa-arrow-left"></i>
+            </Button>
+            <h2>Kayıt Ol</h2>
           </div>
           <hr />
           <LoginForm
-            isLoginMode={true}
+            isLoginMode={false}
             formData={formData}
             error={error || ""}
             onInputChange={handleInputChange}
             onSubmit={handleSubmit}
-            onToggleMode={navigateToRegister}
+            onToggleMode={navigateToLogin}
           />
         </div>
       </div>
@@ -75,4 +81,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;

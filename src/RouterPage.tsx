@@ -1,16 +1,18 @@
 import React from 'react'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Login from './page/Login'
+import Register from './page/Register'
 
-
-function routerpage() {
+function RouterPage() {
   return (
     <BrowserRouter>
-    <Routes>
+      <Routes>
         <Route path='/' element={<Login/>}/>
-    </Routes>
+        <Route path='/login' element={<Login/>}/>
+        <Route path='/register' element={<Register/>}/>
+      </Routes>
     </BrowserRouter>
   )
 }
 
-export default routerpage
+export default RouterPage
