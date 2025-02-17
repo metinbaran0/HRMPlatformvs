@@ -1,142 +1,137 @@
 html {
   scroll-behavior: smooth;
 }
+
 .hero-section {
   min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-content {
   width: 100%;
-  background: linear-gradient(135deg, #1453b3, #f39c12);
+  max-width: 1200px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-  padding: 20px 10px;
+  gap: 4rem;
+}
+
+.hero-text {
   text-align: center;
-  position: relative;
-  overflow: visible; 
-}
-/* MultiCardCarousel için */
-.multi-card-carousel {
-  margin-top: 50px; /* Yukarıdan 50px boşluk ekliyoruz */
-  margin-bottom: 50px;
-
+  color: #fff;
+  max-width: 800px;
 }
 
-/* UygulamaSlider için */
-.uygulama-slider {
-  margin-top: 50px; /* Yukarıdan 50px boşluk ekliyoruz */
-}
 .hero-title {
-  font-size: 3rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #60a5fa, #34d399);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .hero-description {
-  font-size: 1.125rem;
-  margin-bottom: -5rem;
-  max-width: 2xl;
-}
-.hero-title, .hero-description {
-  position: relative;
-  top: -20rem; /* Başlık ve açıklama her ikisini de yukarı kaydıracaktır */
+  font-size: 1.25rem;
+  color: #94a3b8;
 }
 
-.hero-images {
-  position: relative;
-  height: 100%;
+.images-grid {
   width: 100%;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: 3rem;
   align-items: center;
-  top: -50px; /* Tüm resimlerin pozisyonunu biraz yukarıya kaydırıyoruz */
 }
 
-.hero-image {
-  position: absolute;
+.top-row, .bottom-row {
+  display: flex;
+  justify-content: center;
+  gap: 4rem;
+  width: 100%;
+}
+
+.bottom-row {
+  margin-top: 2rem;
+}
+
+.image-container {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  padding: 1rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease;
-  width: 15%; /* Görsellerin boyutunu küçültüyoruz */
-  transform-origin: center center; 
 }
 
-
-.image-1 {
-    top: 100px;
-    left: 0; /* Solu biraz kaydırıyoruz */
-    width: 15%; /* Daha küçük yapıyoruz */
-    transform: translateX(-60%); /* Bu, öğeyi sola 10% kadar kaydırır */
-   
+.feature-image {
+  width: 200px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 0.5rem;
 }
 
-.image-2 {
-  top: 45px;
-  right: 500px; /* Sağı biraz kaydırıyoruz */
- 
-}
-
-.image-3 {
-  top: 100px; /* 3. görseli daha yukarı taşıyoruz */
-  left: 400px; /* 3. görseli sola çekiyoruz */
-  width: 15%; /* Daha küçük yapıyoruz */
-  
-}
-
-.image-4 {
-  top: 100px; /* 4. görselin pozisyonunu yukarıya alıyoruz */
-  left: 650px;
- 
-}
-
-.image-5 {
-  top: 1px; 
-  right: 12%; 
-  width: 15%; 
-}
-
-
-
-.free-trial-btn {
-  padding: 15px 40px;
-  background: linear-gradient(135deg, #1453b3, #f39c12);
-  color: white;
-  font-size: 1.125rem;
-  font-weight: bold;
-  border: none;
-  border-radius: 50px;
-  cursor: pointer;
-  text-transform: uppercase;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-  outline: none;
-  transition: all 0.3s ease-in-out;
- margin-top: -200px;
-}
-
-.free-trial-btn:hover {
-  background: linear-gradient(135deg, #351eb8, #0c71a0);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+.center-image {
   transform: scale(1.1);
-  box-shadow: none !important; 
-  display: block;
+  z-index: 2;
 }
 
-.free-trial-btn:active {
-  transform: scale(0.95);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+.cta-button {
+  background: linear-gradient(135deg, #60a5fa, #34d399);
+  color: white;
+  padding: 1rem 2.5rem;
+  border-radius: 2rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(96, 165, 250, 0.3);
+  transition: all 0.3s ease;
+  z-index: 10;
+  position: relative;
 }
 
-/* Responsive Düzenlemeler */
+@media (max-width: 1024px) {
+  .hero-title {
+    font-size: 3rem;
+  }
+
+  .feature-image {
+    width: 180px;
+    height: 135px;
+  }
+}
+
 @media (max-width: 768px) {
-  .hero-images {
+  .hero-title {
+    font-size: 2.5rem;
+  }
+
+  .hero-description {
+    font-size: 1rem;
+  }
+
+  .top-row, .bottom-row {
     flex-direction: column;
     align-items: center;
+    gap: 2rem;
   }
 
-  .hero-image {
-    width: 50%;
-    top: initial;
-    left: initial;
+  .feature-image {
+    width: 250px;
+    height: 180px;
   }
 
-  .image-2, .image-4 {
-    left: initial;
+  .center-image {
+    transform: none;
   }
 }
