@@ -1,156 +1,131 @@
 // state tanımlama
 
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import apis from "../../config/RestApis";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from 'axios';
+import Swal from 'sweetalert2';
 import { IRegisterRequest } from "../../model/IRegisterRequest";
 import { ILoginRequest } from "../../model/ILoginRequest";
-import swal from "sweetalert";
 import { IBaseResponse } from "../../model/IBaseResponse";
-import { error } from "console";
-
 
 // Kullanıcı state'inin tipini tanımlıyoruz
 interface UserState {
-  isAuth: boolean;
-  isLoginLoading: boolean;
-  isRegisterLoading: boolean;
-  user: { password: string; email: string; repassword: string } | null;
-  token: string | null;
+  user: any;
+  loading: boolean;
   error: string | null;
 }
 
-// API'den dönecek cevabın tipi
-interface AuthResponse {
-  user: {  password: string; email: string ; repassword:string};
-  token: string;
-}
-
-// Login/register için gönderilecek verinin tipi
-interface AuthRequest {
-  email: string;
-  password: string;
-}
-
 // Başlangıç state'ini belirle
-const initialUserState: UserState = {
-  isAuth: false,
-  isLoginLoading: false,
-  isRegisterLoading: false,
+const initialState: UserState = {
   user: null,
-  token: null,
+  loading: false,
   error: null,
 };
 
-// Login işlemi için async thunk
-// export const fetchRegister = createAsyncThunk(
-//   'auth/fetchRegister',
-//  async (payload: IRegisterRequest)=>{
-//       const response = await fetch(
-//           apis.userService+'/register',{
-//               method: 'POST',
-//               headers:{
-//                   'Content-Type': 'application/json'
-//               },
-//               body: JSON.stringify(payload)
-//           }).then(data=>data.json())
-//       return response;
-//  }
-// )
-export const fetchRegister = createAsyncThunk(
-  'auth/fetchRegister',
-  async (payload: IRegisterRequest, { rejectWithValue }) => {
+// Login işlemi
+export const fetchLogin = createAsyncThunk(
+  'user/fetchLogin',
+  async (userData: { email: string; password: string }, { rejectWithValue }) => {
     try {
-      const response = await fetch(apis.userService + '/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-       
-      });
-     
+      const response = await axios.post('http://localhost:9090/v1/dev/user/dologin', userData);
+      
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token);
+        
+        await Swal.fire({
+          icon: 'success',
+          title: 'Başarılı!',
+          text: 'Giriş işlemi başarıyla tamamlandı.',
+          showConfirmButton: false,
+          timer: 1500
+        });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        return rejectWithValue(errorData);
+        return response.data;
       }
+    } catch (error: any) {
+      await Swal.fire({
+        icon: 'error',
+        title: 'Hata!',
+        text: error.response?.data?.message || 'Giriş işlemi başarısız oldu.',
+        confirmButtonText: 'Tamam'
+      });
 
-      const responseData = await response.json();
-
-      // API yanıtındaki `data` alanını döndürüyoruz.
-      return responseData.data;
-    } catch (error) {
-      return rejectWithValue(error);
+      return rejectWithValue(error.response?.data?.message || 'Giriş işlemi başarısız oldu.');
     }
   }
 );
 
-export const fetchLogin = createAsyncThunk(
-  'auth/fetchLogin',
-  async(payload: ILoginRequest)=>{
-      const response = await fetch(
-          apis.userService+'/login',{
-              method: 'POST',
-              headers:{
-                  'Content-Type': 'application/json'
-              },
-              body: JSON.stringify(payload)
-          }).then(data=>data.json())
-      return response;
+// Register işlemi
+export const fetchRegister = createAsyncThunk(
+  'user/fetchRegister',
+  async (userData: { email: string; password: string; rePassword: string }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post('http://localhost:9090/v1/dev/user/register', userData);
+
+      if (response.data) {
+        await Swal.fire({
+          icon: 'success',
+          title: 'Başarılı!',
+          text: 'Kayıt işlemi başarıyla tamamlandı.',
+          showConfirmButton: false,
+          timer: 1500
+        });
+
+        return response.data;
+      }
+    } catch (error: any) {
+      await Swal.fire({
+        icon: 'error',
+        title: 'Hata!',
+        text: error.response?.data?.message || 'Kayıt işlemi başarısız oldu.',
+        confirmButtonText: 'Tamam'
+      });
+
+      return rejectWithValue(error.response?.data?.message || 'Kayıt işlemi başarısız oldu.');
+    }
   }
-)
+);
 
 // Slice oluştur
 const userSlice = createSlice({
   name: "user",
-  initialState: initialUserState,
+  initialState,
   reducers: {
     logout: (state) => {
       state.user = null;
-      state.token = null;
-      state.error = null;
-      state.isAuth = false;
+      localStorage.removeItem('token');
     },
   },
   extraReducers: (builder) => {
     builder
+      // Login işlemleri
       .addCase(fetchLogin.pending, (state) => {
-        state.isLoginLoading = true;
+        state.loading = true;
         state.error = null;
       })
-      .addCase(fetchLogin.fulfilled, (state, action: PayloadAction<IBaseResponse>) => {
-        state.isLoginLoading = false;
-        console.log("Gelen API Yanıtı:", action.payload);
-        if (action.payload.code === 200) {
-          localStorage.setItem('token', action.payload.data);
-          state.isAuth = true;
-        } else {
-          swal('Hata!', action.payload.message, 'error');
-        }
+      .addCase(fetchLogin.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+        state.error = null;
       })
       .addCase(fetchLogin.rejected, (state, action) => {
-        state.isLoginLoading = false;
+        state.loading = false;
         state.error = action.payload as string;
-        swal('Hata!', action.payload as string, 'error');
       })
+      // Register işlemleri
       .addCase(fetchRegister.pending, (state) => {
-        state.isRegisterLoading = true;
+        state.loading = true;
         state.error = null;
       })
-      .addCase(fetchRegister.fulfilled, (state, action: PayloadAction<IBaseResponse>) => {
-        state.isRegisterLoading = false;
-        if (action.payload.code === 200) {
-          swal('Başarılı', 'Üyelik işlemi başarı ile tamamlanmıştır', 'success');
-        } else {
-          swal('Hata!', action.payload.message, 'error');
-        }
+      .addCase(fetchRegister.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+        state.error = null;
       })
       .addCase(fetchRegister.rejected, (state, action) => {
-        state.isRegisterLoading = false;
+        state.loading = false;
         state.error = action.payload as string;
-        swal('Hata!', action.payload as string, 'error');
       });
   }
 });  
 export const { logout } = userSlice.actions;
-export default userSlice;
+export default userSlice.reducer;
