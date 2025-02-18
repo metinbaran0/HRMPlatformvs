@@ -10,11 +10,9 @@ import { AppDispatch, RootState } from '../store';
 const Register = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const [password, setPassword] = useState('');
-  const [rePassword, setRePassword] = useState('');
-  const [email, setEmail] = useState('');
   const { error } = useSelector((state: RootState) => state.user);
 
+  const [isLoginMode, setIsLoginMode] = useState(true);
   const [showText, setShowText] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -30,26 +28,39 @@ const Register = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.email || !formData.password || !formData.repassword) {
       return;
     }
 
-    dispatch(fetchRegister({ email, password, rePassword }))
-      .unwrap()
-      .then(data => {
-        console.log("Register Success:", data); // data sadece true/false dönecek
-      })
+    // Şifre kontrolü
+    if (formData.password !== formData.repassword) {
+      alert("Şifreler eşleşmiyor!");
+      return;
+    }
+
+    try {
+      await dispatch(fetchRegister({ 
+        email: formData.email, 
+        password: formData.password, 
+        rePassword: formData.repassword 
+      })).unwrap();
+      
+      // Başarılı kayıt sonrası login sayfasına yönlendir
+      navigate('/login');
+    } catch (error) {
+      console.error('Kayıt hatası:', error);
+    }
   };
 
   const handleCtaClick = () => {
     setShowText(!showText);
   };
 
-  const navigateToLogin = () => {
-    navigate('/login');
+  const toggleMode = () => {
+    setIsLoginMode((prevMode) => !prevMode);
   };
 
   return (
@@ -60,7 +71,7 @@ const Register = () => {
         </Button>
         <div className={`text ${showText ? 'show-hide' : ''}`}>
           <div className="form-header">
-            <Button className="back-btn" onClick={navigateToLogin}>
+            <Button className="back-btn" onClick={toggleMode} >
               <i className="fas fa-arrow-left"></i>
             </Button>
             <h2>Kayıt Ol</h2>
@@ -72,7 +83,7 @@ const Register = () => {
             error={error || ""}
             onInputChange={handleInputChange}
             onSubmit={handleSubmit}
-            onToggleMode={navigateToLogin}
+            onToggleMode={toggleMode}
           />
         </div>
       </div>
