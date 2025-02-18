@@ -1,22 +1,21 @@
 // state tanımlama
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from 'axios';
 import Swal from 'sweetalert2';
-import { IRegisterRequest } from "../../model/IRegisterRequest";
-import { ILoginRequest } from "../../model/ILoginRequest";
-import { IBaseResponse } from "../../model/IBaseResponse";
+import RestApis from '../../services/RestApis';
 
-// Kullanıcı state'inin tipini tanımlıyoruz
+// Kullanıcı state'inin tipini güncelle
 interface UserState {
-  user: any;
+  token: string | null;
+  isAuthenticated: boolean;
   loading: boolean;
   error: string | null;
 }
 
-// Başlangıç state'ini belirle
+// Başlangıç state'ini güncelle
 const initialState: UserState = {
-  user: null,
+  token: localStorage.getItem('token'),
+  isAuthenticated: !!localStorage.getItem('token'),
   loading: false,
   error: null,
 };
@@ -26,11 +25,9 @@ export const fetchLogin = createAsyncThunk(
   'user/fetchLogin',
   async (userData: { email: string; password: string }, { rejectWithValue }) => {
     try {
-      const response = await axios.post('http://localhost:9090/v1/dev/user/dologin', userData);
+      const response = await RestApis.login(userData);
       
-      if (response.data.token) {
-        localStorage.setItem('token', response.data.token);
-        
+      if (response && response.token) {
         await Swal.fire({
           icon: 'success',
           title: 'Başarılı!',
@@ -39,17 +36,20 @@ export const fetchLogin = createAsyncThunk(
           timer: 1500
         });
 
-        return response.data;
+        return response;
       }
     } catch (error: any) {
+      console.error('Login error in slice:', error);
+      const message = error.message || 'Giriş işlemi başarısız oldu.';
+      
       await Swal.fire({
         icon: 'error',
         title: 'Hata!',
-        text: error.response?.data?.message || 'Giriş işlemi başarısız oldu.',
+        text: message,
         confirmButtonText: 'Tamam'
       });
 
-      return rejectWithValue(error.response?.data?.message || 'Giriş işlemi başarısız oldu.');
+      return rejectWithValue(message);
     }
   }
 );
@@ -59,9 +59,9 @@ export const fetchRegister = createAsyncThunk(
   'user/fetchRegister',
   async (userData: { email: string; password: string; rePassword: string }, { rejectWithValue }) => {
     try {
-      const response = await axios.post('http://localhost:9090/v1/dev/user/register', userData);
+      const response = await RestApis.register(userData);
 
-      if (response.data) {
+      if (response) {
         await Swal.fire({
           icon: 'success',
           title: 'Başarılı!',
@@ -70,42 +70,53 @@ export const fetchRegister = createAsyncThunk(
           timer: 1500
         });
 
-        return response.data;
+        return response;
       }
     } catch (error: any) {
+      const message = error.response?.data?.message || 'Kayıt işlemi başarısız oldu.';
+      
       await Swal.fire({
         icon: 'error',
         title: 'Hata!',
-        text: error.response?.data?.message || 'Kayıt işlemi başarısız oldu.',
+        text: message,
         confirmButtonText: 'Tamam'
       });
 
-      return rejectWithValue(error.response?.data?.message || 'Kayıt işlemi başarısız oldu.');
+      return rejectWithValue(message);
     }
   }
 );
 
-// Slice oluştur
+// Action payload tipi tanımla
+interface LoginPayload {
+  token: string;
+  isAuthenticated: boolean;
+}
+
+// Slice'ı güncelle
 const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
     logout: (state) => {
-      state.user = null;
+      state.token = null;
+      state.isAuthenticated = false;
       localStorage.removeItem('token');
     },
   },
   extraReducers: (builder) => {
     builder
-      // Login işlemleri
       .addCase(fetchLogin.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchLogin.fulfilled, (state, action) => {
-        state.loading = false;
-        state.user = action.payload;
-        state.error = null;
+        if (action.payload) {
+          state.loading = false;
+          state.token = action.payload.token;
+          state.isAuthenticated = true;
+          state.error = null;
+        }
       })
       .addCase(fetchLogin.rejected, (state, action) => {
         state.loading = false;
@@ -116,9 +127,8 @@ const userSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchRegister.fulfilled, (state, action) => {
+      .addCase(fetchRegister.fulfilled, (state) => {
         state.loading = false;
-        state.user = action.payload;
         state.error = null;
       })
       .addCase(fetchRegister.rejected, (state, action) => {
