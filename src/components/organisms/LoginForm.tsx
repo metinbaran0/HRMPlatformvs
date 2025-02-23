@@ -8,7 +8,7 @@ interface LoginFormProps {
   formData: {
     email: string;
     password: string;
-    repassword: string;
+    repassword?: string;
   }
   error?: string;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -27,7 +27,6 @@ const LoginForm: React.FC<LoginFormProps> = ({
   return (
     <form onSubmit={onSubmit}>
       <div className="form-container">
-       
         <FormField
           type="email"
           name="email"
@@ -42,16 +41,14 @@ const LoginForm: React.FC<LoginFormProps> = ({
           value={formData.password}
           onChange={onInputChange}
         />
-          {!isLoginMode && (
-          <div className="name-inputs">
-           <FormField
-          type="password"
-          name="repassword"
-          placeholder="Şifre Onay"
-          value={formData.repassword}
-          onChange={onInputChange}
-        />
-          </div>
+        {!isLoginMode && (
+          <FormField
+            type="password"
+            name="repassword"
+            placeholder="Şifre Onay"
+            value={formData.repassword || ""}
+            onChange={onInputChange}
+          />
         )}
         {error && <div className="error-message">{error}</div>}
         {isLoginMode && (
@@ -64,7 +61,5 @@ const LoginForm: React.FC<LoginFormProps> = ({
     </form>
   );
 };
-
-
 
 export default LoginForm;

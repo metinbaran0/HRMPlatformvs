@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import LoginForm from '../components/organisms/LoginForm';
 import Button from '../components/atoms/Button';
 import './Login.css';
-import { fetchLogin } from '../store/feature/userSlice';
+import { fetchLogin, fetchRegister } from '../store/feature/userSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../store';
+import { useNavigate } from 'react-router-dom';
 
-const Login = () => {
+const AuthPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const { error } = useSelector((state: RootState) => state.user);
 
   const [showText, setShowText] = useState(false);
+  const [isLoginMode, setIsLoginMode] = useState(true);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -27,22 +28,51 @@ const Login = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.email || !formData.password) {
       return;
     }
 
-    dispatch(fetchLogin(formData));
+    try {
+      if (isLoginMode) {
+        const result = await dispatch(fetchLogin({ 
+          email: formData.email, 
+          password: formData.password 
+        })).unwrap();
+        
+        if (result) {
+          navigate('/');
+        }
+      } else {
+        if (!formData.repassword) return;
+        
+        if (formData.password !== formData.repassword) {
+          alert("Şifreler eşleşmiyor!");
+          return;
+        }
+
+        await dispatch(fetchRegister({ 
+          email: formData.email, 
+          password: formData.password, 
+          rePassword: formData.repassword 
+        })).unwrap();
+        
+        setIsLoginMode(true); // Kayıt başarılı olunca login formuna dön
+      }
+    } catch (error) {
+      console.error(isLoginMode ? 'Giriş hatası:' : 'Kayıt hatası:', error);
+    }
   };
 
   const handleCtaClick = () => {
     setShowText(!showText);
   };
 
-  const navigateToRegister = () => {
-    navigate('/register');
+  const toggleMode = () => {
+    setIsLoginMode(!isLoginMode);
+    setFormData({ email: "", password: "", repassword: "" }); // Form alanlarını temizle
   };
 
   return (
@@ -53,16 +83,21 @@ const Login = () => {
         </Button>
         <div className={`text ${showText ? 'show-hide' : ''}`}>
           <div className="form-header">
-            <h2>Giriş Yap</h2>
+            {!isLoginMode && (
+              <Button className="back-btn" onClick={toggleMode}>
+                <i className="fas fa-arrow-left"></i>
+              </Button>
+            )}
+            <h2>{isLoginMode ? 'Giriş Yap' : 'Kayıt Ol'}</h2>
           </div>
           <hr />
           <LoginForm
-            isLoginMode={true}
+            isLoginMode={isLoginMode}
             formData={formData}
             error={error || ""}
             onInputChange={handleInputChange}
             onSubmit={handleSubmit}
-            onToggleMode={navigateToRegister}
+            onToggleMode={toggleMode}
           />
         </div>
       </div>
@@ -75,4 +110,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default AuthPage; 
