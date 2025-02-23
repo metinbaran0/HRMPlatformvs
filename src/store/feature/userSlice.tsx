@@ -26,7 +26,7 @@ export const fetchLogin = createAsyncThunk(
   'user/fetchLogin',
   async (userData: { email: string; password: string }, { rejectWithValue }) => {
     try {
-      const response = await axios.post('http://localhost:9090/v1/dev/user/dologin', userData);
+      const response = await axios.post('http://localhost:9090/api/auth/dologin', userData);
       
       if (response.data.token) {
         localStorage.setItem('token', response.data.token);
@@ -59,7 +59,7 @@ export const fetchRegister = createAsyncThunk(
   'user/fetchRegister',
   async (userData: { email: string; password: string; rePassword: string }, { rejectWithValue }) => {
     try {
-      const response = await axios.post('http://localhost:9090/v1/dev/user/register', userData);
+      const response = await axios.post('http://localhost:9090/api/auth/register', userData);
 
       if (response.data) {
         await Swal.fire({
