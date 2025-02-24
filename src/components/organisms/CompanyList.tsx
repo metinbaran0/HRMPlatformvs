@@ -1,81 +1,135 @@
-import React, { useEffect, useState } from 'react';
-
-
+import React from 'react';
+import './CompanyList.css';
+import { FaCheckCircle, FaTimesCircle, FaHourglassHalf } from 'react-icons/fa';
 
 interface Company {
   id: number;
   name: string;
-  emailVerified: boolean;
-  applicationStatus: 'approved' | 'rejected' | 'pending';
+  email: string;
+  phone: string;
+  status: 'pending' | 'approved' | 'rejected';
+  employeeCount: number;
+  registrationDate: string;
+  sector: string;
 }
 
 const CompanyList: React.FC = () => {
-  const [companies, setCompanies] = useState<Company[]>([]);
-
-  useEffect(() => {
-    // API çağrısı burada yapılabilir
-    const fetchCompanies = async () => {
-      const response = await fetch('/api/companies'); // API URL'si
-      const data = await response.json();
-      setCompanies(data);
-    };
-
-    fetchCompanies();
-  }, []);
+  // Örnek veriler - API'den gelecek
+  const companies: Company[] = [
+    {
+      id: 1,
+      name: "Tech Solutions A.Ş.",
+      email: "info@techsolutions.com",
+      phone: "0212 555 0001",
+      status: "approved",
+      employeeCount: 150,
+      registrationDate: "2024-01-15",
+      sector: "Teknoloji"
+    },
+    {
+      id: 2,
+      name: "Global Marketing Ltd.",
+      email: "contact@globalmarketing.com",
+      phone: "0216 444 0002",
+      status: "pending",
+      employeeCount: 75,
+      registrationDate: "2024-02-20",
+      sector: "Pazarlama"
+    },
+    // ... diğer şirketler
+  ];
 
   const handleApprove = (companyId: number) => {
-    // Başvuruyu onaylama işlemi
-    console.log(`Company with ID ${companyId} approved`);
-    // API çağrısı yapılabilir
+    // API çağrısı ve state güncelleme işlemleri
+    console.log(`Company ${companyId} approved`);
   };
 
   const handleReject = (companyId: number) => {
-    // Başvuruyu reddetme işlemi
-    console.log(`Company with ID ${companyId} rejected`);
-    // API çağrısı yapılabilir
+    // API çağrısı ve state güncelleme işlemleri
+    console.log(`Company ${companyId} rejected`);
   };
 
-  const handleDelete = (companyId: number) => {
-    // Şirket silme işlemi (soft delete)
-    console.log(`Company with ID ${companyId} deleted`);
-    // API çağrısı yapılabilir
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'approved':
+        return <FaCheckCircle className="status-icon approved" />;
+      case 'rejected':
+        return <FaTimesCircle className="status-icon rejected" />;
+      case 'pending':
+        return <FaHourglassHalf className="status-icon pending" />;
+      default:
+        return null;
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'approved':
+        return 'Onaylandı';
+      case 'rejected':
+        return 'Reddedildi';
+      case 'pending':
+        return 'Onay Bekliyor';
+      default:
+        return '';
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('tr-TR');
   };
 
   return (
-    <div className="company-page">
-      <div className="company-page-header">
-        <h1>Şirket Başvuruları</h1>
-      </div>
-
-      <div className="company-list">
-        {companies.map((company) => (
+    <div className="company-list-container">
+      <h2>Tüm Şirketler</h2>
+      <div className="company-grid">
+        {companies.map(company => (
           <div key={company.id} className="company-card">
-            <h3>{company.name}</h3>
-            <p>Email Doğrulama Durumu: {company.emailVerified ? 'Doğrulandı' : 'Doğrulanmadı'}</p>
-            <p className={`application-status status-${company.applicationStatus}`}>
-              {company.applicationStatus.charAt(0).toUpperCase() + company.applicationStatus.slice(1)}
-            </p>
-
-            <div className="action-buttons">
-              <button
-                className="approve-btn"
-                onClick={() => handleApprove(company.id)}
-                disabled={company.applicationStatus === 'approved'}
-              >
-                Onayla
-              </button>
-              <button
-                className="reject-btn"
-                onClick={() => handleReject(company.id)}
-                disabled={company.applicationStatus === 'rejected'}
-              >
-                Reddet
-              </button>
+            <div className="company-card-header">
+              <h3>{company.name}</h3>
+              <div className={`status-badge ${company.status}`}>
+                {getStatusIcon(company.status)}
+                <span>{getStatusText(company.status)}</span>
+              </div>
             </div>
-
-            <div className="delete-icon" onClick={() => handleDelete(company.id)}>
-              🗑️
+            <div className="company-card-content">
+              <div className="info-row">
+                <span className="label">E-posta:</span>
+                <span>{company.email}</span>
+              </div>
+              <div className="info-row">
+                <span className="label">Telefon:</span>
+                <span>{company.phone}</span>
+              </div>
+              <div className="info-row">
+                <span className="label">Sektör:</span>
+                <span>{company.sector}</span>
+              </div>
+              <div className="info-row">
+                <span className="label">Çalışan Sayısı:</span>
+                <span>{company.employeeCount}</span>
+              </div>
+              <div className="info-row">
+                <span className="label">Kayıt Tarihi:</span>
+                <span>{formatDate(company.registrationDate)}</span>
+              </div>
             </div>
+            {company.status === 'pending' && (
+              <div className="company-card-actions">
+                <button 
+                  className="action-button approve"
+                  onClick={() => handleApprove(company.id)}
+                >
+                  Onayla
+                </button>
+                <button 
+                  className="action-button reject"
+                  onClick={() => handleReject(company.id)}
+                >
+                  Reddet
+                </button>
+              </div>
+            )}
           </div>
         ))}
       </div>
