@@ -1,0 +1,41 @@
+/*  styles/CompanyDashboard.css */
+.company-dashboard {
+  padding: 20px;
+  background-color: #f8f9fa;
+}
+
+.company-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.company-card {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: 0.3s;
+}
+
+.company-card.expired {
+  background: #ffcccc;
+  color: red;
+}
+
+.btn {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn.view-details {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn:hover {
+  opacity: 0.8;
+}
