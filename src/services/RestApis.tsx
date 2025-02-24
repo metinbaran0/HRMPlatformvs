@@ -1,11 +1,11 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:9090/v1/dev';
+const BASE_URL = 'http://localhost:9090/api/auth';
 
 // API endpoint'leri
 const ENDPOINTS = {
-  LOGIN: '/user/dologin',
-  REGISTER: '/user/register',
+  LOGIN: '/dologin',
+  REGISTER: '/register',
   // Diğer endpoint'ler buraya eklenebilir
 };
 
