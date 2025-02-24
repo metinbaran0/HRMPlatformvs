@@ -43,7 +43,7 @@ const AuthPage = () => {
         })).unwrap();
         
         if (result) {
-          navigate('/');
+          navigate('/profile');
         }
       } else {
         if (!formData.repassword) return;
