@@ -3,10 +3,11 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { FaReact, FaUsers, FaMoneyBillWave, FaChartLine, FaUserCheck, FaClock, FaCreditCard } from "react-icons/fa";
 import "./Navbar.css";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 
-function Navbar() {
+const Navbar = () => {
   const navigate = useNavigate();
+
   return (
     <nav className="navbar navbar-expand-lg sticky-navbar">
       <div className="container-fluid">
@@ -180,14 +181,24 @@ function Navbar() {
           </ul>
 
           {/* Butonlar */}
-          <div className="d-flex me-4">
-            <button className="btn btn-primary me-2" type="button">Teklif Al</button>
-            <button className="btn btn-outline-secondary" onClick={()=>navigate("/login")} type="button">Giriş Yap</button>
+          <div className="nav-buttons">
+            <button 
+              className="btn btn-primary me-2" 
+              onClick={() => navigate('/get-quote')}
+            >
+              Teklif Al
+            </button>
+            <button 
+              className="btn btn-primary" 
+              onClick={() => navigate('/login')}
+            >
+              Giriş Yap
+            </button>
           </div>
         </div>
       </div>
     </nav>
   );
-}
+};
 
 export default Navbar;
