@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './CompanyList.css';
 import { FaCheckCircle, FaTimesCircle, FaHourglassHalf } from 'react-icons/fa';
 
@@ -9,43 +9,38 @@ interface Company {
   phone: string;
   status: 'pending' | 'approved' | 'rejected';
   employeeCount: number;
-  registrationDate: string;
+  createdAt: string;
   sector: string;
 }
 
 const CompanyList: React.FC = () => {
-  // Örnek veriler - API'den gelecek
-  const companies: Company[] = [
-    {
-      id: 1,
-      name: "Tech Solutions A.Ş.",
-      email: "info@techsolutions.com",
-      phone: "0212 555 0001",
-      status: "approved",
-      employeeCount: 150,
-      registrationDate: "2024-01-15",
-      sector: "Teknoloji"
-    },
-    {
-      id: 2,
-      name: "Global Marketing Ltd.",
-      email: "contact@globalmarketing.com",
-      phone: "0216 444 0002",
-      status: "pending",
-      employeeCount: 75,
-      registrationDate: "2024-02-20",
-      sector: "Pazarlama"
-    },
-    // ... diğer şirketler
-  ];
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // API'den veri çekme işlemi
+  useEffect(() => {
+    fetch('http://localhost:9090/company/company/find-all-company')
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          setCompanies(data.data); // Şirket listesini güncelle
+        } else {
+          setError(data.message); // Hata mesajını al
+        }
+        setLoading(false); // Yükleme işlemi tamamlandı
+      })
+      .catch((err) => {
+        setError('Şirketler alınırken bir hata oluştu');
+        setLoading(false); // Yükleme tamamlandı, hata durumunda da
+      });
+  }, []);
 
   const handleApprove = (companyId: number) => {
-    // API çağrısı ve state güncelleme işlemleri
     console.log(`Company ${companyId} approved`);
   };
 
   const handleReject = (companyId: number) => {
-    // API çağrısı ve state güncelleme işlemleri
     console.log(`Company ${companyId} rejected`);
   };
 
@@ -79,11 +74,14 @@ const CompanyList: React.FC = () => {
     return new Date(dateString).toLocaleDateString('tr-TR');
   };
 
+  if (loading) return <div>Yükleniyor...</div>;
+  if (error) return <div>{error}</div>;
+
   return (
     <div className="company-list-container">
       <h2>Tüm Şirketler</h2>
       <div className="company-grid">
-        {companies.map(company => (
+        {companies.map((company) => (
           <div key={company.id} className="company-card">
             <div className="company-card-header">
               <h3>{company.name}</h3>
@@ -110,19 +108,20 @@ const CompanyList: React.FC = () => {
                 <span>{company.employeeCount}</span>
               </div>
               <div className="info-row">
-                <span className="label">Kayıt Tarihi:</span>
-                <span>{formatDate(company.registrationDate)}</span>
-              </div>
+  <span className="label">Kayıt Tarihi:</span>
+  <span>{formatDate(company.createdAt)}</span> {/* createdAt artık burada */}
+</div>
+
             </div>
             {company.status === 'pending' && (
               <div className="company-card-actions">
-                <button 
+                <button
                   className="action-button approve"
                   onClick={() => handleApprove(company.id)}
                 >
                   Onayla
                 </button>
-                <button 
+                <button
                   className="action-button reject"
                   onClick={() => handleReject(company.id)}
                 >
