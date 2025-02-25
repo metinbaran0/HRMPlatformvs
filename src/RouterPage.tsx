@@ -4,6 +4,7 @@ import AuthPage from './page/AuthPage'
 import HomePage from './page/HomePage'
 import CompanyPage from './page/CompanyPage'
 
+
 function RouterPage() {
   return (
     <BrowserRouter>
@@ -12,6 +13,8 @@ function RouterPage() {
         <Route path='/login' element={<AuthPage/>}/>
         <Route path='/register' element={<AuthPage/>}/>
         <Route path='/company' element={<CompanyPage/>}/>
+        
+  
       </Routes>
     </BrowserRouter>
   )
