@@ -26,8 +26,6 @@ export const fetchLogin = createAsyncThunk(
   async (userData: { email: string; password: string }, { rejectWithValue }) => {
     try {
 
-      const response = await axios.post('http://localhost:9090/api/auth/dologin', userData);
-
       const response = await RestApis.login(userData);
 
       
@@ -64,7 +62,6 @@ export const fetchRegister = createAsyncThunk(
   async (userData: { email: string; password: string; rePassword: string }, { rejectWithValue }) => {
     try {
 
-      const response = await axios.post('http://localhost:9090/api/auth/register', userData);
 
       const response = await RestApis.register(userData);
 

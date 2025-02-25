@@ -4,9 +4,19 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { FaReact, FaUsers, FaMoneyBillWave, FaChartLine, FaUserCheck, FaClock, FaCreditCard } from "react-icons/fa";
 import "./Navbar.css";
 import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '../../store';
+import { logout } from '../../store/feature/userSlice';
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { isAuthenticated } = useSelector((state: RootState) => state.user);
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/login');
+  };
 
   return (
     <nav className="navbar navbar-expand-lg sticky-navbar">
@@ -182,18 +192,57 @@ const Navbar = () => {
 
           {/* Butonlar */}
           <div className="nav-buttons">
-            <button 
-              className="btn btn-primary me-2" 
-              onClick={() => navigate('/get-quote')}
-            >
-              Teklif Al
-            </button>
-            <button 
-              className="btn btn-primary" 
-              onClick={() => navigate('/login')}
-            >
-              Giriş Yap
-            </button>
+            {!isAuthenticated ? (
+              <>
+                <button 
+                  className="btn me-2" 
+                  onClick={() => navigate('/get-quote')}
+                  style={{
+                    backgroundColor: '#0D47A1',
+                    color: 'white',
+                    border: 'none'
+                  }}
+                >
+                  Teklif Al
+                </button>
+                <button 
+                  className="btn" 
+                  onClick={() => navigate('/login')}
+                  style={{
+                    backgroundColor: '#0D47A1',
+                    color: 'white',
+                    border: 'none'
+                  }}
+                >
+                  Giriş Yap
+                </button>
+              </>
+            ) : (
+              <>
+                <button 
+                  className="btn me-2" 
+                  onClick={() => navigate('/profile')}
+                  style={{
+                    backgroundColor: '#0D47A1',
+                    color: 'white',
+                    border: 'none'
+                  }}
+                >
+                  Profilim
+                </button>
+                <button 
+                  className="btn" 
+                  onClick={handleLogout}
+                  style={{
+                    backgroundColor: '#0D47A1',
+                    color: 'white',
+                    border: 'none'
+                  }}
+                >
+                  Çıkış Yap
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
