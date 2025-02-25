@@ -1,4 +1,3 @@
-
 /* Navbar Genel Stil */
 .navbar {
   background: linear-gradient(90deg, rgba(44, 62, 80, 1) 0%, rgba(52, 152, 219, 1) 100%);
@@ -67,9 +66,9 @@
 
 /* Hover Efekti */
 .custom-dropdown .dropdown-item:hover {
-  background-color: #f1c40f;
-  color: black !important;
-  border: 1px solid #f1c40f;
+  background-color: #0D47A1 !important; /* Koyu mavi - butonlarla aynı renk */
+  color: white !important;
+  border: 1px solid #0D47A1; /* Kenarlık rengini de mavi yap */
   transform: scale(1.05);
 }
 
@@ -99,14 +98,21 @@
 }
 
 /* Toggler Icon (Navbar açma butonu) */
-.navbar-toggler-icon {
-  background-color: #f1c40f; /* Renk seçeneği */
-  border-radius: 3px;
-  transition: background-color 0.3s ease;
+.navbar-toggler {
+  border: none;
 }
 
-.navbar-toggler-icon:hover {
-  background-color: #f39c12; /* Hover efekti */
+.navbar-toggler:focus {
+  box-shadow: none;
+}
+
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%230D47A1' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+  transition: all 0.3s ease;
+}
+
+.navbar-toggler:hover .navbar-toggler-icon {
+  opacity: 0.8;
 }
 
 /* Mobil Uyum */
@@ -119,4 +125,20 @@
   .navbar .nav-link {
     padding: 10px 0;
   }
+}
+
+/* Hover durumunda alt yazı ve ikon renkleri */
+.dropdown-item:hover small {
+  color: white !important; /* Alt yazıyı da beyaz yap */
+}
+
+.dropdown-item:hover .dropdown-icon {
+  color: white !important;
+}
+
+/* Aktif durum */
+.dropdown-item:active,
+.dropdown-item.active {
+  background-color: #0D47A1 !important;
+  color: white !important;
 }
