@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Sidebar.css";
 
 interface SidebarProps {
@@ -7,8 +8,23 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ activeSection, setActiveSection }) => {
+  const [isOpen, setIsOpen] = useState(true);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/");
+  };
+
+  const toggleSidebar = () => {
+    setIsOpen(!isOpen);
+  };
+
   return (
-    <div className="sidebar">
+    <div className={`sidebar ${isOpen ? "open" : "closed"}`}>
+      <button className="toggle-button" onClick={toggleSidebar}>
+        {isOpen ? "❌" : "☰"} {/* Toggle icon */}
+      </button>
       <h2>Menü</h2>
       <nav>
         <ul>
@@ -23,6 +39,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeSection, setActiveSection }) =>
           </li>
         </ul>
       </nav>
+      <button className="logout" onClick={handleLogout}>Çıkış Yap</button>
     </div>
   );
 };

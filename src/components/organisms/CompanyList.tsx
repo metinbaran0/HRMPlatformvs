@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import './CompanyList.css';
 import { FaCheckCircle, FaTimesCircle, FaHourglassHalf } from 'react-icons/fa';
 
@@ -13,37 +13,13 @@ interface Company {
   sector: string;
 }
 
-const CompanyList: React.FC = () => {
-  const [companies, setCompanies] = useState<Company[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+interface CompanyListProps {
+  companies: Company[];
+  loading: boolean;
+  error: string | null;
+}
 
-  // API'den veri çekme işlemi
-  useEffect(() => {
-    fetch('http://localhost:9090/company/company/find-all-company')
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success) {
-          setCompanies(data.data); // Şirket listesini güncelle
-        } else {
-          setError(data.message); // Hata mesajını al
-        }
-        setLoading(false); // Yükleme işlemi tamamlandı
-      })
-      .catch((err) => {
-        setError('Şirketler alınırken bir hata oluştu');
-        setLoading(false); // Yükleme tamamlandı, hata durumunda da
-      });
-  }, []);
-
-  const handleApprove = (companyId: number) => {
-    console.log(`Company ${companyId} approved`);
-  };
-
-  const handleReject = (companyId: number) => {
-    console.log(`Company ${companyId} rejected`);
-  };
-
+const CompanyList: React.FC<CompanyListProps> = ({ companies, loading, error }) => {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'approved':
@@ -108,25 +84,14 @@ const CompanyList: React.FC = () => {
                 <span>{company.employeeCount}</span>
               </div>
               <div className="info-row">
-  <span className="label">Kayıt Tarihi:</span>
-  <span>{formatDate(company.createdAt)}</span> {/* createdAt artık burada */}
-</div>
-
+                <span className="label">Kayıt Tarihi:</span>
+                <span>{formatDate(company.createdAt)}</span>
+              </div>
             </div>
             {company.status === 'pending' && (
               <div className="company-card-actions">
-                <button
-                  className="action-button approve"
-                  onClick={() => handleApprove(company.id)}
-                >
-                  Onayla
-                </button>
-                <button
-                  className="action-button reject"
-                  onClick={() => handleReject(company.id)}
-                >
-                  Reddet
-                </button>
+                <button className="action-button approve">Onayla</button>
+                <button className="action-button reject">Reddet</button>
               </div>
             )}
           </div>
