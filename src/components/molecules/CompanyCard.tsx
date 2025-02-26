@@ -1,20 +1,43 @@
-// components/molecules/CompanyCard.tsx
+
 import React from "react";
-import Button from "../atoms/ButtonCompany";
-import "../../styles/CompanyDashboard.css";
+import { PendingCompany } from "../../types/company";
+import "./CompanyCard.css";
 
-type CompanyCardProps = {
-  name: string;
-  status: string;
-  onViewDetails: () => void;
-};
+interface CompanyCardProps {
+  company: PendingCompany;
+}
 
-const CompanyCard: React.FC<CompanyCardProps> = ({ name, status, onViewDetails }) => {
+const CompanyCard: React.FC<CompanyCardProps> = ({ company }) => {
   return (
-    <div className={`company-card ${status === "expired" ? "expired" : "active"}`}>
-      <h3>{name}</h3>
-      <p>Status: {status}</p>
-      <Button label="Detayları Gör" onClick={onViewDetails} className="view-details" />
+    <div className="pending-card">
+      <div className="card-header">
+        <h3>{company.name}</h3>
+        <div className={`email-status ${company.emailVerified ? "verified" : "pending"}`}>
+          {company.emailVerified ? "E-posta Doğrulandı" : "E-posta Doğrulanmadı"}
+        </div>
+      </div>
+      <div className="card-content">
+        <div className="info-group">
+          <div className="info-item">
+            <span className="label">İletişim Kişisi:</span>
+            <span>{company.contactPerson}</span>
+          </div>
+          <div className="info-item">
+            <span className="label">E-posta:</span>
+            <span>{company.email}</span>
+          </div>
+          <div className="info-item">
+            <span className="label">Telefon:</span>
+            <span>{company.phone}</span>
+          </div>
+        </div>
+      </div>
+      {company.emailVerified && (
+        <div className="card-actions">
+          <button className="action-button approve">Onayla</button>
+          <button className="action-button reject">Reddet</button>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,0 +1,73 @@
+/* CompanyCard.css */
+.company-card {
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin: 10px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .company-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .company-card .card-header h3 {
+    margin: 0;
+  }
+  
+  .company-card .email-status {
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+  
+  .company-card .email-status.verified {
+    background-color: #4caf50;
+    color: white;
+  }
+  
+  .company-card .email-status.pending {
+    background-color: #ff9800;
+    color: white;
+  }
+  
+  .company-card .card-content .info-group {
+    margin-top: 10px;
+  }
+  
+  .company-card .info-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  
+  .company-card .info-item .label {
+    font-weight: bold;
+  }
+  
+  .company-card .card-actions {
+    margin-top: 15px;
+  }
+  
+  .company-card .action-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    margin: 0 5px;
+  }
+  
+  .company-card .action-button.approve {
+    background-color: #4caf50;
+    color: white;
+  }
+  
+  .company-card .action-button.reject {
+    background-color: #f44336;
+    color: white;
+  }
+  
