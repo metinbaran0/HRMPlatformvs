@@ -3,10 +3,21 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { FaReact, FaUsers, FaMoneyBillWave, FaChartLine, FaUserCheck, FaClock, FaCreditCard } from "react-icons/fa";
 import "./Navbar.css";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '../../store';
+import { logout } from '../../store/feature/userSlice';
 
-function Navbar() {
+const Navbar = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { isAuthenticated } = useSelector((state: RootState) => state.user);
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/login');
+  };
+
   return (
     <nav className="navbar navbar-expand-lg sticky-navbar">
       <div className="container-fluid">
@@ -180,14 +191,63 @@ function Navbar() {
           </ul>
 
           {/* Butonlar */}
-          <div className="d-flex me-4">
-            <button className="btn btn-primary me-2" type="button">Teklif Al</button>
-            <button className="btn btn-outline-secondary" onClick={()=>navigate("/login")} type="button">Giriş Yap</button>
+          <div className="nav-buttons">
+            {!isAuthenticated ? (
+              <>
+                <button 
+                  className="btn me-2" 
+                  onClick={() => navigate('/get-quote')}
+                  style={{
+                    backgroundColor: '#0D47A1',
+                    color: 'white',
+                    border: 'none'
+                  }}
+                >
+                  Teklif Al
+                </button>
+                <button 
+                  className="btn" 
+                  onClick={() => navigate('/login')}
+                  style={{
+                    backgroundColor: '#0D47A1',
+                    color: 'white',
+                    border: 'none'
+                  }}
+                >
+                  Giriş Yap
+                </button>
+              </>
+            ) : (
+              <>
+                <button 
+                  className="btn me-2" 
+                  onClick={() => navigate('/profile')}
+                  style={{
+                    backgroundColor: '#0D47A1',
+                    color: 'white',
+                    border: 'none'
+                  }}
+                >
+                  Profilim
+                </button>
+                <button 
+                  className="btn" 
+                  onClick={handleLogout}
+                  style={{
+                    backgroundColor: '#0D47A1',
+                    color: 'white',
+                    border: 'none'
+                  }}
+                >
+                  Çıkış Yap
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
     </nav>
   );
-}
+};
 
 export default Navbar;

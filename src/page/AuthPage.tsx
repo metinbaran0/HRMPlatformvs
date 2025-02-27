@@ -52,6 +52,7 @@ const AuthPage: React.FC = () => {
           password: formData.password 
         })).unwrap();
         
+
         const token = result?.token;
 
         if (token) {
@@ -76,6 +77,10 @@ const AuthPage: React.FC = () => {
           } catch (error) {
             console.error('Token decoding error:', error);
           }
+
+        if (result) {
+          navigate('/profile');
+
         }
       } else {
         if (!formData.repassword) return;

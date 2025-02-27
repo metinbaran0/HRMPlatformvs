@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import FormField from '../molecules/FormField';
 import ButtonGroup from '../molecules/ButtonGroup';
-import Button from '../atoms/Button';
 
 interface LoginFormProps {
   isLoginMode: boolean;
@@ -14,7 +14,11 @@ interface LoginFormProps {
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (e: React.FormEvent) => void;
   onToggleMode: () => void;
-  loading: boolean; // 🟢 Eksik olan loading özelliğini ekledik
+
+  loading: boolean; 
+
+  token?: string | null;
+
 }
 
 const LoginForm: React.FC<LoginFormProps> = ({
@@ -24,7 +28,11 @@ const LoginForm: React.FC<LoginFormProps> = ({
   onInputChange,
   onSubmit,
   onToggleMode,
-  loading // 🟢 Burada da props olarak alıyoruz
+
+  loading 
+
+  token
+
 }) => {
   return (
     <form onSubmit={onSubmit}>
@@ -48,7 +56,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
             type="password"
             name="repassword"
             placeholder="Şifre Onay"
-            value={formData.repassword || ""}
+            value={formData.repassword || ''}
             onChange={onInputChange}
           />
         )}
