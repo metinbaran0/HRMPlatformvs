@@ -1,17 +1,10 @@
 import React, { useState } from 'react';
-import LoginForm from '../components/organisms/LoginForm';
-import Button from '../components/atoms/Button';
-import './Login.css';
 import { fetchLogin, fetchRegister } from '../store/feature/userSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../store';
 import { useNavigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';
-
-
-
-
-
+import { jwtDecode } from 'jwt-decode'; 
+import Swal from 'sweetalert2';
 
 interface JwtPayload {
   role: string;
@@ -51,13 +44,12 @@ const AuthPage: React.FC = () => {
           email: formData.email, 
           password: formData.password 
         })).unwrap();
-        
 
         const token = result?.token;
 
         if (token) {
           try {
-            const decodedToken = jwtDecode<JwtPayload>(token); 
+            const decodedToken = jwtDecode<JwtPayload>(token);  // Correct usage with named export
             const userRole = decodedToken.role;
 
             switch (userRole) {
@@ -77,14 +69,10 @@ const AuthPage: React.FC = () => {
           } catch (error) {
             console.error('Token decoding error:', error);
           }
-
-        if (result) {
-          navigate('/profile');
-
         }
       } else {
         if (!formData.repassword) return;
-        
+
         if (formData.password !== formData.repassword) {
           alert("Passwords do not match!");
           return;
@@ -106,6 +94,9 @@ const AuthPage: React.FC = () => {
   return (
     <div className="wrapper">
       {/* UI Kodları */}
+      <form onSubmit={handleSubmit}>
+        {/* Form içerikleri */}
+      </form>
     </div>
   );
 };

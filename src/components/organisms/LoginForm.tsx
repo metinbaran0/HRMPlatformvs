@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import FormField from '../molecules/FormField';
 import ButtonGroup from '../molecules/ButtonGroup';
+import Button from '../atoms/Button';  // Default import
 
 interface LoginFormProps {
   isLoginMode: boolean;
@@ -29,9 +30,9 @@ const LoginForm: React.FC<LoginFormProps> = ({
   onSubmit,
   onToggleMode,
 
-  loading 
+  loading ,
 
-  token
+  token,
 
 }) => {
   return (
