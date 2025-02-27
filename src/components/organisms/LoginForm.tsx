@@ -14,7 +14,11 @@ interface LoginFormProps {
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (e: React.FormEvent) => void;
   onToggleMode: () => void;
+
+  loading: boolean; 
+
   token?: string | null;
+
 }
 
 const LoginForm: React.FC<LoginFormProps> = ({
@@ -24,7 +28,11 @@ const LoginForm: React.FC<LoginFormProps> = ({
   onInputChange,
   onSubmit,
   onToggleMode,
+
+  loading 
+
   token
+
 }) => {
   return (
     <form onSubmit={onSubmit}>
@@ -58,6 +66,12 @@ const LoginForm: React.FC<LoginFormProps> = ({
             <a href="/forgot-password">Şifremi Unuttum</a>
           </div>
         )}
+        
+        
+        <Button type="submit" disabled={loading}>
+          {loading ? "Yükleniyor..." : isLoginMode ? "Giriş Yap" : "Kaydol"}
+        </Button>
+
         <ButtonGroup isLoginMode={isLoginMode} onToggleMode={onToggleMode} />
       </div>
     </form>

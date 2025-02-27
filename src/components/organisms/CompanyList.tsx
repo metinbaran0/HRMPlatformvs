@@ -9,46 +9,17 @@ interface Company {
   phone: string;
   status: 'pending' | 'approved' | 'rejected';
   employeeCount: number;
-  registrationDate: string;
+  createdAt: string;
   sector: string;
 }
 
-const CompanyList: React.FC = () => {
-  // Örnek veriler - API'den gelecek
-  const companies: Company[] = [
-    {
-      id: 1,
-      name: "Tech Solutions A.Ş.",
-      email: "info@techsolutions.com",
-      phone: "0212 555 0001",
-      status: "approved",
-      employeeCount: 150,
-      registrationDate: "2024-01-15",
-      sector: "Teknoloji"
-    },
-    {
-      id: 2,
-      name: "Global Marketing Ltd.",
-      email: "contact@globalmarketing.com",
-      phone: "0216 444 0002",
-      status: "pending",
-      employeeCount: 75,
-      registrationDate: "2024-02-20",
-      sector: "Pazarlama"
-    },
-    // ... diğer şirketler
-  ];
+interface CompanyListProps {
+  companies: Company[];
+  loading: boolean;
+  error: string | null;
+}
 
-  const handleApprove = (companyId: number) => {
-    // API çağrısı ve state güncelleme işlemleri
-    console.log(`Company ${companyId} approved`);
-  };
-
-  const handleReject = (companyId: number) => {
-    // API çağrısı ve state güncelleme işlemleri
-    console.log(`Company ${companyId} rejected`);
-  };
-
+const CompanyList: React.FC<CompanyListProps> = ({ companies, loading, error }) => {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'approved':
@@ -79,11 +50,14 @@ const CompanyList: React.FC = () => {
     return new Date(dateString).toLocaleDateString('tr-TR');
   };
 
+  if (loading) return <div>Yükleniyor...</div>;
+  if (error) return <div>{error}</div>;
+
   return (
     <div className="company-list-container">
       <h2>Tüm Şirketler</h2>
       <div className="company-grid">
-        {companies.map(company => (
+        {companies.map((company) => (
           <div key={company.id} className="company-card">
             <div className="company-card-header">
               <h3>{company.name}</h3>
@@ -111,23 +85,13 @@ const CompanyList: React.FC = () => {
               </div>
               <div className="info-row">
                 <span className="label">Kayıt Tarihi:</span>
-                <span>{formatDate(company.registrationDate)}</span>
+                <span>{formatDate(company.createdAt)}</span>
               </div>
             </div>
             {company.status === 'pending' && (
               <div className="company-card-actions">
-                <button 
-                  className="action-button approve"
-                  onClick={() => handleApprove(company.id)}
-                >
-                  Onayla
-                </button>
-                <button 
-                  className="action-button reject"
-                  onClick={() => handleReject(company.id)}
-                >
-                  Reddet
-                </button>
+                <button className="action-button approve">Onayla</button>
+                <button className="action-button reject">Reddet</button>
               </div>
             )}
           </div>

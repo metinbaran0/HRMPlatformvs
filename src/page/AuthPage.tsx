@@ -6,11 +6,21 @@ import { fetchLogin, fetchRegister } from '../store/feature/userSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../store';
 import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 
-const AuthPage = () => {
+
+
+
+
+
+interface JwtPayload {
+  role: string;
+}
+
+const AuthPage: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const { error } = useSelector((state: RootState) => state.user);
+  const { error, loading } = useSelector((state: RootState) => state.user);
 
   const [showText, setShowText] = useState(false);
   const [isLoginMode, setIsLoginMode] = useState(true);
@@ -42,14 +52,41 @@ const AuthPage = () => {
           password: formData.password 
         })).unwrap();
         
+
+        const token = result?.token;
+
+        if (token) {
+          try {
+            const decodedToken = jwtDecode<JwtPayload>(token); 
+            const userRole = decodedToken.role;
+
+            switch (userRole) {
+              case 'employee':
+                navigate('/employeeProfile');
+                break;
+              case 'siteadmin':
+                navigate('/siteAdminProfile');
+                break;
+              case 'manager':
+                navigate('/managerProfile');
+                break;
+              default:
+                navigate('/');
+                break;
+            }
+          } catch (error) {
+            console.error('Token decoding error:', error);
+          }
+
         if (result) {
           navigate('/profile');
+
         }
       } else {
         if (!formData.repassword) return;
         
         if (formData.password !== formData.repassword) {
-          alert("Şifreler eşleşmiyor!");
+          alert("Passwords do not match!");
           return;
         }
 
@@ -59,55 +96,18 @@ const AuthPage = () => {
           rePassword: formData.repassword 
         })).unwrap();
         
-        setIsLoginMode(true); // Kayıt başarılı olunca login formuna dön
+        setIsLoginMode(true);
       }
     } catch (error) {
-      console.error(isLoginMode ? 'Giriş hatası:' : 'Kayıt hatası:', error);
+      console.error(isLoginMode ? 'Login error:' : 'Registration error:', error);
     }
-  };
-
-  const handleCtaClick = () => {
-    setShowText(!showText);
-  };
-
-  const toggleMode = () => {
-    setIsLoginMode(!isLoginMode);
-    setFormData({ email: "", password: "", repassword: "" }); // Form alanlarını temizle
   };
 
   return (
     <div className="wrapper">
-      <div className={`login-text ${showText ? 'expand' : ''}`}>
-        <Button className="cta" onClick={handleCtaClick}>
-          <i className={`fas ${showText ? 'fa-chevron-up' : 'fa-chevron-down'} fa-1x`}></i>
-        </Button>
-        <div className={`text ${showText ? 'show-hide' : ''}`}>
-          <div className="form-header">
-            {!isLoginMode && (
-              <Button className="back-btn" onClick={toggleMode}>
-                <i className="fas fa-arrow-left"></i>
-              </Button>
-            )}
-            <h2>{isLoginMode ? 'Giriş Yap' : 'Kayıt Ol'}</h2>
-          </div>
-          <hr />
-          <LoginForm
-            isLoginMode={isLoginMode}
-            formData={formData}
-            error={error || ""}
-            onInputChange={handleInputChange}
-            onSubmit={handleSubmit}
-            onToggleMode={toggleMode}
-          />
-        </div>
-      </div>
-      <div className="call-text">
-        <h1>HR Manager'a <span>Hoş Geldiniz</span></h1>
-        <p>İnsan kaynakları yönetimini kolaylaştıran profesyonel çözüm</p>
-        <Button onClick={handleCtaClick}>Hemen Başlayın</Button>
-      </div>
+      {/* UI Kodları */}
     </div>
   );
 };
 
-export default AuthPage; 
+export default AuthPage;
