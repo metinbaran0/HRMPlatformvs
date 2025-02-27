@@ -54,24 +54,27 @@ export const RestApis = {
       console.log('Response Data:', response.data);
       
       // Backend direkt JWT string dönüyor
-      const token = response.data;
+      const {token, userId }= response.data;
 
-      if (token && typeof token === 'string') {
+      if (token && userId) {
         localStorage.setItem('token', token);
+        localStorage.setItem('userId', userId.toString());
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         
         // Token'ı ve auth durumunu dön
         return {
           token: token,
+          userId: userId,
           isAuthenticated: true
         };
       } else {
-        console.log('Geçersiz token formatı:', response.data);
+        console.log('Geçersiz token veya userId formatı:', response.data);
         throw new Error('Geçersiz token formatı');
       }
     } catch (error: any) {
       console.error('Login error:', error);
       localStorage.removeItem('token');
+      localStorage.removeItem('userId');
       delete api.defaults.headers.common['Authorization'];
       
       // Backend'den gelen özel hata mesajını kontrol et

@@ -44,7 +44,7 @@ const AuthPage = () => {
         })).unwrap();
         
         if (result) {
-          navigate('/profile');
+          navigate(`/profile/${result.userId}`); // Kullanıcıyı kendi profiline yönlendir
         }
       } else {
         if (!formData.repassword) return;

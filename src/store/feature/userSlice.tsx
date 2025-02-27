@@ -29,7 +29,7 @@ export const fetchLogin = createAsyncThunk(
       const response = await RestApis.login(userData);
 
       
-      if (response && response.token) {
+      if (response && response.token && response.userId) {
         await Swal.fire({
           icon: 'success',
           title: 'Başarılı!',
