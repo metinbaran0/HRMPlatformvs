@@ -11,6 +11,7 @@ const AuthPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const { error } = useSelector((state: RootState) => state.user);
+  //burada ayarlayabiliriz yönlendirmeyi
 
   const [showText, setShowText] = useState(false);
   const [isLoginMode, setIsLoginMode] = useState(true);
