@@ -7,6 +7,9 @@ const server = devUrl;
 const apis = {
   
     userService: server + '/user',
+    leaveService: server + '/leave',
+    employeeService: server + '/employee',
+    
    
 }
 

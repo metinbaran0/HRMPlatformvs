@@ -6,6 +6,7 @@ import { fetchLogin, fetchRegister } from '../store/feature/userSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../store';
 import { useNavigate } from 'react-router-dom';
+import LeaveRequestForm from './LeaveRequestForm';
 
 const AuthPage = () => {
   const navigate = useNavigate();
@@ -105,6 +106,10 @@ const AuthPage = () => {
         <h1>HR Manager'a <span>Hoş Geldiniz</span></h1>
         <p>İnsan kaynakları yönetimini kolaylaştıran profesyonel çözüm</p>
         <Button onClick={handleCtaClick}>Hemen Başlayın</Button>
+      </div>
+      <div>
+        <h1>İzin Talebi Oluştur</h1>
+        <LeaveRequestForm />
       </div>
     </div>
   );
