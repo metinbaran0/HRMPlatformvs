@@ -1,0 +1,72 @@
+.shift-container {
+    padding: 20px;
+    background-color: white; /* Arka plan rengi beyaz */
+  }
+  
+  .shift-button {
+    padding: 10px 15px;
+    background-color: #4CAF50; /* Yeşil renk */
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin-bottom: 20px;
+  }
+  
+  .shift-button:hover {
+    background-color: #45a049;
+  }
+  
+  .shift-days {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  
+  .day {
+    width: 13%;
+    text-align: center;
+    padding: 10px;
+    background-color: #f0f0f0; /* Gri arka plan */
+    border: 1px solid #ddd;
+    cursor: pointer;
+  }
+  
+  .day:hover {
+    background-color: #c3e0ff; /* Hover için daha açık mavi */
+  }
+  
+  .shift-details {
+    margin-top: 20px;
+  }
+  
+  .shift-grid {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+  
+  .shift-day {
+    width: 13%;
+  }
+  
+  .shift-day div {
+    padding: 8px;
+    margin-top: 5px;
+    text-align: center;
+  }
+  
+  .shift-day h4 {
+    text-align: center;
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+  }
+  
+  /* İzinli veya yıllık izinli personel için arka plan renkleri */
+  .shift-day .holiday {
+    background-color: #fce4e4; /* Açık kırmızımsı */
+  }
+  
+  .shift-day .annual-leave {
+    background-color: #e8f9e8; /* Açık yeşil */
+  }
+  

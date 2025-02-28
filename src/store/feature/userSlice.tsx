@@ -14,7 +14,7 @@ interface UserState {
   error: string | null;
 }
 
-// Başlangıç state'ini güncelle
+// Başlangıç state'ini güncelle login olduktan sonra bilgiler burada kaydedeilecek
 const initialState: UserState = {
   token: localStorage.getItem('token'),
   userId: localStorage.getItem('userId') ? Number(localStorage.getItem('userId')) : null,
@@ -98,7 +98,7 @@ export const fetchRegister = createAsyncThunk(
 );
 
 // Slice'ı güncelle
-const userSlice = createSlice({
+const UserSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
@@ -146,5 +146,5 @@ const userSlice = createSlice({
       });
   }
 });  
-export const { logout } = userSlice.actions;
-export default userSlice.reducer;
+export const { logout } = UserSlice.actions;
+export default UserSlice.reducer;

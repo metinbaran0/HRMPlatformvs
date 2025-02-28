@@ -1,0 +1,86 @@
+/* AssetForm styling */
+.asset-form {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f4f7fc;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .form-group label {
+    font-size: 14px;
+    color: #333;
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  .form-group input, .form-group select {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .form-group input[type="date"] {
+    width: auto;
+  }
+  
+  .submit-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .submit-button:hover {
+    background-color: #45a049;
+  }
+  
+  /* Weekly Schedule Table */
+  .weekly-schedule {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  .weekly-schedule th, .weekly-schedule td {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+  }
+  
+  .weekly-schedule th {
+    background-color: #4CAF50;
+    color: white;
+  }
+  
+  .weekly-schedule td {
+    background-color: #f9f9f9;
+  }
+  
+  .weekly-schedule .off-day {
+    background-color: #ffcccb; /* Light red for off day */
+  }
+  
+  .weekly-schedule .weekend {
+    background-color: #f8d7da; /* Light pink for weekend */
+  }
+  
+  .weekly-schedule .working-day {
+    background-color: #d4edda; /* Light green for working days */
+  }
+  
+  .weekly-schedule .holiday {
+    background-color: #fff3cd; /* Light yellow for holidays */
+  }
+  

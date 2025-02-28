@@ -1,0 +1,86 @@
+.expense-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    max-width: 600px;
+    width: 100%;
+    margin: 0 auto;
+    margin-bottom: 40px;
+    padding: 32px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  }
+  
+  .expense-form input {
+    width: calc(100% - 32px);
+    height: 48px;
+    padding: 0 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    background: #f8f9fa;
+    margin: 0;
+    box-sizing: border-box;
+  }
+  
+  .expense-form input[type="date"] {
+    padding-right: 16px;
+  }
+  
+  .expense-form input:focus {
+    outline: none;
+    border-color: #1976d2;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(25, 118, 210, 0.1);
+  }
+  
+  .expense-form input::placeholder {
+    color: #495057;
+    font-weight: 500;
+    opacity: 0.8;
+  }
+  
+  .expense-form button {
+    width: calc(100% - 32px);
+    height: 48px;
+    padding: 0 16px;
+    background: linear-gradient(45deg, #2e7d32, #43a047);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-sizing: border-box;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .expense-form button:hover {
+    background: linear-gradient(45deg, #1b5e20, #2e7d32);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(46, 125, 50, 0.3);
+    filter: brightness(110%);
+  }
+  
+  .expense-form button:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 8px rgba(46, 125, 50, 0.2);
+  }
+  
+  @media (max-width: 600px) {
+    .expense-form {
+      padding: 20px;
+      gap: 16px;
+    }
+    
+    .expense-form input,
+    .expense-form button {
+      height: 44px;
+    }
+  } 

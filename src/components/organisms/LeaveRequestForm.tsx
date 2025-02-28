@@ -1,145 +1,68 @@
-import React, { useState } from 'react';
-import {
-  Box,
-  Grid,
-  TextField,
-  Button,
-  MenuItem,
-  FormControl
-} from '@mui/material';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import type { Dayjs } from 'dayjs';
-
-const leaveTypes = [
-  { value: 'ANNUAL', label: 'Yıllık İzin' },
-  { value: 'MARRIAGE', label: 'Evlilik İzni' },
-  { value: 'MATERNITY', label: 'Doğum İzni' },
-  { value: 'UNPAID', label: 'Ücretsiz İzin' }
-];
+import React, { useState } from 'react';  
+import { useDispatch } from 'react-redux';
+import { addLeaveRequestAsync } from '../../store/feature/LeaveSlice';
+import './LeaveRequestForm.css';
 
 interface LeaveRequestFormProps {
-  onSubmit: () => void;
+  onSubmit: (formData: LeaveRequestDto) => void;
+}
+
+interface LeaveRequestDto {
+  employeeId: number;
+  type: string;
+  startDate: string;
+  endDate: string;
+  description: string;
 }
 
 const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({ onSubmit }) => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<LeaveRequestDto>({
+    employeeId: 1, // Kullanıcının ID'sini dinamik hale getirin
     type: '',
-    startDate: null as Dayjs | null,
-    endDate: null as Dayjs | null,
+    startDate: '',
+    endDate: '',
     description: ''
   });
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit();
+    onSubmit(formData);
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit}>
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
-          <FormControl fullWidth>
-            <TextField
-              select
-              label="İzin Türü"
-              value={formData.type}
-              onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value }))}
-              required
-              sx={{ backgroundColor: 'white' }}
-            >
-              {leaveTypes.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </TextField>
-          </FormControl>
-        </Grid>
+    <form onSubmit={handleSubmit} className="leave-request-form">
+      <div className="form-group">
+        <label htmlFor="leaveType">İzin Türü</label>
+        <select id="leaveType" name="type" value={formData.type} onChange={handleChange} required>
+          <option value="">Seçiniz</option>
+          <option value="annual">Yıllık İzin</option>
+          <option value="sick">Hastalık İzni</option>
+          <option value="excuse">Mazeret İzni</option>
+          <option value="unpaid">Ücretsiz İzin</option>
+        </select>
+      </div>
 
-        <Grid item xs={12} md={6}>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker
-              label="Başlangıç Tarihi"
-              value={formData.startDate}
-              onChange={(date) => setFormData(prev => ({ ...prev, startDate: date }))}
-              format="DD/MM/YYYY"
-              slotProps={{ 
-                textField: { 
-                  fullWidth: true, 
-                  required: true,
-                  sx: { backgroundColor: 'white' }
-                } 
-              }}
-            />
-          </LocalizationProvider>
-        </Grid>
+      <div className="form-group">
+        <label htmlFor="startDate">Başlangıç Tarihi</label>
+        <input type="date" id="startDate" name="startDate" value={formData.startDate} onChange={handleChange} required />
+      </div>
 
-        <Grid item xs={12} md={6}>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker
-              label="Bitiş Tarihi"
-              value={formData.endDate}
-              onChange={(date) => setFormData(prev => ({ ...prev, endDate: date }))}
-              format="DD/MM/YYYY"
-              slotProps={{ 
-                textField: { 
-                  fullWidth: true, 
-                  required: true,
-                  sx: { backgroundColor: 'white' }
-                } 
-              }}
-            />
-          </LocalizationProvider>
-        </Grid>
+      <div className="form-group">
+        <label htmlFor="endDate">Bitiş Tarihi</label>
+        <input type="date" id="endDate" name="endDate" value={formData.endDate} onChange={handleChange} required />
+      </div>
 
-        <Grid item xs={12}>
-          <TextField
-            fullWidth
-            multiline
-            rows={4}
-            label="Açıklama"
-            value={formData.description}
-            onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-            required
-            sx={{ 
-              backgroundColor: 'white',
-              '& .MuiOutlinedInput-root': {
-                '& fieldset': {
-                  borderColor: 'rgba(0, 0, 0, 0.23)',
-                },
-                '&:hover fieldset': {
-                  borderColor: 'rgba(0, 0, 0, 0.23)',
-                },
-                '&.Mui-focused fieldset': {
-                  borderColor: '#1976d2',
-                },
-              },
-            }}
-          />
-        </Grid>
+      <div className="form-group">
+        <label htmlFor="description">Açıklama</label>
+        <textarea id="description" name="description" value={formData.description} onChange={handleChange} rows={3} placeholder="İzin talebiniz için açıklama yazınız..." />
+      </div>
 
-        <Grid item xs={12}>
-          <Box display="flex" justifyContent="flex-end" mt={2}>
-            <Button
-              type="submit"
-              variant="contained"
-              sx={{
-                backgroundColor: '#1976d2',
-                '&:hover': {
-                  backgroundColor: '#1565c0',
-                },
-                minWidth: '200px',
-                height: '48px'
-              }}
-            >
-              İzin Talebi Gönder
-            </Button>
-          </Box>
-        </Grid>
-      </Grid>
-    </Box>
+      <button type="submit" className="submit-button">İzin Talebi Gönder</button>
+    </form>
   );
 };
 

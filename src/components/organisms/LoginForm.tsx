@@ -41,27 +41,30 @@ const LoginForm: React.FC<LoginFormProps> = ({
           name="password"
           placeholder="Şifre"
           value={formData.password}
-          onChange={onInputChange}
-        />
-        {!isLoginMode && (
-          <FormField
-            type="password"
-            name="repassword"
-            placeholder="Şifre Onay"
-            value={formData.repassword || ''}
-            onChange={onInputChange}
-          />
-        )}
-        {error && <div className="error-message">{error}</div>}
-        {isLoginMode && (
-          <div className="forgot-password">
-            <a href="/forgot-password">Şifremi Unuttum</a>
-          </div>
-        )}
-        <ButtonGroup isLoginMode={isLoginMode} onToggleMode={onToggleMode} />
-      </div>
-    </form>
-  );
-};
-
-export default LoginForm;
+          onChange={onInputChange} />
+          {!isLoginMode && (
+            <FormField
+              type="password"
+              name="repassword"
+              placeholder="Şifre Onay"
+              value={formData.repassword || ''}
+              onChange={onInputChange}
+            />
+          )}
+          {error && <div className="error-message">{error}</div>}
+          {isLoginMode && (
+            <div className="forgot-password">
+              <a href="/forgot-password">Şifremi Unuttum</a>
+            </div>
+          )}
+          <ButtonGroup isLoginMode={isLoginMode} onToggleMode={onToggleMode} />
+        </div>
+      </form>
+    );
+  };
+  
+  export default LoginForm;
+  
+  
+  
+  

@@ -1,0 +1,113 @@
+.leave-request-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    max-width: 600px;
+    width: 100%;
+    margin: 0 auto;
+    margin-bottom: 40px;
+    padding: 32px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .form-group label {
+    font-weight: 500;
+    color: #495057;
+    font-size: 0.95rem;
+  }
+  
+  .form-group select,
+  .form-group input,
+  .form-group textarea {
+    width: calc(100% - 32px);
+    height: 48px;
+    padding: 0 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    background: #f8f9fa;
+    margin: 0;
+    box-sizing: border-box;
+  }
+  
+  .form-group textarea {
+    height: auto;
+    padding: 16px;
+    resize: vertical;
+    min-height: 120px;
+  }
+  
+  .form-group select:focus,
+  .form-group input:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: #1976d2;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(25, 118, 210, 0.1);
+  }
+  
+  .form-group select::placeholder,
+  .form-group input::placeholder,
+  .form-group textarea::placeholder {
+    color: #495057;
+    font-weight: 500;
+    opacity: 0.8;
+  }
+  
+  .submit-button {
+    width: calc(100% - 32px);
+    height: 48px;
+    padding: 0 16px;
+    background: linear-gradient(45deg, #2e7d32, #43a047);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-sizing: border-box;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .submit-button:hover {
+    background: linear-gradient(45deg, #1b5e20, #2e7d32);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(46, 125, 50, 0.3);
+    filter: brightness(110%);
+  }
+  
+  .submit-button:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 8px rgba(46, 125, 50, 0.2);
+  }
+  
+  @media (max-width: 600px) {
+    .leave-request-form {
+      padding: 20px;
+      gap: 16px;
+    }
+  
+    .form-group select,
+    .form-group input,
+    .submit-button {
+      height: 44px;
+    }
+  
+    .form-group {
+      gap: 6px;
+    }
+  }
+  
