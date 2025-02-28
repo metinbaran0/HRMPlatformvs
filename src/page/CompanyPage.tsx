@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Sidebar from "../components/organisms/Sidebar";
 import PendingCompanies from "../components/organisms/PendingCompanies";
 import CompanyList from "../components/organisms/CompanyList";
@@ -26,7 +26,7 @@ const CompanyPage: React.FC = () => {
 
   const fetchCompanies = async () => {
     try {
-      const response = await fetch('http://localhost:9090/company/company/find-all-company');
+      const response = await fetch('http://localhost:9090/v1/api/company/find-all-company');
       const data = await response.json();
       if (data.success) {
         setCompanies(data.data);
@@ -60,10 +60,9 @@ const CompanyPage: React.FC = () => {
 
   return (
     <div className="company-page">
+      
       <Sidebar activeSection={activeSection} setActiveSection={setActiveSection} />
       <div className="main-content">
-        
-      
         {renderContent()}
       </div>
     </div>

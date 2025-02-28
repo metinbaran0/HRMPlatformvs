@@ -20,7 +20,7 @@ const PendingCompanies: React.FC = () => {
   const [showPopup, setShowPopup] = useState(false); // Popup durumu için state
 
   useEffect(() => {
-    fetch("http://localhost:9090/company/company/pending-company")
+    fetch("http://localhost:9090/v1/api/company/pending-company")
       .then(response => response.json())
       .then(data => {
         if (data.success) {
