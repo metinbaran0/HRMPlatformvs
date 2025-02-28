@@ -17,7 +17,7 @@ const companyTypes = [
   { value: 'large', label: '200+ Çalışan' }
 ];
 
-const GetQuote = () => {
+const GetQuote: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Form gönderme işlemleri
