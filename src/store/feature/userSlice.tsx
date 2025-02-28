@@ -99,7 +99,7 @@ interface LoginPayload {
 }
 
 // Slice'ı güncelle
-const userSlice = createSlice({
+const UserSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
@@ -142,5 +142,5 @@ const userSlice = createSlice({
       });
   }
 });  
-export const { logout } = userSlice.actions;
-export default userSlice.reducer;
+export const { logout } = UserSlice.actions;
+export default UserSlice.reducer;

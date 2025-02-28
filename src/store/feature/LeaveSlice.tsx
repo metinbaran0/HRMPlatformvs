@@ -1,6 +1,10 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-const BASE_URL = "http://localhost:9090/v1/dev/leave";
+import Swal from 'sweetalert2';
+import RestApis from '../../services/RestApis';
+
+
+const BASE_URL = "http://localhost:9090/v1/api/leave/leaverequest";
 
 interface LeaveRequest {
   id: string;
@@ -27,7 +31,7 @@ const initialState: LeaveState = {
 
 // Yeni izin talebi oluşturma
 export const addLeaveRequestAsync = createAsyncThunk(
-  "leave/addLeaveRequest",
+  "leave/LeaveRequest",
   async (leaveData: Omit<LeaveRequest, "id" | "status">, { rejectWithValue }) => {
     try {
       const response = await fetch(`${BASE_URL}/leaverequest`, {
@@ -39,12 +43,30 @@ export const addLeaveRequestAsync = createAsyncThunk(
       });
 
       if (!response.ok) {
-        throw new Error("İzin talebi oluşturulurken hata oluştu.");
+        const errorMessage = await response.text();
+        throw new Error(errorMessage || "İzin talebi oluşturulurken hata oluştu.");
       }
 
       return await response.json();
-    } catch (error) {
-      return rejectWithValue("İzin talebi oluşturulamadı.");
+    } catch (error: any) {
+      return rejectWithValue(error.message || "İzin talebi oluşturulamadı.");
+    }
+  }
+);
+
+// Belirli bir kullanıcıya ait izin taleplerini çekme
+export const fetchLeaveRequestsByUserIdAsync = createAsyncThunk(
+  "leave/fetchLeaveRequestsByUserId",
+  async (employeeId: number, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`${BASE_URL}/leavebyuserid/${employeeId}`);
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        throw new Error(errorMessage || "Kullanıcı izin talepleri alınırken hata oluştu.");
+      }
+      return await response.json();
+    } catch (error: any) {
+      return rejectWithValue(error.message || "Kullanıcı izin talepleri getirilemedi.");
     }
   }
 );
@@ -56,12 +78,12 @@ export const fetchLeaveRequestsAsync = createAsyncThunk(
     try {
       const response = await fetch(`${BASE_URL}/leaverequests`);
       if (!response.ok) {
-        throw new Error("İzin talepleri alınırken hata oluştu.");
+        const errorMessage = await response.text();
+        throw new Error(errorMessage || "İzin talepleri alınırken hata oluştu.");
       }
-
       return await response.json();
-    } catch (error) {
-      return rejectWithValue("İzin talepleri getirilemedi.");
+    } catch (error: any) {
+      return rejectWithValue(error.message || "İzin talepleri getirilemedi.");
     }
   }
 );
@@ -74,7 +96,7 @@ export const updateLeaveStatusAsync = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await fetch(`${BASE_URL}/leaverequest/${id}/status`, {
+      const response = await fetch(`${BASE_URL}/${id}/status`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -83,12 +105,13 @@ export const updateLeaveStatusAsync = createAsyncThunk(
       });
 
       if (!response.ok) {
-        throw new Error("İzin durumu güncellenirken hata oluştu.");
+        const errorMessage = await response.text();
+        throw new Error(errorMessage || "İzin durumu güncellenirken hata oluştu.");
       }
 
       return await response.json();
-    } catch (error) {
-      return rejectWithValue("İzin durumu güncellenemedi.");
+    } catch (error: any) {
+      return rejectWithValue(error.message || "İzin durumu güncellenemedi.");
     }
   }
 );
@@ -97,7 +120,6 @@ const leaveSlice = createSlice({
   name: "leave",
   initialState,
   reducers: {
-    // İzin taleplerini set etme
     setLeaveRequests: (state, action: PayloadAction<LeaveRequest[]>) => {
       state.leaveRequests = action.payload;
     },
@@ -113,6 +135,19 @@ const leaveSlice = createSlice({
         state.leaveRequests = action.payload;
       })
       .addCase(fetchLeaveRequestsAsync.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+
+      .addCase(fetchLeaveRequestsByUserIdAsync.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchLeaveRequestsByUserIdAsync.fulfilled, (state, action) => {
+        state.loading = false;
+        state.leaveRequests = action.payload;
+      })
+      .addCase(fetchLeaveRequestsByUserIdAsync.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
@@ -150,4 +185,3 @@ const leaveSlice = createSlice({
 export const { setLeaveRequests } = leaveSlice.actions;
 
 export default leaveSlice.reducer;
-

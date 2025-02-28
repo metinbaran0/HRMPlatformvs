@@ -3,13 +3,7 @@
 import axios from 'axios';
 
 const BASE_URL = 'http://localhost:9090/api/auth';
-
-// API endpoint'leri
-const ENDPOINTS = {
-  LOGIN: '/dologin',
-  REGISTER: '/register',
-  // Diğer endpoint'ler buraya eklenebilir
-};
+const LEAVE_BASE_URL = 'http://localhost:9090/v1/api/leave';
 
 // Axios instance oluştur
 const api = axios.create({
@@ -39,7 +33,6 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
-      // Kullanıcıyı login sayfasına yönlendir
       window.location.href = '/login';
     }
     return Promise.reject(error);
@@ -50,33 +43,18 @@ api.interceptors.response.use(
 export const RestApis = {
   login: async (userData: { email: string; password: string }) => {
     try {
-      const response = await api.post(ENDPOINTS.LOGIN, userData);
-      
-      console.log('Login Response:', response);
-      console.log('Response Data:', response.data);
-      
-      // Backend direkt JWT string dönüyor
+      const response = await api.post('/dologin', userData);
       const token = response.data;
-
       if (token && typeof token === 'string') {
         localStorage.setItem('token', token);
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        
-        // Token'ı ve auth durumunu dön
-        return {
-          token: token,
-          isAuthenticated: true
-        };
+        return { token, isAuthenticated: true };
       } else {
-        console.log('Geçersiz token formatı:', response.data);
         throw new Error('Geçersiz token formatı');
       }
     } catch (error: any) {
-      console.error('Login error:', error);
       localStorage.removeItem('token');
       delete api.defaults.headers.common['Authorization'];
-      
-      // Backend'den gelen özel hata mesajını kontrol et
       if (error.response?.data?.message === 'INVALID_EMAIL_OR_PASSWORD') {
         throw new Error('Email veya şifre hatalı');
       }
@@ -86,9 +64,25 @@ export const RestApis = {
 
   register: async (userData: { email: string; password: string; rePassword: string }) => {
     try {
-      const response = await api.post(ENDPOINTS.REGISTER, userData);
+      const response = await api.post('/register', userData);
       return response.data;
     } catch (error) {
+      throw error;
+    }
+  },
+
+  // Yeni izin talebi oluşturma
+  addLeaveRequest: async (leaveData: {
+    startDate: string;  // ISO 8601 formatında tarih (yyyy-mm-dd)
+    endDate: string;    // ISO 8601 formatında tarih (yyyy-mm-dd)
+    leaveType: string;  // Örneğin: 'SICK', 'VACATION' vb.
+    employeeId: number; // Çalışan ID'si
+    reason : string; // İzin sebebi
+  }) => {
+    try {
+      const response = await api.post(`${LEAVE_BASE_URL}/leaverequest`, leaveData);
+      return response.data;
+    } catch (error: any) {
       throw error;
     }
   },
@@ -96,4 +90,4 @@ export const RestApis = {
   // Diğer API fonksiyonları buraya eklenebilir
 };
 
-export default RestApis; 
+export default RestApis;
