@@ -29,6 +29,7 @@ import {
 import { Add as AddIcon, FilterList as FilterIcon } from '@mui/icons-material';
 import Navbar from '../components/organisms/Navbar';
 import LeaveRequestForm from '../components/organisms/LeaveRequestForm';
+import { useParams } from 'react-router';
 
 const ProfilePage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -38,6 +39,7 @@ const ProfilePage: React.FC = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [filterStatus, setFilterStatus] = useState('all');
+  const { userId } = useParams(); // URL'den userId'yi al
 
   useEffect(() => {
     if (isAuthenticated) {
