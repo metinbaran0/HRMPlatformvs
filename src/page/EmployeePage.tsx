@@ -1,73 +1,91 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FaUserPlus, FaSearch, FaFilter } from 'react-icons/fa';
-import PersonelTable from '../components/organisms/PersonelTable';
-import PersonelModal from '../components/organisms/PersonelModal';
-import './PersonelPage.css';
+import EmployeeTable from '../components/organisms/EmployeeTable';
+import EmployeeModal from '../components/organisms/EmployeeModal';
+import './EmployeePage.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../store';
+import { 
+  fetchEmployees, 
+  deleteEmployee, 
+  toggleEmployeeStatus 
+} from '../store/feature/employeeSlice';
 
-interface Personel {
+interface Employee {
   id: number;
-  ad: string;
-  soyad: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  telefon: string;
-  departman: string;
-  pozisyon: string;
+  phone: string;
+  department: string;
+  position: string;
   isActive: boolean;
-  baslangicTarihi: string;
+  startDate: string;
 }
 
-const PersonelPage = () => {
-  const [personeller, setPersoneller] = useState<Personel[]>([]);
+const EmployeePage: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { employees, loading, error } = useSelector((state: RootState) => state.employee);
+  
   const [showModal, setShowModal] = useState(false);
-  const [selectedPersonel, setSelectedPersonel] = useState<Personel | null>(null);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterDepartman, setFilterDepartman] = useState('');
+  const [filterDepartment, setFilterDepartment] = useState('');
+
+  // Sayfa yüklendiğinde çalışanları getir
+  useEffect(() => {
+    dispatch(fetchEmployees({}));
+  }, [dispatch]);
 
   // Modal işlemleri
   const handleAddNew = () => {
-    setSelectedPersonel(null);
+    setSelectedEmployee(null);
     setShowModal(true);
   };
 
-  const handleEdit = (personel: Personel) => {
-    setSelectedPersonel(personel);
+  const handleEdit = (employee: Employee) => {
+    setSelectedEmployee(employee);
     setShowModal(true);
   };
 
   const handleDelete = async (id: number) => {
-    // API çağrısı yapılacak
     try {
-      // await RestApis.deletePersonel(id);
-      setPersoneller(personeller.filter(p => p.id !== id));
+      await dispatch(deleteEmployee(id)).unwrap();
     } catch (error) {
       console.error('Silme hatası:', error);
     }
   };
 
   const handleToggleActive = async (id: number) => {
-    // API çağrısı yapılacak
     try {
-      const updatedPersoneller = personeller.map(p => 
-        p.id === id ? { ...p, isActive: !p.isActive } : p
-      );
-      setPersoneller(updatedPersoneller);
+      await dispatch(toggleEmployeeStatus(id)).unwrap();
     } catch (error) {
       console.error('Durum değiştirme hatası:', error);
     }
   };
 
+  // Loading durumunu kontrol et
+  if (loading) {
+    return <div>Yükleniyor...</div>;
+  }
+
+  // Hata durumunu kontrol et
+  if (error) {
+    return <div>Hata: {error}</div>;
+  }
+
   return (
-    <div className="personel-page">
+    <div className="employee-page">
       <motion.div 
         className="page-header"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1>Personel Yönetimi</h1>
+        <h1>Çalışan Yönetimi</h1>
         <button className="add-button" onClick={handleAddNew}>
-          <FaUserPlus /> Yeni Personel Ekle
+          <FaUserPlus /> Yeni Çalışan Ekle
         </button>
       </motion.div>
 
@@ -81,7 +99,7 @@ const PersonelPage = () => {
           <FaSearch />
           <input
             type="text"
-            placeholder="Personel ara..."
+            placeholder="Çalışan ara..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -90,8 +108,8 @@ const PersonelPage = () => {
         <div className="filter-box">
           <FaFilter />
           <select
-            value={filterDepartman}
-            onChange={(e) => setFilterDepartman(e.target.value)}
+            value={filterDepartment}
+            onChange={(e) => setFilterDepartment(e.target.value)}
           >
             <option value="">Tüm Departmanlar</option>
             <option value="IT">IT</option>
@@ -102,19 +120,18 @@ const PersonelPage = () => {
         </div>
       </motion.div>
 
-      <PersonelTable
-        personeller={personeller}
+      <EmployeeTable
+        employees={employees}
         onEdit={handleEdit}
         onDelete={handleDelete}
         onToggleActive={handleToggleActive}
       />
 
-      <PersonelModal
+      <EmployeeModal
         show={showModal}
         onHide={() => setShowModal(false)}
-        personel={selectedPersonel}
+        employee={selectedEmployee}
         onSave={(data) => {
-          // API çağrısı yapılacak
           console.log('Kaydedilen data:', data);
           setShowModal(false);
         }}
@@ -123,4 +140,4 @@ const PersonelPage = () => {
   );
 };
 
-export default PersonelPage; 
+export default EmployeePage; 
