@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import AuthPage from './page/AuthPage'
 import HomePage from './page/HomePage'
 import CompanyPage from './page/CompanyPage'
-import PersonelPage from './pages/PersonelPage'
+import EmployeePage from './page/EmployeePage'
 import ProfilePage from './page/ProfilePage'
 
 function RouterPage() {
@@ -14,8 +14,8 @@ function RouterPage() {
         <Route path='/login' element={<AuthPage/>}/>
         <Route path='/register' element={<AuthPage/>}/>
         <Route path='/company' element={<CompanyPage/>}/>
-        <Route path='/personal' element={<PersonelPage/>}/>
-        <Route path='/profile/:userId' element={<ProfilePage />} />
+        <Route path='/employee' element={<EmployeePage/>}/>
+        <Route path='/profile' element={<ProfilePage/>}/>
       </Routes>
     </BrowserRouter>
   )

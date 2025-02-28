@@ -6,12 +6,12 @@ import { fetchLogin, fetchRegister } from '../store/feature/userSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../store';
 import { useNavigate } from 'react-router-dom';
+import jwtDecode from "jwt-decode";
 
 const AuthPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const { error } = useSelector((state: RootState) => state.user);
-  //burada ayarlayabiliriz yönlendirmeyi
 
   const [showText, setShowText] = useState(false);
   const [isLoginMode, setIsLoginMode] = useState(true);
@@ -43,8 +43,20 @@ const AuthPage = () => {
           password: formData.password 
         })).unwrap();
         
-        if (result) {
-          navigate(`/profile/${result.userId}`); // Kullanıcıyı kendi profiline yönlendir
+        if (result && result.token && result.role) {
+          switch (result.role) {
+            case "SITE_ADMIN":
+              navigate("/company");
+              break;
+            case "COMPANY_ADMIN":
+              navigate("/employee");
+              break;
+            case "EMPLOYEE":
+              navigate("/profile");
+              break;
+            default:
+              navigate("/");
+          }
         }
       } else {
         if (!formData.repassword) return;
@@ -60,10 +72,10 @@ const AuthPage = () => {
           rePassword: formData.repassword 
         })).unwrap();
         
-        setIsLoginMode(true); // Kayıt başarılı olunca login formuna dön
+        setIsLoginMode(true);
       }
     } catch (error) {
-      console.error(isLoginMode ? 'Giriş hatası:' : 'Kayıt hatası:', error);
+      console.error('Authentication error:', error);
     }
   };
 
@@ -73,7 +85,7 @@ const AuthPage = () => {
 
   const toggleMode = () => {
     setIsLoginMode(!isLoginMode);
-    setFormData({ email: "", password: "", repassword: "" }); // Form alanlarını temizle
+    setFormData({ email: "", password: "", repassword: "" });
   };
 
   return (
