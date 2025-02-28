@@ -12,7 +12,7 @@ interface UserState {
   error: string | null;
 }
 
-// Başlangıç state'ini güncelle
+// Başlangıç state'ini güncelle login olduktan sonra bilgiler burada kaydedeilecek
 const initialState: UserState = {
   token: localStorage.getItem('token'),
   isAuthenticated: !!localStorage.getItem('token'),
