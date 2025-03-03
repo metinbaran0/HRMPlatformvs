@@ -8,6 +8,7 @@ import { AppDispatch, RootState } from '../store';
 import { useNavigate } from 'react-router-dom';
 import jwtDecode from "jwt-decode";
 import LeaveRequestForm from './LeaveRequestForm';
+import Swal from 'sweetalert2';
 
 
 const AuthPage = () => {
@@ -33,11 +34,11 @@ const AuthPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     if (!formData.email || !formData.password) {
       return;
     }
-
+  
     try {
       if (isLoginMode) {
         const result = await dispatch(fetchLogin({ 
@@ -45,7 +46,7 @@ const AuthPage = () => {
           password: formData.password 
         })).unwrap();
         
-        if (result && result.token && result.role) {
+        if (result?.token && result?.role) {
           switch (result.role) {
             case "SITE_ADMIN":
               navigate("/company");
@@ -61,25 +62,43 @@ const AuthPage = () => {
           }
         }
       } else {
-        if (!formData.repassword) return;
-        
-        if (formData.password !== formData.repassword) {
-          alert("Şifreler eşleşmiyor!");
+        if (!formData.repassword) {
+          Swal.fire({
+            icon: "warning",
+            title: "Eksik Bilgi",
+            text: "Şifre tekrarını giriniz.",
+          });
           return;
         }
-
+  
+        if (formData.password !== formData.repassword) {
+          Swal.fire({
+            icon: "error",
+            title: "Hata",
+            text: "Şifreler eşleşmiyor!",
+          });
+          return;
+        }
+  
         await dispatch(fetchRegister({ 
           email: formData.email, 
           password: formData.password, 
           rePassword: formData.repassword 
         })).unwrap();
-        
+  
         setIsLoginMode(true);
       }
     } catch (error) {
-      console.error('Authentication error:', error);
+      console.error("Authentication error:", error);
+  
+      Swal.fire({
+        icon: "error",
+        title: "Kimlik Doğrulama Hatası",
+        text: typeof error === "string" ? error : "Bilinmeyen bir hata oluştu.",
+      });
     }
   };
+  
 
   const handleCtaClick = () => {
     setShowText(!showText);

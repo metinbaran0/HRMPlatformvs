@@ -7,11 +7,8 @@ interface LoginResponse {
   message: string;
   code: number;
   data: {
-    role: {
-      id: number;
-      userId: number;
-      role: string;
-    };
+    role: string;
+    userId: number;
     token: string;
   };
 }
@@ -23,19 +20,27 @@ interface BaseResponse<T> {
   data: T;
 }
 
-interface EmployeeResponse {
+interface Employee {
   id: number;
-  firstName: string;
-  lastName: string;
+  companyId: number;
+  avatar: string | null;
+  name: string;
+  surname: string;
   email: string;
   phone: string;
-  department: string;
   position: string;
-  isActive: boolean;
-  startDate: string;
+  createdAt: string;
+  updatedAt: string;
+  active: boolean;
 }
 
-interface GetEmployeesResponse extends BaseResponse<EmployeeResponse[]> {}
+interface GetEmployeesResponse extends BaseResponse<{
+  content: Employee[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+}> {}
 
 // Axios instance oluştur
 const api: AxiosInstance = axios.create({
@@ -72,22 +77,16 @@ api.interceptors.response.use(
 );
 
 const ApiService = {
-  login: async (userData: { email: string; password: string }) => {
+  login: async (userData: { email: string; password: string }): Promise<LoginResponse> => {
     try {
       const response = await api.post<LoginResponse>(apis.login, userData);
       
       if (response.data.success) {
-        const { token, role } = response.data.data;
-        const userId = response.data.data.role.userId;
+        const { token, role, userId } = response.data.data;
         
-        TokenService.setUserData(token, userId, role.role);
+        TokenService.setUserData(token, userId, role);
         
-        return {
-          token,
-          userId,
-          role: role.role,
-          message: response.data.message
-        };
+        return response.data;
       } else {
         throw new Error(response.data.message);
       }
@@ -106,21 +105,11 @@ const ApiService = {
     }
   },
 
-  getAllEmployees: async (page: number = 0, size: number = 10) => {
+  getAllEmployees: async (page: number = 0, size: number = 10): Promise<GetEmployeesResponse> => {
     try {
       const response = await api.get<GetEmployeesResponse>(
         `${apis.getAllEmployees}?page=${page}&size=${size}`
       );
-
-      if (!response.data.success && response.data.code === 404) {
-        return {
-          success: false,
-          message: "Çalışan bulunamadı",
-          code: 404,
-          data: []
-        };
-      }
-
       return response.data;
     } catch (error) {
       throw error;

@@ -4,6 +4,18 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import Swal from 'sweetalert2';
 import ApiService from '../../services/ApiService';
 
+// Response interface'leri
+interface LoginResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data: {
+    role: string;
+    userId: number;
+    token: string;
+  };
+}
+
 // Kullanıcı state'inin tipini güncelle
 interface UserState {
   token: string | null;
@@ -30,33 +42,43 @@ export const fetchLogin = createAsyncThunk(
   async (userData: { email: string; password: string }, { rejectWithValue }) => {
     try {
       const response = await ApiService.login(userData);
-      
-      if (response.token && response.role) {
-        // Token ve role bilgilerini localStorage'a kaydet
-        localStorage.setItem('token', response.token);
-        localStorage.setItem('role', response.role);
-        localStorage.setItem('userId', response.userId.toString());
+
+      if (response.success) {
+        const { token, role, userId } = response.data;
         
+        // LocalStorage'a kaydet
+        localStorage.setItem("token", token);
+        localStorage.setItem("role", role);
+        localStorage.setItem("userId", userId.toString());
+
         await Swal.fire({
-          icon: 'success',
-          title: 'Başarılı!',
-          text: response.message || 'Giriş işlemi başarılı',
+          icon: "success",
+          title: "Başarılı!",
+          text: response.message || "Giriş işlemi başarılı",
           showConfirmButton: false,
-          timer: 1500
+          timer: 1500,
         });
-        
-        return response;
+
+        return {
+          token,
+          userId,
+          role,
+          message: response.message
+        };
       }
-      
-      throw new Error('Geçersiz yanıt formatı');
+
+      throw new Error(response.message || "Giriş işlemi başarısız");
     } catch (error: any) {
+      const message = error.response?.data?.message || error.message || "Giriş işlemi başarısız.";
+
       await Swal.fire({
-        icon: 'error',
-        title: 'Hata!',
-        text: error.message || 'Giriş işlemi başarısız',
-        confirmButtonText: 'Tamam'
+        icon: "error",
+        title: "Hata!",
+        text: message,
+        confirmButtonText: "Tamam",
       });
-      return rejectWithValue(error.message);
+
+      return rejectWithValue(message);
     }
   }
 );

@@ -5,14 +5,16 @@ import './EmployeeTable.css';
 
 interface Employee {
   id: number;
-  firstName: string;
-  lastName: string;
+  companyId: number;
+  avatar: string | null;
+  name: string;
+  surname: string;
   email: string;
   phone: string;
-  department: string;
   position: string;
-  isActive: boolean;
-  startDate: string;
+  createdAt: string;
+  updatedAt: string;
+  active: boolean;
 }
 
 interface EmployeeTableProps {
@@ -36,9 +38,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
             <th>Ad Soyad</th>
             <th>Email</th>
             <th>Telefon</th>
-            <th>Departman</th>
             <th>Pozisyon</th>
-            <th>Başlangıç</th>
             <th>Durum</th>
             <th>İşlemler</th>
           </tr>
@@ -52,19 +52,17 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <td>{`${employee.firstName} ${employee.lastName}`}</td>
+              <td>{`${employee.name} ${employee.surname}`}</td>
               <td>{employee.email}</td>
               <td>{employee.phone}</td>
-              <td>{employee.department}</td>
               <td>{employee.position}</td>
-              <td>{employee.startDate}</td>
               <td>
                 <button
-                  className={`status-button ${employee.isActive ? 'active' : 'inactive'}`}
+                  className={`status-button ${employee.active ? 'active' : 'inactive'}`}
                   onClick={() => onToggleActive(employee.id)}
                 >
-                  {employee.isActive ? <FaToggleOn /> : <FaToggleOff />}
-                  {employee.isActive ? 'Aktif' : 'Pasif'}
+                  {employee.active ? <FaToggleOn /> : <FaToggleOff />}
+                  {employee.active ? 'Aktif' : 'Pasif'}
                 </button>
               </td>
               <td>

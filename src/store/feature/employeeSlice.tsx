@@ -5,15 +5,27 @@ import Swal from 'sweetalert2';
 // Interfaces
 interface Employee {
   id: number;
-  firstName: string;
-  lastName: string;
+  companyId: number;
+  avatar: string | null;
+  name: string;
+  surname: string;
   email: string;
   phone: string;
-  department: string;
   position: string;
-  isActive: boolean;
-  startDate: string;
+  createdAt: string;
+  updatedAt: string;
+  active: boolean;
 }
+
+interface EmployeeResponse {
+  content: Employee[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+}
+
+
 
 interface EmployeeState {
   employees: Employee[];
@@ -28,17 +40,22 @@ const initialState: EmployeeState = {
 };
 
 // Async Thunks
-export const fetchEmployees = createAsyncThunk(
+export const fetchEmployees = createAsyncThunk<
+  Employee[], // Thunk'ın döneceği veri tipi
+  { page?: number; size?: number },
+  { rejectValue: string }
+>(
   'employee/fetchEmployees',
-  async ({ page = 0, size = 10 }: { page?: number; size?: number }, { rejectWithValue }) => {
+  async ({ page = 0, size = 10 }, { rejectWithValue }) => {
     try {
       const response = await ApiService.getAllEmployees(page, size);
-      return response.data;
+      return response.data.content; // Direkt content'i dönüyoruz
     } catch (error: any) {
       return rejectWithValue(error.message || 'Çalışanlar yüklenirken bir hata oluştu');
     }
   }
 );
+
 
 export const deleteEmployee = createAsyncThunk(
   'employee/deleteEmployee',
@@ -90,8 +107,9 @@ const employeeSlice = createSlice({
       })
       .addCase(fetchEmployees.fulfilled, (state, action) => {
         state.loading = false;
-        state.employees = action.payload;
+        state.employees = action.payload; // Artık direkt payload'ı kullanabiliriz
       })
+
       .addCase(fetchEmployees.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
@@ -104,7 +122,7 @@ const employeeSlice = createSlice({
       .addCase(toggleEmployeeStatus.fulfilled, (state, action) => {
         const employee = state.employees.find(emp => emp.id === action.payload);
         if (employee) {
-          employee.isActive = !employee.isActive;
+          employee.active = !employee.active;
         }
       });
   }
