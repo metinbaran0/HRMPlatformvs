@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import Swal from 'sweetalert2';
-import RestApis from '../../services/RestApis';
+import { RestApis } from "../../config/RestApis";
 
 
 const BASE_URL = "http://localhost:9090/v1/api/leave/leaverequest";

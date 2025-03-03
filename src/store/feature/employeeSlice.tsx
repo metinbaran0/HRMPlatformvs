@@ -1,153 +1,113 @@
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import ApiService from "../../services/ApiService";
+import Swal from 'sweetalert2';
 
-// API URL'si
-const BASE_URL = "http://localhost:9090/v1/api/employee";
-
-// Çalışan verilerini temsil eden arayüz
-export interface Employee {
-  companyId: number;
+// Interfaces
+interface Employee {
   id: number;
-  name: string;
-  surname: string;
+  firstName: string;
+  lastName: string;
   email: string;
   phone: string;
+  department: string;
   position: string;
-  status: boolean;
-  createdAt: string;  // ISO 8601 formatında tarih
-  updatedAt: string;  // ISO 8601 formatında tarih
-  hireDate?: string;  // İşe başlama tarihi
-  department?: string;
-  address?: string;
-  avatar?: string; // Avatar bilgisini ekledik
+  isActive: boolean;
+  startDate: string;
 }
 
-// Belirli bir çalışanın verilerini getirir
-export const fetchEmployeeData = async (employeeId: number): Promise<Employee> => {
-  try {
-    const url = `${BASE_URL}/${employeeId}`;
-    console.log("Fetching from URL:", url); // URL'yi loglayın
-    
-    const response = await fetch(url);
-    if (!response.ok) {
-      const errorMessage = await response.text();
-      throw new Error(`Çalışan verileri alınırken hata oluştu: ${errorMessage}`);
-    }
-    
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("fetchEmployeeData Error:", error);
-    // Hata hakkında daha fazla bilgi vermek için
-    if (error instanceof Error) {
-      console.error("Hata Detayı:", error.message);
-    }
-    throw error;
-  }
-};
-
-
-// Çalışan verilerini günceller (sadece belirli alanlar gönderilebilir)
-export const updateEmployeeData = async (employeeId: number, data: Partial<Employee>): Promise<Employee> => {
-  try {
-    const response = await fetch(`${BASE_URL}/${employeeId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-
-    if (!response.ok) {
-      const errorMessage = await response.text();
-      throw new Error(`Çalışan verileri güncellenirken hata oluştu: ${errorMessage}`);
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("updateEmployeeData Error:", error);
-    throw error;
-  }
-};
-
-// Redux state tipi
 interface EmployeeState {
-  employee: Employee | null;
+  employees: Employee[];
   loading: boolean;
   error: string | null;
 }
 
-// Başlangıç durumu
 const initialState: EmployeeState = {
-  employee: null,
+  employees: [],
   loading: false,
-  error: null,
+  error: null
 };
 
-// Çalışan verilerini API'den çekme
-export const fetchEmployeeAsync = createAsyncThunk(
-  "employee/fetchEmployee",
-  async (employeeId: number, { rejectWithValue }) => {
+// Async Thunks
+export const fetchEmployees = createAsyncThunk(
+  'employee/fetchEmployees',
+  async ({ page = 0, size = 10 }: { page?: number; size?: number }, { rejectWithValue }) => {
     try {
-      return await fetchEmployeeData(employeeId);
-    } catch (error) {
-      return rejectWithValue("Çalışan verileri alınırken hata oluştu.");
+      const response = await ApiService.getAllEmployees(page, size);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.message || 'Çalışanlar yüklenirken bir hata oluştu');
     }
   }
 );
 
-// Çalışan verilerini güncelleme
-export const updateEmployeeAsync = createAsyncThunk(
-  "employee/updateEmployee",
-  async ({ employeeId, data }: { employeeId: number; data: Partial<Employee> }, { rejectWithValue }) => {
+export const deleteEmployee = createAsyncThunk(
+  'employee/deleteEmployee',
+  async (id: number, { rejectWithValue }) => {
     try {
-      return await updateEmployeeData(employeeId, data);
-    } catch (error) {
-      return rejectWithValue("Çalışan verileri güncellenirken hata oluştu.");
+      // API çağrısı eklenecek
+      await Swal.fire({
+        icon: 'success',
+        title: 'Başarılı!',
+        text: 'Çalışan silindi',
+        showConfirmButton: false,
+        timer: 1500
+      });
+      return id;
+    } catch (error: any) {
+      await Swal.fire({
+        icon: 'error',
+        title: 'Hata!',
+        text: error.message || 'Çalışan silinirken bir hata oluştu'
+      });
+      return rejectWithValue(error.message);
     }
   }
 );
 
-// Redux Slice
+export const toggleEmployeeStatus = createAsyncThunk(
+  'employee/toggleStatus',
+  async (id: number, { rejectWithValue, getState }) => {
+    try {
+      // API çağrısı eklenecek
+      return id;
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+// Slice
 const employeeSlice = createSlice({
-  name: "employee",
+  name: 'employee',
   initialState,
-  reducers: {
-    // Çalışan verisini set etme
-    setEmployee: (state, action: PayloadAction<Employee>) => {
-      state.employee = action.payload;
-    }
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
-      // Çalışan verisini çekme işlemi
-      .addCase(fetchEmployeeAsync.pending, (state) => {
+      // Fetch Employees
+      .addCase(fetchEmployees.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchEmployeeAsync.fulfilled, (state, action: PayloadAction<Employee>) => {
+      .addCase(fetchEmployees.fulfilled, (state, action) => {
         state.loading = false;
-        state.employee = action.payload;
+        state.employees = action.payload;
       })
-      .addCase(fetchEmployeeAsync.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
-
-      // Çalışan verisini güncelleme işlemi
-      .addCase(updateEmployeeAsync.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(updateEmployeeAsync.fulfilled, (state, action: PayloadAction<Employee>) => {
-        state.loading = false;
-        state.employee = action.payload;
-      })
-      .addCase(updateEmployeeAsync.rejected, (state, action) => {
+      .addCase(fetchEmployees.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+      // Delete Employee
+      .addCase(deleteEmployee.fulfilled, (state, action) => {
+        state.employees = state.employees.filter(emp => emp.id !== action.payload);
+      })
+      // Toggle Status
+      .addCase(toggleEmployeeStatus.fulfilled, (state, action) => {
+        const employee = state.employees.find(emp => emp.id === action.payload);
+        if (employee) {
+          employee.isActive = !employee.isActive;
+        }
       });
-  },
+  }
 });
-
-export const { setEmployee } = employeeSlice.actions;
 
 export default employeeSlice.reducer;

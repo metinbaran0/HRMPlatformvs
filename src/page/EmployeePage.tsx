@@ -10,7 +10,7 @@ import {
   fetchEmployees, 
   deleteEmployee, 
   toggleEmployeeStatus 
-} from '../store/feature/employeeSlice';
+} from '../store/feature/EmployeeSlice';
 
 interface Employee {
   id: number;
