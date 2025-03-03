@@ -27,7 +27,7 @@ const EmployeeProfile: React.FC = () => {
           </Container>
         </Paper>
 
-        {/* Active Tab Content */}
+        {/* Active Tab Content  */}
         {activeTab === 1 && (
           <Paper sx={{ position: 'relative', padding: '20px' }}>
             <Button
