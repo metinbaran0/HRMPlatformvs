@@ -20,7 +20,7 @@ function RouterPage() {
         <Route path='/profile' element={<ProfilePage/>}/>
         <Route path='/employeeProfile' element={<EmployeeProfile/>}/>
         <Route path='/get-quote' element={<GetQuote />} />
-        <Route path='/personal' element={<PersonelPage/>}/>
+       
 
       </Routes>
     </BrowserRouter>
