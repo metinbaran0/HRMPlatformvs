@@ -2,36 +2,34 @@ import axios from 'axios';
 
 const prodUrl = '';
 const testUrl = '';
-<<<<<<< HEAD
+
 const devUrl = 'http://localhost:9090/api';
-=======
-const devUrl = 'http://localhost:9090/api/auth';
->>>>>>> main
+
+
 
 const server = devUrl;
 
 // API endpoint'leri
 const apis = {
-<<<<<<< HEAD
+
   login: server + '/auth/dologin',
   register: server + '/auth/register',
   getAllEmployees: server + '/employee/get-all-employees',
   // Diğer endpoint'ler buraya eklenebilir
-};
-=======
-  
-    userService: server + '/user',
+  userService: server + '/user',
 
     leaveService: server + '/leave',
     employeeService: server + '/employee',
 
-    LOGIN: '/dologin',
-   REGISTER: '/register',
+};
+
+  
+    
 
     
    
-}
->>>>>>> main
+
+
 
 // Axios instance oluştur
 const api = axios.create({
