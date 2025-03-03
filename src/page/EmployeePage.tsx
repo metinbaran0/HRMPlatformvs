@@ -14,14 +14,16 @@ import {
 
 interface Employee {
   id: number;
-  firstName: string;
-  lastName: string;
+  companyId: number;
+  avatar: string | null;
+  name: string;
+  surname: string;
   email: string;
   phone: string;
-  department: string;
   position: string;
-  isActive: boolean;
-  startDate: string;
+  createdAt: string;
+  updatedAt: string;
+  active: boolean;
 }
 
 const EmployeePage: React.FC = () => {

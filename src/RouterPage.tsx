@@ -11,15 +11,6 @@ import GetQuote from './page/GetQuote'
 
 
 
-
-
-
-
-
-
-
-
-
 function RouterPage() {
   return (
     <BrowserRouter>

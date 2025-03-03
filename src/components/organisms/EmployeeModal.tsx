@@ -3,32 +3,34 @@ import { Modal } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 import './EmployeeModal.css';
 
+interface Employee {
+  id: number;
+  companyId: number;
+  avatar: string | null;
+  name: string;
+  surname: string;
+  email: string;
+  phone: string;
+  position: string;
+  createdAt: string;
+  updatedAt: string;
+  active: boolean;
+}
+
 interface EmployeeModalProps {
   show: boolean;
   onHide: () => void;
-  employee: {
-    id: number;
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-    department: string;
-    position: string;
-    isActive: boolean;
-    startDate: string;
-  } | null;
+  employee: Employee | null;
   onSave: (data: EmployeeData) => void;
 }
 
 interface EmployeeData {
   id?: number;
-  firstName: string;
-  lastName: string;
+  name: string;
+  surname: string;
   email: string;
   phone: string;
-  department: string;
   position: string;
-  startDate: string;
 }
 
 const EmployeeModal: React.FC<EmployeeModalProps> = ({
@@ -38,35 +40,35 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
   onSave
 }) => {
   const [formData, setFormData] = useState<EmployeeData>({
-    firstName: '',
-    lastName: '',
+    name: '',
+    surname: '',
     email: '',
     phone: '',
-    department: '',
-    position: '',
-    startDate: ''
+    position: ''
   });
 
   useEffect(() => {
     if (employee) {
       setFormData({
-        firstName: employee.firstName,
-        lastName: employee.lastName,
+        id: employee.id,
+        name: employee.name,
+        surname: employee.surname,
         email: employee.email,
         phone: employee.phone,
-        department: employee.department,
-        position: employee.position,
-        startDate: employee.startDate
+        position: employee.position
+      });
+    } else {
+      setFormData({
+        name: '',
+        surname: '',
+        email: '',
+        phone: '',
+        position: ''
       });
     }
   }, [employee]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSave(formData);
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -74,8 +76,13 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
     }));
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave(formData);
+  };
+
   return (
-    <Modal show={show} onHide={onHide} centered className="employee-modal">
+    <Modal show={show} onHide={onHide} className="employee-modal">
       <Modal.Header closeButton>
         <Modal.Title>{employee ? 'Çalışan Düzenle' : 'Yeni Çalışan Ekle'}</Modal.Title>
       </Modal.Header>
@@ -85,8 +92,8 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
             <label>Ad</label>
             <input
               type="text"
-              name="firstName"
-              value={formData.firstName}
+              name="name"
+              value={formData.name}
               onChange={handleChange}
               required
             />
@@ -95,8 +102,8 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
             <label>Soyad</label>
             <input
               type="text"
-              name="lastName"
-              value={formData.lastName}
+              name="surname"
+              value={formData.surname}
               onChange={handleChange}
               required
             />
@@ -122,36 +129,11 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
             />
           </div>
           <div className="form-group">
-            <label>Departman</label>
-            <select
-              name="department"
-              value={formData.department}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Seçiniz</option>
-              <option value="IT">IT</option>
-              <option value="İK">İK</option>
-              <option value="Finans">Finans</option>
-              <option value="Pazarlama">Pazarlama</option>
-            </select>
-          </div>
-          <div className="form-group">
             <label>Pozisyon</label>
             <input
               type="text"
               name="position"
               value={formData.position}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label>Başlangıç Tarihi</label>
-            <input
-              type="date"
-              name="startDate"
-              value={formData.startDate}
               onChange={handleChange}
               required
             />
