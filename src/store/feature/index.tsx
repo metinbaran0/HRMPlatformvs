@@ -1,6 +1,6 @@
 import userSlice from "./userSlice";
 import leaveSlice from "./LeaveSlice";
-import employeeSlice from './EmployeeSlice';
+import employeeSlice from './employeeSlice';
 import shiftSlice from './ShiftSlice';
 import assetSlice from './AssetSlice';
 import expenseSlice from './ExpenseSlice';
