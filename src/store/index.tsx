@@ -1,6 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import userReducer from './feature/userSlice'
-import employeeReducer from './feature/EmployeeSlice';
+import employeeReducer from './feature/employeeSlice';
 import leaveReducer from './feature/LeaveSlice';
 
 import shiftReducer from './feature/ShiftSlice';

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../store';
-import { fetchEmployees } from '../../store/feature/EmployeeSlice';
+import { fetchEmployees } from '../../store/feature/employeeSlice';
 
 const EmployeeForm: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
