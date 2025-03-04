@@ -3,7 +3,7 @@ import axios from 'axios';
 const prodUrl = '';
 const testUrl = '';
 
-const devUrl = 'http://localhost:9090/api';
+const devUrl = ' http://localhost:9090/v1/api';
 
 
 
@@ -71,6 +71,8 @@ export const RestApis = {
   login: async (userData: { email: string; password: string }) => {
     try {
       const response = await api.post(apis.login, userData);
+
+      console.log('Login Yanıtı:', response.data);
       
       console.log('Login Response:', response);
       console.log('Response Data:', response.data);
