@@ -3,7 +3,7 @@ import Sidebar from "../components/organisms/Sidebar";
 import PendingCompanies from "../components/organisms/PendingCompanies";
 import CompanyList from "../components/organisms/CompanyList";
 import CompanyDashboard from "../components/organisms/CompanyDashboard";
-
+//burada bir yorum var
 import "./CompanyPage.css";
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
