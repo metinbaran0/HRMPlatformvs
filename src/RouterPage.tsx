@@ -12,6 +12,7 @@ import GetQuote from './page/GetQuote'
 
 
 
+
 function RouterPage() {
   return (
     <BrowserRouter>
@@ -24,6 +25,7 @@ function RouterPage() {
         <Route path='/profile' element={<ProfilePage/>}/>
         <Route path='/employeeProfile' element={<EmployeeProfile/>}/>
         <Route path='/get-quote' element={<GetQuote />} />
+       
        
 
       </Routes>
