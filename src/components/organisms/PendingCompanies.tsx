@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { FaCheckCircle, FaTimesCircle, FaBuilding, FaEnvelope, FaPhone, FaUsers, FaCalendar, FaExclamationTriangle } from "react-icons/fa";
 import "./PendingCompanies.css";
+import useSelection from "antd/es/table/hooks/useSelection";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store";
 
 interface PendingCompany {
   id: number;
@@ -18,19 +21,35 @@ const PendingCompanies: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null); // Hata mesajı durumu
   const [showPopup, setShowPopup] = useState(false); // Popup durumu için state
-
+    const token= useSelector<RootState>(s => s.user.token)              
   useEffect(() => {
-    fetch("http://localhost:9090/v1/api/company/pending-company")
-      .then(response => response.json())
+    console.log(token);
+  
+    fetch("http://localhost:9090/v1/api/company/pending-company",{
+      method:"GET",
+      headers:{
+        "Authorization": "Bearer " + token ,
+        "Content-Type": "application/json"
+      }
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
       .then(data => {
         if (data.success) {
           setPendingCompanies(data.data);
+        } else {
+          setErrorMessage("Veriler alınırken bir hata oluştu.");
         }
         setLoading(false);
       })
       .catch(error => {
         console.error("Error fetching pending companies:", error);
         setLoading(false);
+        setErrorMessage("Şirket verileri alınırken bir hata oluştu.");
       });
   }, []);
 
@@ -123,7 +142,7 @@ const PendingCompanies: React.FC = () => {
               <FaBuilding className="company-icon" />
               <h3>{company.name}</h3>
             </div>
-            
+
             <div className="card-content">
               <div className="info-item">
                 <FaEnvelope className="info-icon" />
