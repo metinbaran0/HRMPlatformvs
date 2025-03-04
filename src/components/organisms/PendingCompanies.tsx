@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FaCheckCircle, FaTimesCircle, FaBuilding, FaEnvelope, FaPhone, FaUsers, FaCalendar, FaExclamationTriangle } from "react-icons/fa";
 import "./PendingCompanies.css";
-import useSelection from "antd/es/table/hooks/useSelection";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
 
