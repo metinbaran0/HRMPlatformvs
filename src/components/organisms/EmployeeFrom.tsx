@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../store';
 import { fetchEmployees } from '../../store/feature/employeeSlice';
-
+// yorum yapıyorum
 const EmployeeForm: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
 

@@ -11,7 +11,7 @@ import {
   deleteEmployee, 
   toggleEmployeeStatus 
 } from '../store/feature/employeeSlice';
-
+//deneme yapıyorumgit 
 interface Employee {
   id: number;
   companyId: number;
