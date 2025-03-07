@@ -9,7 +9,8 @@ import { AppDispatch, RootState } from '../store';
 import { 
   fetchEmployees, 
   deleteEmployee, 
-  toggleEmployeeStatus 
+  toggleEmployeeStatus ,
+  createEmployeeThunk
 } from '../store/feature/employeeSlice';
 //deneme yapıyorumgit 
 interface Employee {
@@ -64,6 +65,17 @@ const EmployeePage: React.FC = () => {
       await dispatch(toggleEmployeeStatus(id)).unwrap();
     } catch (error) {
       console.error('Durum değiştirme hatası:', error);
+    }
+  };
+
+  const handleSave = async (data: any) => {
+    try {
+      await dispatch(createEmployeeThunk(data)).unwrap();
+      setShowModal(false);
+      // Başarılı olduğunda listeyi yenile
+      dispatch(fetchEmployees({}));
+    } catch (error) {
+      console.error('Çalışan oluşturma hatası:', error);
     }
   };
 
@@ -133,10 +145,7 @@ const EmployeePage: React.FC = () => {
         show={showModal}
         onHide={() => setShowModal(false)}
         employee={selectedEmployee}
-        onSave={(data) => {
-          console.log('Kaydedilen data:', data);
-          setShowModal(false);
-        }}
+        onSave={handleSave}
       />
     </div>
   );
