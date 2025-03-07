@@ -8,19 +8,20 @@ const devUrl = ' http://localhost:9090/v1/api';
 
 
 const server = devUrl;
-
+const employee = server + '/employee';
 // API endpoint'leri
-const apis = {
 
+const apis = {
   login: server + '/auth/dologin',
   register: server + '/auth/register',
-  getAllEmployees: server + '/employee/get-all-employees',
-  // Diğer endpoint'ler buraya eklenebilir
+
+  getAllEmployees: employee + '/get-all-employees',
+  createEmployee: employee + '/create-employee', // Eksik olan createEmployee endpoint'ini ekledim.
+
+  // Diğer endpoint'ler
   userService: server + '/user',
-
-    leaveService: server + '/leave',
-    employeeService: server + '/employee',
-
+  leaveService: server + '/leave',
+  employeeService: employee, // Tekrar eden server yerine employee değişkenini kullandım.
 };
 
   
