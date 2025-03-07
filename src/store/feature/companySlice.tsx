@@ -1,5 +1,4 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import Swal from 'sweetalert2';
 import { RootState } from "..";
 import { createSelector } from 'reselect';
 import { Company } from '../../types/Company';
