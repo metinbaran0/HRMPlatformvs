@@ -1,0 +1,56 @@
+.shift-list {
+  margin-top: 20px;
+  font-family: 'Arial', sans-serif;
+  color: #333;
+}
+
+.shift-list h2 {
+  font-size: 24px;
+  font-weight: bold;
+  color: #4CAF50;
+  margin-bottom: 20px;
+}
+
+.shift-list ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.shift-list li {
+  background-color: #ffffff;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.shift-list li:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.shift-list li strong {
+  font-size: 18px;
+  color: #4CAF50;
+}
+
+.shift-list li .shift-time {
+  font-size: 14px;
+  color: #888;
+}
+
+.shift-list li .employee-count {
+  font-weight: bold;
+  color: #f44336;
+  font-size: 14px;
+}
+
+.shift-list li .employee-count span {
+  font-weight: normal;
+  font-size: 14px;
+  color: #666;
+}

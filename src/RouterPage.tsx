@@ -8,6 +8,7 @@ import ProfilePage from './page/ProfilePage'
 import EmployeeProfile from './page/EmployeeProfile'
 import GetQuote from './page/GetQuote'
 import TumHikayeler from './pages/tum-hikayeler'
+import ShiftPage from './page/ShiftPage'
 
 
 
@@ -27,6 +28,7 @@ function RouterPage() {
         <Route path='/employeeProfile' element={<EmployeeProfile/>}/>
         <Route path='/get-quote' element={<GetQuote />} />
         <Route path='/tum-hikayeler' element={<TumHikayeler />} />
+        <Route path='/shift' element={<ShiftPage />} />
        
        
 
