@@ -5,16 +5,15 @@ import CompanyList from "../components/organisms/CompanyList";
 import CompanyDashboard from "../components/organisms/CompanyDashboard";
 //burada bir yorum var
 import "./CompanyPage.css";
-import { useSelector } from 'react-redux';
-import { RootState } from '../store';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState, AppDispatch } from '../store';
+import { fetchCompanies } from '../store/feature/companySlice';
 
 const CompanyPage: React.FC = () => {
   const [activeSection, setActiveSection] = useState("dashboard");
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
-  const [companies, setCompanies] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const token= useSelector<RootState>(s => s.user.token) 
+  const { companies, loading, error } = useSelector((state: RootState) => state.companies);
+  const dispatch: AppDispatch = useDispatch();
 
   const plans = [
     { id: 1, name: 'Aylık', price: 100 },
@@ -22,32 +21,8 @@ const CompanyPage: React.FC = () => {
   ];
 
   useEffect(() => {
-    if (activeSection === "companies") {
-      fetchCompanies();
-    }
-  }, [activeSection]);
-
-  const fetchCompanies = async () => {
-    try {
-      const response = await fetch('http://localhost:9090/v1/api/company/find-all-company',{
-        method:"GET",
-        headers:{
-          "Authorization": "Bearer " + token ,
-          "Content-Type": "application/json"
-        }
-      });
-      const data = await response.json();
-      if (data.success) {
-        setCompanies(data.data);
-      } else {
-        setError(data.message);
-      }
-    } catch (err) {
-      setError('Şirketler alınırken bir hata oluştu');
-    } finally {
-      setLoading(false);
-    }
-  };
+    dispatch(fetchCompanies());
+  }, [dispatch]);
 
   const handlePlanChange = (planId: number) => {
     setSelectedPlan(planId);
@@ -66,6 +41,14 @@ const CompanyPage: React.FC = () => {
         return <CompanyDashboard />;
     }
   };
+
+  if (loading) {
+    return <div>Yükleniyor...</div>;
+  }
+
+  if (error) {
+    return <div>Hata: {error}</div>;
+  }
 
   return (
     <div className="company-page">

@@ -1,17 +1,7 @@
 import React from 'react';
 import './CompanyList.css';
 import { FaCheckCircle, FaTimesCircle, FaHourglassHalf } from 'react-icons/fa';
-
-interface Company {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  status: 'pending' | 'approved' | 'rejected';
-  employeeCount: number;
-  createdAt: string;
-  sector: string;
-}
+import { Company } from '../../types/Company';
 
 interface CompanyListProps {
   companies: Company[];
@@ -51,7 +41,7 @@ const CompanyList: React.FC<CompanyListProps> = ({ companies, loading, error }) 
   };
 
   if (loading) return <div>Yükleniyor...</div>;
-  if (error) return <div>{error}</div>;
+  if (error) return <div>Hata: {error}</div>;
 
   return (
     <div className="company-list-container">

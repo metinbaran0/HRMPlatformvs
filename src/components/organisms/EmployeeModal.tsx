@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Modal } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 import './EmployeeModal.css';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
+import { selectCompanyOptions } from '../../store/feature/companySlice';
 
 interface Employee {
   id: number;
@@ -40,8 +43,8 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [position, setPosition] = useState('');
-  const [companyId, setCompanyId] = useState<number>(0);
-  const [companies, setCompanies] = useState<Company[]>([]);
+  const [companyId, setCompanyId] = useState<number | null>(null);
+  const companyOptions = useSelector(selectCompanyOptions);
 
   useEffect(() => {
     if (employee) {
@@ -57,26 +60,20 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
       setEmail('');
       setPhone('');
       setPosition('');
-      setCompanyId(0);
+      setCompanyId(null);
     }
   }, [employee]);
-
-  useEffect(() => {
-    const fetchCompanies = async () => {
-      //const response = await fetch('http://localhost:8080/api/companies'); // Backend endpoint'i
-      //const data = await response.json();
-      //setCompanies(data);
-      setCompanies([{ id: 1, name: 'Company A' }, { id: 2, name: 'Company B' }]);
-    };
-
-    fetchCompanies();
-  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (companyId === null) {
+      // Hata mesajı göster veya başka bir işlem yap
+      return;
+    }
+
     const formData = {
-      companyId: Number(companyId),
+      companyId: companyId,
       name,
       surname,
       email,
@@ -103,14 +100,14 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
             <label htmlFor="companyId">Şirket:</label>
             <select
               id="companyId"
-              value={companyId}
+              value={companyId || ''}
               onChange={(e) => setCompanyId(Number(e.target.value))}
               required
             >
               <option value="">Şirket Seçin</option>
-              {companies.map((company) => (
-                <option key={company.id} value={company.id}>
-                  {company.name}
+              {companyOptions.map((company) => (
+                <option key={company.value} value={company.value}>
+                  {company.label}
                 </option>
               ))}
             </select>
