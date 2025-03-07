@@ -55,7 +55,7 @@ const AuthPage = () => {
               navigate("/employee");
               break;
             case "EMPLOYEE":
-              navigate("/profile");
+              navigate("/employeeProfile");
               break;
             default:
               navigate("/");
