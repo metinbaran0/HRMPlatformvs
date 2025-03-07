@@ -1,0 +1,56 @@
+.shift-form {
+  display: flex;
+  flex-direction: column;
+  margin-top: 30px;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.shift-form label {
+  font-size: 16px;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.shift-form input,
+.shift-form select {
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+}
+
+.shift-form input:focus,
+.shift-form select:focus {
+  border-color: #4caf50;
+  outline: none;
+}
+
+.shift-form button {
+  background-color: #4caf50;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.shift-form button:hover {
+  background-color: #45a049;
+}
+
+.shift-form .form-header {
+  font-size: 22px;
+  font-weight: bold;
+  color: #4caf50;
+  margin-bottom: 20px;
+  text-align: center;
+}
