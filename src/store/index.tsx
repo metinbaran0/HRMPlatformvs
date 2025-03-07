@@ -6,6 +6,7 @@ import leaveReducer from './feature/LeaveSlice';
 import shiftReducer from './feature/ShiftSlice';
 import assetReducer from './feature/AssetSlice';
 import expenseReducer from './feature/ExpenseSlice';
+import companyReducer from "./feature/companySlice";
 
 
 export const store = configureStore({
@@ -17,6 +18,7 @@ export const store = configureStore({
     shift: shiftReducer,
     asset: assetReducer,
     expense: expenseReducer,
+    companies: companyReducer,
 
   },
 });
