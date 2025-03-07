@@ -1,0 +1,30 @@
+/* EmployeeShiftList.css */
+.employee-shift-list {
+    margin-top: 20px;
+  }
+  
+  .employee-shift-list ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .employee-shift-list li {
+    background-color: #f4f4f9;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .employee-shift-list li strong {
+    font-size: 16px;
+    color: #333;
+  }
+  
+  .employee-shift-list li .shift-time {
+    font-size: 14px;
+    color: #666;
+  }
+  
