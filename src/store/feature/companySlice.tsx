@@ -21,7 +21,7 @@ export const fetchCompanies = createAsyncThunk(
   "companies/fetchCompanies",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await fetch("http://localhost:9090/v1/api/company/find-all-company", {
+      const response = await fetch("http://localhost:9090/v1/api/company/approved", {
         method: "GET",
         headers: {
           "Authorization": "Bearer " + localStorage.getItem("token"),
