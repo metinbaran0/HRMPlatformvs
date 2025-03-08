@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { FaCheckCircle, FaTimesCircle, FaBuilding, FaEnvelope, FaPhone, FaUsers, FaCalendar, FaExclamationTriangle } from "react-icons/fa";
-import "./PendingCompanies.css";
+import { FaCheckCircle, FaTimesCircle, FaBuilding, FaEnvelope, FaPhone, FaUsers, FaCalendar } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
+import swal from "sweetalert";  // SweetAlert kütüphanesi eklenmeli
+import "./PendingCompanies.css";
 
 interface PendingCompany {
   id: number;
@@ -12,32 +13,30 @@ interface PendingCompany {
   sector: string;
   employeeCount: number;
   createdAt: string;
-  emailVerified: boolean;  // Mail doğrulama durumu
+  emailVerified: boolean;
 }
 
 const PendingCompanies: React.FC = () => {
   const [pendingCompanies, setPendingCompanies] = useState<PendingCompany[]>([]);
   const [loading, setLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null); // Hata mesajı durumu
-  const [showPopup, setShowPopup] = useState(false); // Popup durumu için state
-    const token= useSelector<RootState>(s => s.user.token)              
-  useEffect(() => {
-    console.log(token);
-  
-    fetch("http://localhost:9090/v1/api/company/pending-company",{
-      method:"GET",
-      headers:{
-        "Authorization": "Bearer " + token ,
-        "Content-Type": "application/json"
-      }
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const token = useSelector<RootState>((s) => s.user.token);
+
+  const fetchPendingCompanies = () => {
+    fetch("http://localhost:9090/v1/api/company/pending-company", {
+      method: "GET",
+      headers: {
+        Authorization: "Bearer " + token,
+        "Content-Type": "application/json",
+      },
     })
-      .then(response => {
+      .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         return response.json();
       })
-      .then(data => {
+      .then((data) => {
         if (data.success) {
           setPendingCompanies(data.data);
         } else {
@@ -45,69 +44,87 @@ const PendingCompanies: React.FC = () => {
         }
         setLoading(false);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error("Error fetching pending companies:", error);
         setLoading(false);
         setErrorMessage("Şirket verileri alınırken bir hata oluştu.");
       });
+  };
+
+  useEffect(() => {
+    fetchPendingCompanies();
   }, []);
 
   const handleApprove = async (id: number, emailVerified: boolean) => {
     if (!emailVerified) {
-      setShowPopup(true); // Popup'ı göster
+      swal("Uyarı!", "Bu şirket mail doğrulaması yapmadı. Onay verilemez.", "warning");
       return;
     }
-
-    try {
-      const response = await fetch(`http://localhost:9090/company/company/approve-company/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      });
-      const data = await response.json();
-      if (data.success) {
-        // Başarıyla onaylanan şirketi listeden çıkarma
-        setPendingCompanies(prev => prev.filter(company => company.id !== id));
+  
+    swal({
+      title: "Şirketi Onaylamak İstediğinize Emin misiniz?",
+      text: "Bu işlem sonucunda şirket aktif hale gelecektir.",
+      icon: "info",
+      buttons: ["İptal", "Evet, Onayla"],
+    }).then(async (willApprove) => {
+      if (willApprove) {
+        try {
+          const response = await fetch(`http://localhost:9090/v1/api/company/approve-company/${id}`, {
+            method: "PUT",
+            headers: {
+              Authorization: "Bearer " + token,
+              "Content-Type": "application/json",
+            },
+          });
+  
+          const data = await response.json();
+          if (data.success) {
+            swal("Başarılı!", "Şirket başarıyla onaylandı.", "success");
+            fetchPendingCompanies(); // Listeyi güncelle
+          } else {
+            swal("Hata!", "Şirket onaylanamadı. Lütfen tekrar deneyin.", "error");
+          }
+        } catch (error) {
+          console.error("Şirket onaylanırken bir hata oluştu:", error);
+          swal("Bir hata oluştu!", "Lütfen tekrar deneyin.", "error");
+        }
       }
-    } catch (error) {
-      console.error("Şirket onaylanırken bir hata oluştu:", error);
-    }
+    });
   };
+  
 
-  const handleReject = async (id: number) => {
-    try {
-      const response = await fetch(`http://localhost:9090/company/company/reject-company/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      });
-      const data = await response.json();
-      if (data.success) {
-        // Başarıyla reddedilen şirketi listeden çıkarma
-        setPendingCompanies(prev => prev.filter(company => company.id !== id));
+  const handleReject = (id: number, emailVerified: boolean) => {
+    swal({
+      title: "Şirketi Reddetmek İstediğinize Emin misiniz?",
+      text: "Bu işlemi geri alamazsınız!",
+      icon: "warning",
+      buttons: ["İptal", "Evet, Reddet"],
+      dangerMode: true,
+    }).then((willDelete) => {
+      if (willDelete) {
+        fetch(`http://localhost:9090/v1/api/company/reject-company/${id}`, {
+          method: "PUT",
+          headers: {
+            Authorization: "Bearer " + token,
+            "Content-Type": "application/json",
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              swal("Şirket başarıyla reddedildi!", { icon: "success" });
+              fetchPendingCompanies(); // Sayfayı tekrar yükleyerek reddedilen şirketi listeden kaldır
+            } else {
+              swal("Şirket reddedilemedi. Lütfen tekrar deneyin.", { icon: "error" });
+            }
+          })
+          .catch((error) => {
+            console.error("Şirket reddedilirken bir hata oluştu:", error);
+            swal("Bir hata oluştu. Lütfen tekrar deneyin.", { icon: "error" });
+          });
       }
-    } catch (error) {
-      console.error("Şirket reddedilirken bir hata oluştu:", error);
-    }
+    });
   };
-
-  // Popup bileşeni
-  const Popup = () => (
-    <div className="popup-overlay" onClick={() => setShowPopup(false)}>
-      <div className="popup-content" onClick={e => e.stopPropagation()}>
-        <div className="popup-header">
-          <FaExclamationTriangle className="popup-icon" />
-          <h3 className="popup-title">Mail Doğrulama Gerekli</h3>
-        </div>
-        <p className="popup-message">
-          Bu şirket henüz mail adresini doğrulamamış. Onaylama işlemi için mail doğrulaması gereklidir.
-        </p>
-        <button className="popup-close" onClick={() => setShowPopup(false)}>×</button>
-      </div>
-    </div>
-  );
 
   if (loading) {
     return (
@@ -130,9 +147,7 @@ const PendingCompanies: React.FC = () => {
         </div>
       </div>
 
-      {errorMessage && <div className="error">{errorMessage}</div>} {/* Hata mesajı */}
-
-      {showPopup && <Popup />} {/* Popup bileşenini ekle */}
+      {errorMessage && <div className="error">{errorMessage}</div>}
 
       <div className="pending-grid">
         {pendingCompanies.map((company) => (
@@ -157,7 +172,7 @@ const PendingCompanies: React.FC = () => {
               </div>
               <div className="info-item">
                 <FaCalendar className="info-icon" />
-                <span>{new Date(company.createdAt).toLocaleDateString('tr-TR')}</span>
+                <span>{new Date(company.createdAt).toLocaleDateString("tr-TR")}</span>
               </div>
             </div>
 
@@ -168,10 +183,7 @@ const PendingCompanies: React.FC = () => {
               >
                 <FaCheckCircle /> Onayla
               </button>
-              <button
-                className="action-button reject"
-                onClick={() => handleReject(company.id)}
-              >
+              <button className="action-button reject" onClick={() => handleReject(company.id, company.emailVerified)}>
                 <FaTimesCircle /> Reddet
               </button>
             </div>

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { FaUserPlus, FaSearch, FaFilter } from 'react-icons/fa';
 import EmployeeTable from '../components/organisms/EmployeeTable';
 import EmployeeModal from '../components/organisms/EmployeeModal';
+import PendingLeaveRequests from '../components/organisms/PendingLeaveRequests';  // Importing the new component
 import './EmployeePage.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../store';
@@ -11,7 +12,7 @@ import {
   deleteEmployee, 
   toggleEmployeeStatus 
 } from '../store/feature/employeeSlice';
-//deneme yapıyorumgit 
+
 interface Employee {
   id: number;
   companyId: number;
@@ -129,6 +130,9 @@ const EmployeePage: React.FC = () => {
         onToggleActive={handleToggleActive}
       />
 
+      {/* Add the PendingLeaveRequests component */}
+      <PendingLeaveRequests />
+
       <EmployeeModal
         show={showModal}
         onHide={() => setShowModal(false)}
@@ -142,4 +146,4 @@ const EmployeePage: React.FC = () => {
   );
 };
 
-export default EmployeePage; 
+export default EmployeePage;

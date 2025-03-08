@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../store';
 import { useNavigate } from 'react-router-dom';
 import jwtDecode from "jwt-decode";
-import LeaveRequestForm from './LeaveRequestForm';
+import LeaveRequestForm from '../components/organisms/LeaveRequestForm';
 import Swal from 'sweetalert2';
 
 
@@ -55,7 +55,7 @@ const AuthPage = () => {
               navigate("/employee");
               break;
             case "EMPLOYEE":
-              navigate("/profile");
+              navigate("/employeeProfile");
               break;
             default:
               navigate("/");
@@ -140,10 +140,7 @@ const AuthPage = () => {
         <p>İnsan kaynakları yönetimini kolaylaştıran profesyonel çözüm</p>
         <Button onClick={handleCtaClick}>Hemen Başlayın</Button>
       </div>
-      <div>
-        <h1>İzin Talebi Oluştur</h1>
-        <LeaveRequestForm />
-      </div>
+     
     </div>
   );
 };
