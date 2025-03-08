@@ -1,6 +1,6 @@
 
 import React from "react";
-import { PendingCompany } from "../../types/company";
+import { PendingCompany} from "../organisms/PendingCompanies";
 import "./CompanyCard.css";
 
 interface CompanyCardProps {

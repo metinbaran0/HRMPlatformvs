@@ -1,21 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import ApiService from "../../services/ApiService";
+import ApiService, { Employee, PartialEmployee, CreateEmployeeRequest } from"../../services/ApiService";
 import Swal from 'sweetalert2';
-//deneme
+//deneme 
 // Interfaces
-interface Employee {
-  id: number;
-  companyId: number;
-  avatar: string | null;
-  name: string;
-  surname: string;
-  email: string;
-  phone: string;
-  position: string;
-  createdAt: string;
-  updatedAt: string;
-  active: boolean;
-}
+
 
 interface EmployeeResponse {
   content: Employee[];
@@ -52,6 +40,41 @@ export const fetchEmployees = createAsyncThunk<
       return response.data.content; // Direkt content'i dönüyoruz
     } catch (error: any) {
       return rejectWithValue(error.message || 'Çalışanlar yüklenirken bir hata oluştu');
+    }
+  }
+);
+
+export const createEmployeeThunk = createAsyncThunk<
+  void, // Bu işlem veri döndürmeyecek
+  CreateEmployeeRequest, // Parametre tipi
+  { rejectValue: string } // Hata mesajı tipi
+>(
+  'employee/createEmployee',
+  async (employeeData, { rejectWithValue, dispatch }) => {
+    try {
+      // API'ye post isteği gönder
+      await ApiService.createEmployee(employeeData);
+
+      // Çalışan başarıyla eklendi, kullanıcıya bildirim
+      await Swal.fire({
+        icon: 'success',
+        title: 'Başarılı!',
+        text: 'Çalışan başarıyla eklendi',
+        showConfirmButton: false,
+        timer: 1500
+      });
+
+      // Çalışan eklendikten sonra hemen listeyi güncellemek için fetchEmployees action'ını tetikleyebiliriz
+      dispatch(fetchEmployees({ page: 0, size: 10 })); // Tüm çalışanları yeniden çekmek
+
+    } catch (error: any) {
+      await Swal.fire({
+        icon: 'error',
+        title: 'Hata!',
+        text: error.message || 'Çalışan eklenirken bir hata oluştu'
+      });
+
+      return rejectWithValue(error.message);
     }
   }
 );
@@ -114,10 +137,16 @@ const employeeSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-      // Delete Employee
-      .addCase(deleteEmployee.fulfilled, (state, action) => {
-        state.employees = state.employees.filter(emp => emp.id !== action.payload);
-      })
+
+     // Create Employee
+     .addCase(createEmployeeThunk.fulfilled, (state) => {
+      // Yeni çalışan eklemek için herhangi bir şey yapmamıza gerek yok
+      // Çünkü fetchEmployees çağrıldığında liste zaten güncelleniyor
+    })
+    // Delete Employee
+    .addCase(deleteEmployee.fulfilled, (state, action) => {
+      state.employees = state.employees.filter(emp => emp.id !== action.payload);
+    })
       // Toggle Status
       .addCase(toggleEmployeeStatus.fulfilled, (state, action) => {
         const employee = state.employees.find(emp => emp.id === action.payload);

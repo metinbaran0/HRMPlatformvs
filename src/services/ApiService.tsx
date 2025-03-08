@@ -20,7 +20,7 @@ interface BaseResponse<T> {
   data: T;
 }
 
-interface Employee {
+export interface Employee {
   id: number;
   companyId: number;
   avatar: string | null;
@@ -31,6 +31,24 @@ interface Employee {
   position: string;
   createdAt: string;
   updatedAt: string;
+  active: boolean;
+}
+
+export interface CreateEmployeeRequest {
+  companyId: number;
+  name: string;
+  surname: string;
+  email: string;
+  phone: string;
+  position: string;
+}
+export interface PartialEmployee {
+  id: number;
+  name: string;
+  surname: string;
+  email: string;
+  phone: string;
+  position: string;
   active: boolean;
 }
 
@@ -116,6 +134,15 @@ const ApiService = {
     }
   },
 
+  createEmployee: async (employeeData: CreateEmployeeRequest): Promise<void> => {
+    try {
+      await api.post<PartialEmployee>(apis.createEmployee, employeeData);
+      // Başarılı işlem sonrası hiçbir şey döndürmeden işlem tamamlanır
+    } catch (error) {
+      throw error;
+    }
+  },
+  
   // Diğer API çağrıları buraya eklenebilir
 };
 

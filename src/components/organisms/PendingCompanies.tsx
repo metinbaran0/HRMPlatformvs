@@ -5,7 +5,7 @@ import { RootState } from "../../store";
 import swal from "sweetalert";  // SweetAlert kütüphanesi eklenmeli
 import "./PendingCompanies.css";
 
-interface PendingCompany {
+export interface PendingCompany {
   id: number;
   name: string;
   email: string;
@@ -13,7 +13,9 @@ interface PendingCompany {
   sector: string;
   employeeCount: number;
   createdAt: string;
-  emailVerified: boolean;
+  emailVerified: boolean; 
+  contactPerson: string; // Mail doğrulama durumu
+
 }
 
 const PendingCompanies: React.FC = () => {
