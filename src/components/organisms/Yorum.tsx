@@ -1,62 +1,76 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchComments } from "../../store/feature/CommentSlice"; // fetchComments Redux aksiyonu
+import { RootState, AppDispatch } from "../../store"; // AppDispatch ve RootState import edilmelidir
 import "./Yorum.css";
 
-type Testimonial = {
-  id: number;
-  logo: string;
-  quote: string;
+// Genişletilmiş Comment tipi
+interface TestimonialComment {
+  id: string;
+  content: string;
   author: string;
-  position: string;
-  company: string;
-  image: string;
-  fullStory: string;
-};
-
-const testimonials: Testimonial[] = [
-  {
-    id: 1,
-    logo: "https://picsum.photos/50/50?random=1",
-    quote: "İK süreçlerimizi çok daha verimli yönetmeye başladık. Özellikle izin takibi konusunda büyük kolaylık sağladı.",
-    author: "Ayşe Yılmaz",
-    position: "İK Direktörü",
-    company: "Tech Solutions",
-    image: "https://picsum.photos/400/300?random=1",
-    fullStory: "Detaylı kullanıcı deneyimi...",
-  },
-  {
-    id: 2,
-    logo: "https://picsum.photos/50/50?random=2",
-    quote: "Bordro işlemlerimiz artık çok daha hızlı ve hatasız. Çalışan memnuniyetimiz arttı.",
-    author: "Mehmet Demir",
-    position: "İK Müdürü",
-    company: "Global Yazılım",
-    image: "https://picsum.photos/400/300?random=2",
-    fullStory: "Detaylı kullanıcı deneyimi...",
-  },
-  {
-    id: 3,
-    logo: "https://picsum.photos/50/50?random=3",
-    quote: "Performans değerlendirme süreçlerimiz artık çok daha şeffaf ve ölçülebilir.",
-    author: "Zeynep Kaya",
-    position: "İK Uzmanı",
-    company: "Innovate Inc.",
-    image: "https://picsum.photos/400/300?random=3",
-    fullStory: "Detaylı kullanıcı deneyimi...",
-  },
-];
+  createdAt: string;
+  authorImage?: string;
+  position?: string;
+  company?: string;
+}
 
 const Yorum: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [selectedStory, setSelectedStory] = useState<Testimonial | null>(null);
+  const [selectedStory, setSelectedStory] = useState<any | null>(null);
+  const [comments, setComments] = useState<TestimonialComment[]>([]);
+
+  // Redux store'dan gelen yorumları alıyoruz
+  const { comments: apiComments, loading, error } = useSelector(
+    (state: RootState) => state.comment
+  );
+
+  useEffect(() => {
+    dispatch(fetchComments({}) as any);
+  }, [dispatch]);
+
+  useEffect(() => {
+    // API'den gelen yorumları genişletilmiş formata dönüştür
+    if (apiComments && apiComments.length > 0) {
+      const enhancedComments: TestimonialComment[] = apiComments.map(comment => ({
+        id: comment.id,
+        content: comment.content,
+        author: comment.author || 'Anonim',
+        createdAt: comment.createdAt,
+        // Eksik alanlar için varsayılan değerler
+        authorImage: 'https://picsum.photos/400/300',
+        position: 'Şirket Yöneticisi',
+        company: 'Şirketimiz'
+      }));
+      setComments(enhancedComments);
+    }
+  }, [apiComments]);
 
   const nextSlide = () => {
-    setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+    setCurrentIndex((prev) => (prev + 1) % comments.length);
   };
 
   const prevSlide = () => {
-    setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+    setCurrentIndex((prev) => (prev - 1 + comments.length) % comments.length);
   };
+
+  if (loading) {
+    return <p>Yorumlar yükleniyor...</p>;
+  }
+
+  if (error) {
+    return <p>{error}</p>;
+  }
+
+  if (!comments || comments.length === 0) {
+    return (
+      <div className="testimonial-container empty">
+        <p>Henüz yorum bulunmuyor.</p>
+      </div>
+    );
+  }
 
   return (
     <section className="testimonial-section">
@@ -65,7 +79,7 @@ const Yorum: React.FC = () => {
           <div className="header-content">
             <h2 className="testimonial-title">Kullanıcı Hikayeleri</h2>
             <p className="testimonial-subtitle">
-              Binlerce İK profesyonelinin deneyimlerini keşfedin
+              Binlerce kullanıcı deneyimini keşfedin
             </p>
             <motion.a 
               href="/tum-hikayeler"
@@ -90,31 +104,22 @@ const Yorum: React.FC = () => {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -100 }}
                 transition={{ duration: 0.5 }}
-                onClick={() => setSelectedStory(testimonials[currentIndex])}
+                onClick={() => setSelectedStory(comments[currentIndex])}
               >
-                {/* Daha fazla kelebek */}
-                <div className="butterfly"></div>
-                <div className="butterfly"></div>
-                <div className="butterfly"></div>
-                <div className="butterfly"></div>
-                <div className="butterfly"></div>
-                <div className="butterfly"></div>
-                <div className="butterfly"></div>
-                <div className="butterfly"></div>
-
                 <div className="card-image">
-                  <img src={testimonials[currentIndex].image} alt={testimonials[currentIndex].author} />
+                  {/* Eğer authorImage mevcut değilse, fallback olarak placeholder kullanıyoruz */}
+                  <img src={comments[currentIndex]?.authorImage || 'https://picsum.photos/400/300'} alt={comments[currentIndex]?.author} />
                 </div>
                 <div className="card-content">
                   <div className="card-header">
                     <div className="author-details">
-                      <h3>{testimonials[currentIndex].author}</h3>
-                      <p>{testimonials[currentIndex].position}</p>
-                      <p className="company-name">{testimonials[currentIndex].company}</p>
+                      <h3>{comments[currentIndex]?.author}</h3>
+                      <p>{comments[currentIndex]?.position}</p>
+                      <p className="company-name">{comments[currentIndex]?.company}</p>
                     </div>
                   </div>
                   <blockquote className="testimonial-quote">
-                    {testimonials[currentIndex].quote}
+                    {comments[currentIndex]?.content}
                   </blockquote>
                   <motion.button 
                     className="read-more-button"
@@ -154,11 +159,11 @@ const Yorum: React.FC = () => {
               <button className="close-modal" onClick={() => setSelectedStory(null)}>
                 ×
               </button>
-              <img src={selectedStory.image} alt={selectedStory.author} className="story-image" />
+              <img src={selectedStory?.authorImage || 'https://picsum.photos/400/300'} alt={selectedStory?.author} className="story-image" />
               <div className="story-content">
-                <h3>{selectedStory.author}</h3>
-                <p className="position">{selectedStory.position} - {selectedStory.company}</p>
-                <p className="full-story">{selectedStory.fullStory}</p>
+                <h3>{selectedStory?.author}</h3>
+                <p className="position">{selectedStory?.position} - {selectedStory?.company}</p>
+                <p className="full-story">{selectedStory?.content}</p>
               </div>
             </motion.div>
           </motion.div>
