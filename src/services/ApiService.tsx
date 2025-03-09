@@ -43,6 +43,7 @@ export interface CreateEmployeeRequest {
   position: string;
 }
 
+
 export interface UpdateEmployeeRequest {
   name?: string;
   surname?: string;
@@ -50,6 +51,8 @@ export interface UpdateEmployeeRequest {
   phone?: string;
   position?: string;
 }
+
+
 
 export interface PartialEmployee {
   id: number;
@@ -61,6 +64,16 @@ export interface PartialEmployee {
   active: boolean;
 }
 
+// Yorumlar için Comment arayüzü eklendi
+export interface Comment {
+  id: number;
+  content: string;
+  createdAt: string;
+  userId: number;
+  postId: number;
+}
+
+// Çalışanlar için API yanıt formatı
 interface GetEmployeesResponse extends BaseResponse<{
   content: Employee[];
   totalElements: number;
@@ -74,10 +87,8 @@ const api: AxiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json'
   },
-  // withCredentials: true  // Bunu kaldırıyoruz
 });
 
-// Request interceptor - Token ekleme
 api.interceptors.request.use(
   (config) => {
     const token = TokenService.getToken();
@@ -86,12 +97,9 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Response interceptor - Hata yönetimi
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -110,9 +118,7 @@ const ApiService = {
       
       if (response.data.success) {
         const { token, role, userId } = response.data.data;
-        
         TokenService.setUserData(token, userId, role);
-        
         return response.data;
       } else {
         throw new Error(response.data.message);
@@ -146,20 +152,31 @@ const ApiService = {
   createEmployee: async (employeeData: CreateEmployeeRequest): Promise<void> => {
     try {
       await api.post<PartialEmployee>(apis.createEmployee, employeeData);
-      // Başarılı işlem sonrası hiçbir şey döndürmeden işlem tamamlanır
     } catch (error) {
       throw error;
     }
   },
+
   
   updateEmployee: async (id: number, employeeData: UpdateEmployeeRequest): Promise<void> => {
     try {
       await api.put<BaseResponse<PartialEmployee>>(`${apis.employeeService}/update-employee/${id}`, employeeData);
       // Başarılı işlem sonrası hiçbir şey döndürmeden işlem tamamlanır
+
+
+  // Yorumları çekme API çağrısı
+  getAllComments: async (page: number = 1, size: number = 10): Promise<Comment[]> => {
+    try {
+      const response = await api.get<BaseResponse<{ content: Comment[] }>>(
+        `${apis.getAllComments}?page=${page}&size=${size}`
+      );
+      return response.data.data.content;
+
     } catch (error) {
       throw error;
     }
   },
+
   
   toggleEmployeeStatus: async (id: number): Promise<void> => {
     try {
@@ -202,6 +219,20 @@ const ApiService = {
   },
   
   // Diğer API çağrıları buraya eklenebilir
+
+
+  // Yeni yorum ekleme API çağrısı
+  createComment: async (commentContent: string): Promise<Comment> => {
+    try {
+      const response = await api.post<BaseResponse<Comment>>(apis.createComment, {
+        content: commentContent,
+      });
+      return response.data.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
 };
 
-export default ApiService; 
+export default ApiService;

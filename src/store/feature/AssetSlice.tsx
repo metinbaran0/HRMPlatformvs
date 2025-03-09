@@ -1,12 +1,20 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-// API Logic within AssetSlice
-const BASE_URL = "http://localhost:9090/v1/dev/asset";
+
+
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('authToken');  
+  return {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  };
+};
 
 /**
  * Yeni bir zimmet ekler.
  */
 const createAsset = async (assetData: {
+  id?: number; 
   employeeId: number;
   assetName: string;
   assetType: string;
@@ -15,11 +23,9 @@ const createAsset = async (assetData: {
   returnDate?: string;
 }) => {
   try {
-    const response = await fetch(`${BASE_URL}/add`, {
+    const response = await fetch(`http://localhost:9090/v1/api/asset/add`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify(assetData),
     });
 
@@ -39,7 +45,10 @@ const createAsset = async (assetData: {
  */
 const fetchAssets = async () => {
   try {
-    const response = await fetch(`${BASE_URL}/all`);
+    const response = await fetch(`http://localhost:9090/v1/api/asset/all`, {
+      method: "GET",
+      headers: getAuthHeaders(),  // Auth header'ı ekliyoruz
+    });
     if (!response.ok) {
       throw new Error("Zimmetler alınırken hata oluştu.");
     }
@@ -54,13 +63,11 @@ const fetchAssets = async () => {
 /**
  * Belirli bir zimmeti günceller.
  */
-const updateAsset = async (assetId: string, updatedAssetData: Partial<{ assetName: string; assetType: string; returnDate: string }>) => {
+const updateAsset = async (assetId: number, updatedAssetData: Partial<{ assetName: string; assetType: string; returnDate: string }>) => {
   try {
-    const response = await fetch(`${BASE_URL}/update/${assetId}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
+    const response = await fetch(` http://localhost:9090/v1/api/asset/update/{{id}}`, {
+      method: "PUT",
+      headers: getAuthHeaders(), 
       body: JSON.stringify(updatedAssetData),
     });
 
@@ -78,10 +85,11 @@ const updateAsset = async (assetId: string, updatedAssetData: Partial<{ assetNam
 /**
  * Bir zimmeti siler.
  */
-const deleteAsset = async (assetId: string) => {
+const deleteAsset = async (assetId: number) => {
   try {
-    const response = await fetch(`${BASE_URL}/delete/${assetId}`, {
+    const response = await fetch(`http://localhost:9090/v1/api/asset/delete/{{id}}`, {
       method: "DELETE",
+      headers: getAuthHeaders(),
     });
 
     if (!response.ok) {
@@ -96,7 +104,7 @@ const deleteAsset = async (assetId: string) => {
 };
 
 interface Asset {
-  id: string;
+  id: number;
   employeeId: number;
   assetName: string;
   assetType: string;
@@ -143,7 +151,7 @@ export const fetchAssetsAsync = createAsyncThunk("assets/fetchAssets", async (_,
 // Zimmet güncelleme
 export const updateAssetAsync = createAsyncThunk(
   "assets/updateAsset",
-  async ({ id, updatedAssetData }: { id: string; updatedAssetData: Partial<Asset> }, { rejectWithValue }) => {
+  async ({ id, updatedAssetData }: { id: number; updatedAssetData: Partial<Asset> }, { rejectWithValue }) => {
     try {
       return await updateAsset(id, updatedAssetData);
     } catch (error) {
@@ -153,7 +161,7 @@ export const updateAssetAsync = createAsyncThunk(
 );
 
 // Zimmet silme
-export const deleteAssetAsync = createAsyncThunk("assets/deleteAsset", async (id: string, { rejectWithValue }) => {
+export const deleteAssetAsync = createAsyncThunk("assets/deleteAsset", async (id: number, { rejectWithValue }) => {
   try {
     return await deleteAsset(id);
   } catch (error) {

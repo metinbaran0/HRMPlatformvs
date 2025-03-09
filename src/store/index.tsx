@@ -7,6 +7,7 @@ import shiftReducer from './feature/ShiftSlice';
 import assetReducer from './feature/AssetSlice';
 import expenseReducer from './feature/ExpenseSlice';
 import companyReducer from "./feature/companySlice";
+import commentReducer from "./feature/CommentSlice";
 
 
 export const store = configureStore({
@@ -19,6 +20,7 @@ export const store = configureStore({
     asset: assetReducer,
     expense: expenseReducer,
     companies: companyReducer,
+    comment: commentReducer,
 
   },
 });

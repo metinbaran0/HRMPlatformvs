@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { FaUserPlus, FaSearch, FaFilter, FaUsers, FaUserTie, FaUserClock, FaUserCheck } from 'react-icons/fa';
 import EmployeeTable from '../components/organisms/EmployeeTable';
 import EmployeeModal from '../components/organisms/EmployeeModal';
+import PendingLeaveRequests from '../components/organisms/PendingLeaveRequests';  // Importing the new component
 import './EmployeePage.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../store';
@@ -173,6 +174,7 @@ const EmployeePage: React.FC = () => {
         </button>
       </div>
 
+
       {/* Ana İçerik */}
       <div className="employee-content">
         <motion.div 
@@ -232,8 +234,41 @@ const EmployeePage: React.FC = () => {
           onSave={handleSave}
         />
       </div>
+
+        <div className="filter-box">
+          <FaFilter />
+          <select
+            value={filterDepartment}
+            onChange={(e) => setFilterDepartment(e.target.value)}
+          >
+            <option value="">Tüm Departmanlar</option>
+            <option value="IT">IT</option>
+            <option value="İK">İK</option>
+            <option value="Finans">Finans</option>
+            <option value="Pazarlama">Pazarlama</option>
+          </select>
+        </div>
+      </motion.div>
+
+      <EmployeeTable
+        employees={employees}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onToggleActive={handleToggleActive}
+      />
+
+      {/* Add the PendingLeaveRequests component */}
+      <PendingLeaveRequests />
+
+      <EmployeeModal
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        employee={selectedEmployee}
+        onSave={handleSave}
+      />
+
     </div>
   );
 };
 
-export default EmployeePage; 
+export default EmployeePage;

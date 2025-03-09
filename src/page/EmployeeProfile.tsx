@@ -61,7 +61,7 @@ const EmployeeProfile: React.FC = () => {
             >
               X
             </Button>
-            <LeaveRequestForm onSubmit={() => {}} />
+            <LeaveRequestForm/>
           </Paper>
         )}
         {activeTab === 3 && (
