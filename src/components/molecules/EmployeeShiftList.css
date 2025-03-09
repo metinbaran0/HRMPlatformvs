@@ -4,23 +4,29 @@
   }
   
   .employee-shift-list ul {
-    list-style-type: none;
+    list-style: none;
     padding: 0;
+    margin: 0;
   }
   
   .employee-shift-list li {
-    background-color: #f4f4f9;
-    padding: 10px;
+    padding: 12px 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
     margin-bottom: 10px;
-    border-radius: 5px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
   
-  .employee-shift-list li strong {
-    font-size: 16px;
-    color: #333;
+  .employee-shift-list li:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .employee-shift-list strong {
+    color: #2c3e50;
+    margin-right: 5px;
   }
   
   .employee-shift-list li .shift-time {

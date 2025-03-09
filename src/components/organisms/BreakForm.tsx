@@ -1,56 +1,64 @@
 import React, { useState } from 'react';
 import './BreakForm.css';
 
-const BreakForm = ({ onSubmit }: { onSubmit: (breakItem: { breakType: string; startTime: string; endTime: string }) => void }) => {
+interface BreakFormProps {
+  onSubmit: (breakData: { breakType: string; startTime: string; endTime: string }) => void;
+}
+
+const BreakForm: React.FC<BreakFormProps> = ({ onSubmit }) => {
   const [breakType, setBreakType] = useState('');
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({ breakType, startTime, endTime });
-    setBreakType('');
-    setStartTime('');
-    setEndTime('');
+    if (breakType && startTime && endTime) {
+      onSubmit({ breakType, startTime, endTime });
+      // Form alanlarını temizle
+      setBreakType('');
+      setStartTime('');
+      setEndTime('');
+    }
   };
 
   return (
-    <div className="break-form-container">
-      <h2 className="form-title">Yeni Mola Ekle</h2>
-      <form onSubmit={handleSubmit} className="break-form">
-        <label>
-          <span>Mola Türü:</span>
-          <input
-            type="text"
-            value={breakType}
-            onChange={(e) => setBreakType(e.target.value)}
-            required
-            placeholder="Örnek: Kahve Molası"
-          />
-        </label>
-        <label>
-          <span>Başlangıç Zamanı:</span>
-          <input
-            type="time"
-            value={startTime}
-            onChange={(e) => setStartTime(e.target.value)}
-            required
-          />
-        </label>
-        <label>
-          <span>Bitiş Zamanı:</span>
-          <input
-            type="time"
-            value={endTime}
-            onChange={(e) => setEndTime(e.target.value)}
-            required
-          />
-        </label>
-        <button type="submit" className="submit-btn">
-          Mola Ekle
-        </button>
-      </form>
-    </div>
+    <form onSubmit={handleSubmit} className="break-form">
+      <div className="form-group">
+        <label htmlFor="breakType">Mola Tipi</label>
+        <input
+          type="text"
+          id="breakType"
+          value={breakType}
+          onChange={(e) => setBreakType(e.target.value)}
+          placeholder="Örn: Öğle Molası"
+          required
+        />
+      </div>
+      
+      <div className="form-group">
+        <label htmlFor="startTime">Başlangıç Saati</label>
+        <input
+          type="time"
+          id="startTime"
+          value={startTime}
+          onChange={(e) => setStartTime(e.target.value)}
+          required
+        />
+      </div>
+      
+      <div className="form-group">
+        <label htmlFor="endTime">Bitiş Saati</label>
+        <input
+          type="time"
+          id="endTime"
+          value={endTime}
+          onChange={(e) => setEndTime(e.target.value)}
+          required
+        />
+      </div>
+      
+      <button type="submit" className="submit-button">Mola Ekle</button>
+    </form>
   );
 };
 

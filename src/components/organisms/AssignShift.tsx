@@ -1,28 +1,30 @@
 import React, { useState } from 'react';
 import './AssignShift.css';
+import { Shift, ShiftAssignment } from '../../types/shift';
 
 interface Employee {
   id: number;
   name: string;
 }
 
-interface Shift {
-  id: number;
-  name: string;
+interface AssignShiftProps {
+  employees: { id: number; name: string }[];
+  shifts: Shift[];
+  onAssign: (assignment: ShiftAssignment) => void;
 }
 
-interface ShiftAssignment {
-  employeeId: number;
-  shiftId: number;
-}
-
-const AssignShift = ({ employees, shifts, onAssign }: { employees: Employee[]; shifts: Shift[]; onAssign: (assignment: ShiftAssignment) => void }) => {
+const AssignShift = ({ employees, shifts, onAssign }: AssignShiftProps) => {
   const [selectedEmployee, setSelectedEmployee] = useState<number | null>(null);
   const [selectedShift, setSelectedShift] = useState<number | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
 
   const handleAssign = () => {
     if (selectedEmployee && selectedShift !== null) {
-      onAssign({ employeeId: selectedEmployee, shiftId: selectedShift });
+      onAssign({ 
+        employeeId: selectedEmployee, 
+        shiftId: selectedShift,
+        date: selectedDate 
+      });
     }
   };
 
@@ -55,7 +57,17 @@ const AssignShift = ({ employees, shifts, onAssign }: { employees: Employee[]; s
           </select>
         </label>
       </div>
-      <button onClick={handleAssign} disabled={!selectedEmployee || !selectedShift}>
+      <div>
+        <label>
+          Tarih:
+          <input 
+            type="date" 
+            value={selectedDate} 
+            onChange={(e) => setSelectedDate(e.target.value)}
+          />
+        </label>
+      </div>
+      <button onClick={handleAssign} disabled={!selectedEmployee || !selectedShift || !selectedDate}>
         Vardiya Ata
       </button>
     </div>

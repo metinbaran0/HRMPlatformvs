@@ -42,6 +42,15 @@ export interface CreateEmployeeRequest {
   phone: string;
   position: string;
 }
+
+export interface UpdateEmployeeRequest {
+  name?: string;
+  surname?: string;
+  email?: string;
+  phone?: string;
+  position?: string;
+}
+
 export interface PartialEmployee {
   id: number;
   name: string;
@@ -139,6 +148,55 @@ const ApiService = {
       await api.post<PartialEmployee>(apis.createEmployee, employeeData);
       // Başarılı işlem sonrası hiçbir şey döndürmeden işlem tamamlanır
     } catch (error) {
+      throw error;
+    }
+  },
+  
+  updateEmployee: async (id: number, employeeData: UpdateEmployeeRequest): Promise<void> => {
+    try {
+      await api.put<BaseResponse<PartialEmployee>>(`${apis.employeeService}/update-employee/${id}`, employeeData);
+      // Başarılı işlem sonrası hiçbir şey döndürmeden işlem tamamlanır
+    } catch (error) {
+      throw error;
+    }
+  },
+  
+  toggleEmployeeStatus: async (id: number): Promise<void> => {
+    try {
+      // Token'ı manuel olarak alıp header'a ekleyelim
+      const token = TokenService.getToken();
+      if (!token) {
+        throw new Error("Oturum açmanız gerekiyor");
+      }
+      
+      // Doğru endpoint'i kullanarak isteği gönderelim
+      await api.put<void>(`${apis.employeeService}/change-/${id}/status`, {}, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+    } catch (error) {
+      console.error("Status change error:", error);
+      throw error;
+    }
+  },
+  
+  deleteEmployee: async (id: number): Promise<void> => {
+    try {
+      // Token'ı manuel olarak alıp header'a ekleyelim
+      const token = TokenService.getToken();
+      if (!token) {
+        throw new Error("Oturum açmanız gerekiyor");
+      }
+      
+      // DELETE isteği gönderelim - endpoint'i kontrol edelim
+      await api.delete<string>(`${apis.employeeService}/delete-employee/${id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+    } catch (error) {
+      console.error("Delete employee error:", error);
       throw error;
     }
   },
