@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import ApiService, { Employee, PartialEmployee, CreateEmployeeRequest } from"../../services/ApiService";
+import ApiService, { Employee, PartialEmployee, CreateEmployeeRequest, UpdateEmployeeRequest } from"../../services/ApiService";
 import Swal from 'sweetalert2';
 //deneme 
 // Interfaces
@@ -79,39 +79,146 @@ export const createEmployeeThunk = createAsyncThunk<
   }
 );
 
-
-export const deleteEmployee = createAsyncThunk(
-  'employee/deleteEmployee',
-  async (id: number, { rejectWithValue }) => {
+export const updateEmployeeThunk = createAsyncThunk<
+  void, // Bu işlem veri döndürmeyecek
+  { id: number; employeeData: UpdateEmployeeRequest }, // Parametre tipi
+  { rejectValue: string } // Hata mesajı tipi
+>(
+  'employee/updateEmployee',
+  async ({ id, employeeData }, { rejectWithValue, dispatch }) => {
     try {
-      // API çağrısı eklenecek
+      // API'ye put isteği gönder
+      await ApiService.updateEmployee(id, employeeData);
+
+      // Çalışan başarıyla güncellendi, kullanıcıya bildirim
       await Swal.fire({
         icon: 'success',
         title: 'Başarılı!',
-        text: 'Çalışan silindi',
+        text: 'Çalışan başarıyla güncellendi',
         showConfirmButton: false,
         timer: 1500
       });
-      return id;
+
+      // Çalışan güncellendikten sonra hemen listeyi güncellemek için fetchEmployees action'ını tetikleyebiliriz
+      dispatch(fetchEmployees({ page: 0, size: 10 })); // Tüm çalışanları yeniden çekmek
+
     } catch (error: any) {
       await Swal.fire({
         icon: 'error',
         title: 'Hata!',
-        text: error.message || 'Çalışan silinirken bir hata oluştu'
+        text: error.message || 'Çalışan güncellenirken bir hata oluştu'
       });
+
       return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const deleteEmployee = createAsyncThunk(
+  'employee/deleteEmployee',
+  async (id: number, { rejectWithValue, dispatch }) => {
+    try {
+      // Silme işlemi için onay iste
+      const result = await Swal.fire({
+        title: 'Emin misiniz?',
+        text: "Bu çalışan kalıcı olarak silinecek!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Evet, sil!',
+        cancelButtonText: 'İptal'
+      });
+      
+      // Kullanıcı onaylamadıysa işlemi iptal et
+      if (!result.isConfirmed) {
+        return rejectWithValue('İşlem iptal edildi');
+      }
+      
+      // API çağrısı yap
+      await ApiService.deleteEmployee(id);
+      
+      // Başarılı bildirim göster
+      await Swal.fire({
+        icon: 'success',
+        title: 'Başarılı!',
+        text: 'Çalışan başarıyla silindi',
+        showConfirmButton: false,
+        timer: 1500
+      });
+      
+      // Listeyi güncelle
+      dispatch(fetchEmployees({}));
+      
+      return id;
+    } catch (error: any) {
+      console.error("Delete employee error:", error);
+      
+      let errorMessage = "Çalışan silinirken bir hata oluştu";
+      
+      if (error.response) {
+        if (error.response.status === 403) {
+          errorMessage = "Bu işlemi yapmak için yetkiniz bulunmuyor";
+        } else if (error.response.data) {
+          errorMessage = error.response.data;
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      await Swal.fire({
+        icon: 'error',
+        title: 'Hata!',
+        text: errorMessage
+      });
+      
+      return rejectWithValue(errorMessage);
     }
   }
 );
 
 export const toggleEmployeeStatus = createAsyncThunk(
   'employee/toggleStatus',
-  async (id: number, { rejectWithValue, getState }) => {
+  async (id: number, { rejectWithValue, dispatch }) => {
     try {
-      // API çağrısı eklenecek
+      // API çağrısı yapılıyor
+      await ApiService.toggleEmployeeStatus(id);
+      
+      // Başarılı bildirim göster
+      await Swal.fire({
+        icon: 'success',
+        title: 'Başarılı!',
+        text: 'Çalışan durumu değiştirildi',
+        showConfirmButton: false,
+        timer: 1500
+      });
+      
+      // Listeyi yenile
+      dispatch(fetchEmployees({}));
+      
       return id;
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      console.error("Toggle status error:", error);
+      
+      let errorMessage = "Çalışan durumu değiştirilirken bir hata oluştu";
+      
+      if (error.response) {
+        if (error.response.status === 403) {
+          errorMessage = "Bu işlemi yapmak için yetkiniz bulunmuyor";
+        } else if (error.response.data && error.response.data.message) {
+          errorMessage = error.response.data.message;
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      await Swal.fire({
+        icon: 'error',
+        title: 'Hata!',
+        text: errorMessage
+      });
+      
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -141,6 +248,11 @@ const employeeSlice = createSlice({
      // Create Employee
      .addCase(createEmployeeThunk.fulfilled, (state) => {
       // Yeni çalışan eklemek için herhangi bir şey yapmamıza gerek yok
+      // Çünkü fetchEmployees çağrıldığında liste zaten güncelleniyor
+    })
+    // Update Employee
+    .addCase(updateEmployeeThunk.fulfilled, (state) => {
+      // Çalışan güncellemek için herhangi bir şey yapmamıza gerek yok
       // Çünkü fetchEmployees çağrıldığında liste zaten güncelleniyor
     })
     // Delete Employee

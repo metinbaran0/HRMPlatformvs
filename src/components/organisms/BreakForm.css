@@ -1,61 +1,47 @@
 .break-form {
   display: flex;
   flex-direction: column;
-  margin-top: 30px;
-  padding: 20px;
-  background-color: #fff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
+  gap: 15px;
   max-width: 500px;
   margin: 0 auto;
 }
 
-.break-form label {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 10px;
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.form-group label {
+  font-weight: 500;
   color: #333;
-  transition: color 0.3s ease;
 }
 
-.break-form input,
-.break-form select {
-  padding: 12px;
-  margin-bottom: 20px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
+.form-group input {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
   font-size: 14px;
-  color: #555;
-  background-color: #f9f9f9;
-  transition: border 0.3s ease-in-out, background-color 0.3s ease;
 }
 
-.break-form input:focus,
-.break-form select:focus {
+.form-group input:focus {
+  border-color: #3498db;
   outline: none;
-  border-color: #4CAF50;
-  box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
-  background-color: #eaf9e6;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
 }
 
-.break-form button {
-  background-color: #4CAF50;
+.submit-button {
+  padding: 10px 16px;
+  background-color: #3498db;
   color: white;
-  padding: 14px;
   border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
+  border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  font-weight: 500;
+  margin-top: 10px;
+  align-self: flex-end;
 }
 
-.break-form button:hover {
-  background-color: #45a049;
-  transform: scale(1.05);
-}
-
-.break-form button:active {
-  background-color: #3e8e41;
-  transform: scale(1);
+.submit-button:hover {
+  background-color: #2980b9;
 }
