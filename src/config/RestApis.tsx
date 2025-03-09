@@ -22,6 +22,9 @@ const apis = {
   userService: server + '/user',
   leaveService: server + '/leave',
   employeeService: employee, // Tekrar eden server yerine employee değişkenini kullandım.
+
+  getAllComments: server + '/comment/get-all-comments',
+  createComment: server + '/comment/create-comment',
 };
 
   
@@ -121,7 +124,8 @@ export const RestApis = {
     }
   },
 
-  // Diğer API fonksiyonları buraya eklenebilir
+
+
 };
 
 export default apis; 
