@@ -8,12 +8,15 @@ import EmployeeProfile from './page/EmployeeProfile'
 import GetQuote from './page/GetQuote'
 
 
+import ShiftPage from './page/ShiftPage'
+import CompanyAdminComments from './components/CompanyAdminComments'
+
+
 import { Add } from '@mui/icons-material'
 import PendingLeaveRequests from './components/organisms/PendingLeaveRequests'
 import LeaveRequestForm from './components/organisms/LeaveRequestForm'
 
-import ShiftPage from './page/ShiftPage'
-import CompanyAdminComments from './components/CompanyAdminComments'
+
 
 
 function RouterPage() {
@@ -28,10 +31,15 @@ function RouterPage() {
         <Route path='/employeeProfile' element={<EmployeeProfile/>}/>
         <Route path='/get-quote' element={<GetQuote />} />
 
+
         <Route path='/tum-hikayeler' element={<CompanyAdminComments />} />
         <Route path='/shift' element={<ShiftPage />} />
 
   
+
+
+
+
         <Route path='/shift' element={<ShiftPage />} />
 
 
