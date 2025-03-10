@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchComments } from "../../store/feature/CommentSlice"; // fetchComments Redux aksiyonu
-import { RootState, AppDispatch } from "../../store"; // AppDispatch ve RootState import edilmelidir
+import { fetchComments } from "../../store/feature/CommentSlice";
+import { RootState, AppDispatch } from "../../store";
 import "./Yorum.css";
 
 // Genişletilmiş Comment tipi
@@ -40,7 +40,9 @@ const Yorum: React.FC = () => {
         author: comment.author || 'Anonim',
         createdAt: comment.createdAt,
         // Eksik alanlar için varsayılan değerler
-        authorImage: 'https://picsum.photos/400/300',
+        authorImage: 'https://randomuser.me/api/portraits/' + 
+                    (Math.random() > 0.5 ? 'men/' : 'women/') + 
+                    Math.floor(Math.random() * 50) + '.jpg',
         position: 'Şirket Yöneticisi',
         company: 'Şirketimiz'
       }));
@@ -107,7 +109,6 @@ const Yorum: React.FC = () => {
                 onClick={() => setSelectedStory(comments[currentIndex])}
               >
                 <div className="card-image">
-                  {/* Eğer authorImage mevcut değilse, fallback olarak placeholder kullanıyoruz */}
                   <img src={comments[currentIndex]?.authorImage || 'https://picsum.photos/400/300'} alt={comments[currentIndex]?.author} />
                 </div>
                 <div className="card-content">
