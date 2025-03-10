@@ -18,6 +18,17 @@ import LeaveRequestForm from './components/organisms/LeaveRequestForm'
 
 
 
+import MolaYonetimi from './page/MolaYonetimi'
+import VardiyaAtama from './page/VardiyaAtama'
+
+
+
+
+import AssetForm from './components/organisms/AssetForm'
+
+
+
+
 
 function RouterPage() {
   return (
@@ -35,12 +46,36 @@ function RouterPage() {
         <Route path='/tum-hikayeler' element={<CompanyAdminComments />} />
         <Route path='/shift' element={<ShiftPage />} />
 
+
   
 
 
 
 
+        <Route path='/shift/molalar' element={
+          <MolaYonetimi 
+            breaks={[]} 
+            handleNewBreak={(newBreak) => console.log(newBreak)} 
+          />
+        } />
+        <Route path='/shift/atamalar' element={
+          <VardiyaAtama 
+            employees={[]} 
+            shifts={[]} 
+            employeeShifts={[]} 
+            handleAssignShift={(assignment) => console.log(assignment)} 
+          />
+        } />
+       
+        
+
+
+        <Route path='/pending-leaves' element={<PendingLeaveRequests/>} />
+        <Route path='/leave-request' element={<LeaveRequestForm/>} />
+
+
         <Route path='/shift' element={<ShiftPage />} />
+
 
 
        
