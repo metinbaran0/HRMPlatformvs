@@ -9,6 +9,8 @@ import EmployeeProfile from './page/EmployeeProfile'
 import GetQuote from './page/GetQuote'
 import TumHikayeler from './pages/tum-hikayeler'
 import ShiftPage from './page/ShiftPage'
+import MolaYonetimi from './page/MolaYonetimi'
+import VardiyaAtama from './page/VardiyaAtama'
 
 
 
@@ -29,6 +31,20 @@ function RouterPage() {
         <Route path='/get-quote' element={<GetQuote />} />
         <Route path='/tum-hikayeler' element={<TumHikayeler />} />
         <Route path='/shift' element={<ShiftPage />} />
+        <Route path='/shift/molalar' element={
+          <MolaYonetimi 
+            breaks={[]} 
+            handleNewBreak={(newBreak) => console.log(newBreak)} 
+          />
+        } />
+        <Route path='/shift/atamalar' element={
+          <VardiyaAtama 
+            employees={[]} 
+            shifts={[]} 
+            employeeShifts={[]} 
+            handleAssignShift={(assignment) => console.log(assignment)} 
+          />
+        } />
        
        
 

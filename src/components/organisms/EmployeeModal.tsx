@@ -14,11 +14,11 @@ interface Employee {
 interface EmployeeModalProps {
   show: boolean;
   onHide: () => void;
-  employee: Employee | null;
-  onSave: (data: any) => void;
+  employee: any;
+  onSubmit: (employeeData: any) => void;
 }
 
-const EmployeeModal: React.FC<EmployeeModalProps> = ({ show, onHide, employee, onSave }) => {
+const EmployeeModal: React.FC<EmployeeModalProps> = ({ show, onHide, employee, onSubmit }) => {
   const [formData, setFormData] = useState({
     name: '',
     surname: '',
@@ -54,7 +54,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({ show, onHide, employee, o
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
+    onSubmit(formData);
   };
 
   if (!show) return null;

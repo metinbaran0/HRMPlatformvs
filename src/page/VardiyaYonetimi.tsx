@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import BreakForm from '../organisms/BreakForm';
+import { Shift } from '../types/shift';
+import ShiftForm from '../components/molecules/ShiftForm';
 import { 
   Typography, 
   Box, 
@@ -9,28 +10,30 @@ import {
   CardContent, 
   CardActions, 
   Paper,
-  Divider
+  Divider,
+  Chip
 } from '@mui/material';
 import { 
   Add as AddIcon, 
   Edit as EditIcon, 
   Delete as DeleteIcon, 
-  AccessTime as AccessTimeIcon
+  AccessTime as AccessTimeIcon,
+  Group as GroupIcon
 } from '@mui/icons-material';
 
-interface MolaYonetimiProps {
-  breaks: { id: number; breakType: string; startTime: string; endTime: string }[];
-  handleNewBreak: (newBreak: { breakType: string; startTime: string; endTime: string }) => void;
+interface VardiyaYonetimiProps {
+  shifts: Shift[];
+  handleNewShift: (newShift: { name: string; startTime: string; endTime: string }) => void;
 }
 
-const MolaYonetimi: React.FC<MolaYonetimiProps> = ({ breaks, handleNewBreak }) => {
+const VardiyaYonetimi: React.FC<VardiyaYonetimiProps> = ({ shifts, handleNewShift }) => {
   const [showForm, setShowForm] = useState(false);
 
   return (
     <div>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
         <Typography variant="h5" component="h2" color="primary" sx={{ fontWeight: 600 }}>
-          Mola Listesi
+          Vardiya Listesi
         </Typography>
         <Button 
           variant="contained" 
@@ -44,7 +47,7 @@ const MolaYonetimi: React.FC<MolaYonetimiProps> = ({ breaks, handleNewBreak }) =
             boxShadow: '0 4px 12px rgba(63, 81, 181, 0.2)'
           }}
         >
-          {showForm ? 'Formu Kapat' : 'Yeni Mola Ekle'}
+          {showForm ? 'Formu Kapat' : 'Yeni Vardiya Ekle'}
         </Button>
       </Box>
 
@@ -60,16 +63,16 @@ const MolaYonetimi: React.FC<MolaYonetimiProps> = ({ breaks, handleNewBreak }) =
           }}
         >
           <Typography variant="h6" component="h3" gutterBottom color="primary">
-            Yeni Mola Oluştur
+            Yeni Vardiya Oluştur
           </Typography>
           <Divider sx={{ mb: 3 }} />
-          <BreakForm onSubmit={handleNewBreak} />
+          <ShiftForm onSubmit={handleNewShift} />
         </Paper>
       )}
 
       <Grid container spacing={3}>
-        {breaks.map(breakItem => (
-          <Grid item xs={12} sm={6} md={4} key={breakItem.id}>
+        {shifts.map(shift => (
+          <Grid item xs={12} sm={6} md={4} key={shift.id}>
             <Card 
               elevation={0} 
               sx={{ 
@@ -89,7 +92,7 @@ const MolaYonetimi: React.FC<MolaYonetimiProps> = ({ breaks, handleNewBreak }) =
                   position: 'absolute', 
                   top: -15, 
                   left: 20, 
-                  bgcolor: 'secondary.main', 
+                  bgcolor: 'primary.main', 
                   color: 'white',
                   borderRadius: 2,
                   px: 2,
@@ -99,27 +102,37 @@ const MolaYonetimi: React.FC<MolaYonetimiProps> = ({ breaks, handleNewBreak }) =
                   boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
                 }}
               >
-                Mola #{breakItem.id}
+                Vardiya #{shift.id}
               </Box>
               <CardContent sx={{ pt: 4 }}>
-                <Typography variant="h6" component="h3" gutterBottom sx={{ fontWeight: 600, color: 'secondary.main' }}>
-                  {breakItem.breakType}
+                <Typography variant="h6" component="h3" gutterBottom sx={{ fontWeight: 600, color: 'primary.main' }}>
+                  {shift.name}
                 </Typography>
                 
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, color: 'text.secondary' }}>
-                  <AccessTimeIcon fontSize="small" sx={{ mr: 1, color: 'secondary.light' }} />
+                  <AccessTimeIcon fontSize="small" sx={{ mr: 1, color: 'primary.light' }} />
                   <Typography variant="body2">
-                    {breakItem.startTime} - {breakItem.endTime}
+                    {shift.startTime} - {shift.endTime}
+                  </Typography>
+                </Box>
+                
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, color: 'text.secondary' }}>
+                  <GroupIcon fontSize="small" sx={{ mr: 1, color: 'primary.light' }} />
+                  <Typography variant="body2">
+                    {shift.employeeCount} Çalışan
                   </Typography>
                 </Box>
                 
                 <Divider sx={{ my: 2 }} />
                 
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-                  <Typography variant="caption" color="text.secondary">
-                    {`${Math.round((parseInt(breakItem.endTime.split(':')[0])*60 + parseInt(breakItem.endTime.split(':')[1]) - 
-                      (parseInt(breakItem.startTime.split(':')[0])*60 + parseInt(breakItem.startTime.split(':')[1])))/60 * 10)/10} saat`}
-                  </Typography>
+                  <Chip 
+                    label={`${Math.round((parseInt(shift.endTime.split(':')[0])*60 + parseInt(shift.endTime.split(':')[1]) - 
+                      (parseInt(shift.startTime.split(':')[0])*60 + parseInt(shift.startTime.split(':')[1])))/60 * 10)/10} saat`} 
+                    size="small" 
+                    color="primary" 
+                    variant="outlined"
+                  />
                 </Box>
               </CardContent>
               <CardActions sx={{ px: 2, pb: 2, pt: 0 }}>
@@ -146,4 +159,4 @@ const MolaYonetimi: React.FC<MolaYonetimiProps> = ({ breaks, handleNewBreak }) =
   );
 };
 
-export default MolaYonetimi; 
+export default VardiyaYonetimi; 

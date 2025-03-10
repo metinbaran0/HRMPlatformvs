@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Shift, EmployeeShift } from '../types/shift';
-import VardiyaYonetimi from '../components/pages/VardiyaYonetimi';
-import MolaYonetimi from '../components/pages/MolaYonetimi';
-import VardiyaAtama from '../components/pages/VardiyaAtama';
+import VardiyaYonetimi from '../page/VardiyaYonetimi';
+import MolaYonetimi from '../page/MolaYonetimi';
+import VardiyaAtama from '../page/VardiyaAtama';
 import { 
   Container, 
   Paper, 
@@ -84,9 +84,9 @@ const ShiftPage: React.FC = () => {
   // URL'ye göre aktif sekmeyi belirle
   useEffect(() => {
     const path = location.pathname;
-    if (path.includes('/molalar')) {
+    if (path.includes('/shift/molalar')) {
       setActiveTab(1);
-    } else if (path.includes('/atamalar')) {
+    } else if (path.includes('/shift/atamalar')) {
       setActiveTab(2);
     } else {
       setActiveTab(0);
@@ -172,27 +172,6 @@ const ShiftPage: React.FC = () => {
     }
   };
 
-  // Aktif içeriği belirle
-  const renderContent = () => {
-    switch (activeTab) {
-      case 0:
-        return <VardiyaYonetimi shifts={shifts} handleNewShift={handleNewShift} />;
-      case 1:
-        return <MolaYonetimi breaks={breaks} handleNewBreak={handleNewBreak} />;
-      case 2:
-        return (
-          <VardiyaAtama
-            employees={employees}
-            shifts={shifts}
-            employeeShifts={employeeShifts}
-            handleAssignShift={handleAssignShift}
-          />
-        );
-      default:
-        return <VardiyaYonetimi shifts={shifts} handleNewShift={handleNewShift} />;
-    }
-  };
-
   return (
     <ThemeProvider theme={theme}>
       <div className="shift-page">
@@ -245,7 +224,28 @@ const ShiftPage: React.FC = () => {
           </Paper>
 
           {/* İçerik kısmı */}
-          {renderContent()}
+          {activeTab === 0 && (
+            <VardiyaYonetimi 
+              shifts={shifts} 
+              handleNewShift={handleNewShift} 
+            />
+          )}
+          
+          {activeTab === 1 && (
+            <MolaYonetimi 
+              breaks={breaks} 
+              handleNewBreak={handleNewBreak} 
+            />
+          )}
+          
+          {activeTab === 2 && (
+            <VardiyaAtama 
+              employees={employees} 
+              shifts={shifts} 
+              employeeShifts={employeeShifts}
+              handleAssignShift={handleAssignShift} 
+            />
+          )}
         </Container>
       </div>
     </ThemeProvider>
