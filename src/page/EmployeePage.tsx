@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FaUserPlus, FaSearch, FaFilter, FaUsers, FaUserTie, FaUserClock, FaUserCheck } from 'react-icons/fa';
+import { FaUserPlus, FaSearch, FaFilter, FaUsers, FaUserTie, FaUserClock, FaUserCheck, FaHome, FaBuilding, FaUserCircle, FaCalendarAlt, FaClock, FaExchangeAlt, FaBoxOpen, FaMoneyBillWave, FaCalendarCheck } from 'react-icons/fa';
 import EmployeeTable from '../components/organisms/EmployeeTable';
 import EmployeeModal from '../components/organisms/EmployeeModal';
-import PendingLeaveRequests from '../components/organisms/PendingLeaveRequests';  // Importing the new component
 import './EmployeePage.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../store';
@@ -12,8 +11,10 @@ import {
   deleteEmployee, 
   toggleEmployeeStatus,
   createEmployeeThunk,
-  updateEmployeeThunk
+  updateEmployeeThunk,
+
 } from '../store/feature/employeeSlice';
+import { useNavigate } from 'react-router-dom';
 
 interface Employee {
   id: number;
@@ -38,6 +39,10 @@ const EmployeePage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterDepartment, setFilterDepartment] = useState('');
   const [activeSection, setActiveSection] = useState('all'); // Aktif sol menü seçeneği
+  const [editingEmployee, setEditingEmployee] = useState<any>(null);
+  const [filterStatus, setFilterStatus] = useState('all');
+  
+  const navigate = useNavigate();
 
   // Sayfa yüklendiğinde çalışanları getir
   useEffect(() => {
@@ -126,6 +131,39 @@ const EmployeePage: React.FC = () => {
     return matchesSearch && matchesDepartment;
   });
 
+  const handleAddClick = () => {
+    setEditingEmployee(null);
+    setShowModal(true);
+  };
+  
+  const handleEditClick = (employee: any) => {
+    setEditingEmployee(employee);
+    setShowModal(true);
+  };
+  
+  const handleDeleteClick = (id: number) => {
+    if (window.confirm('Bu çalışanı silmek istediğinizden emin misiniz?')) {
+      dispatch(deleteEmployee(id));
+    }
+  };
+  
+  const handleToggleStatus = (id: number) => {
+    dispatch(toggleEmployeeStatus(id));
+  };
+  
+  const handleSubmit = (employeeData: any) => {
+    if (editingEmployee) {
+      dispatch(updateEmployeeThunk({ id: editingEmployee.id, ...employeeData }));
+    } else {
+      dispatch(createEmployeeThunk(employeeData));
+    }
+    setShowModal(false);
+  };
+
+  const handleNavigation = (path: string) => {
+    navigate(path);
+  };
+
   // Loading durumunu kontrol et
   if (loading) {
     return <div>Yükleniyor...</div>;
@@ -141,39 +179,61 @@ const EmployeePage: React.FC = () => {
       {/* Sol Menü */}
       <div className="employee-sidebar">
         <div className="sidebar-header">
-          <h3>Çalışan Yönetimi</h3>
+          <h2>İK Yönetimi</h2>
         </div>
-        <ul className="sidebar-menu">
-          <li 
-            className={activeSection === 'all' ? 'active' : ''} 
-            onClick={() => setActiveSection('all')}
-          >
-            <FaUsers /> Tüm Çalışanlar
-          </li>
-          <li 
-            className={activeSection === 'active' ? 'active' : ''} 
-            onClick={() => setActiveSection('active')}
-          >
-            <FaUserCheck /> Aktif Çalışanlar
-          </li>
-          <li 
-            className={activeSection === 'inactive' ? 'active' : ''} 
-            onClick={() => setActiveSection('inactive')}
-          >
-            <FaUserClock /> Pasif Çalışanlar
-          </li>
-          <li 
-            className={activeSection === 'management' ? 'active' : ''} 
-            onClick={() => setActiveSection('management')}
-          >
-            <FaUserTie /> Yönetim
-          </li>
-        </ul>
-        <button className="sidebar-add-button" onClick={handleAddNew}>
-          <FaUserPlus /> Yeni Çalışan Ekle
-        </button>
+        <div className="sidebar-menu">
+          <div className="menu-item" onClick={() => handleNavigation('/')}>
+            <FaHome className="menu-icon" />
+            <span>Ana Sayfa</span>
+          </div>
+          <div className="menu-item active" onClick={() => handleNavigation('/employee')}>
+            <FaUsers className="menu-icon" />
+            <span>Çalışanlar</span>
+          </div>
+          <div className="menu-item" onClick={() => handleNavigation('/company')}>
+            <FaBuilding className="menu-icon" />
+            <span>Şirketler</span>
+          </div>
+          <div className="menu-item" onClick={() => handleNavigation('/profile')}>
+            <FaUserCircle className="menu-icon" />
+            <span>Profil</span>
+          </div>
+          
+          {/* Vardiya Yönetimi Menü Öğeleri */}
+          <div className="menu-section">
+            <h3>Vardiya Yönetimi</h3>
+          </div>
+          <div className="menu-item" onClick={() => handleNavigation('/shift')}>
+            <FaCalendarAlt className="menu-icon" />
+            <span>Vardiyalar</span>
+          </div>
+          <div className="menu-item" onClick={() => handleNavigation('/shift/molalar')}>
+            <FaClock className="menu-icon" />
+            <span>Molalar</span>
+          </div>
+          <div className="menu-item" onClick={() => handleNavigation('/shift/atamalar')}>
+            <FaExchangeAlt className="menu-icon" />
+            <span>Vardiya Atamaları</span>
+          </div>
+          
+          {/* Yeni Menü Bölümü */}
+          <div className="menu-section">
+            <h3>Diğer İşlemler</h3>
+          </div>
+          <div className="menu-item" onClick={() => handleNavigation('/assets')}>
+            <FaBoxOpen className="menu-icon" />
+            <span>Demirbaşlar</span>
+          </div>
+          <div className="menu-item" onClick={() => handleNavigation('/expenses')}>
+            <FaMoneyBillWave className="menu-icon" />
+            <span>Harcamalar</span>
+          </div>
+          <div className="menu-item" onClick={() => handleNavigation('/leave-requests')}>
+            <FaCalendarCheck className="menu-icon" />
+            <span>İzin Talepleri</span>
+          </div>
+        </div>
       </div>
-
 
       {/* Ana İçerik */}
       <div className="employee-content">
@@ -183,8 +243,11 @@ const EmployeePage: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1>Çalışan Listesi</h1>
-          <button className="add-button" onClick={handleAddNew}>
+          <div className="header-title">
+            <h1><FaUsers /> Çalışan Yönetimi</h1>
+            <p>Çalışanlarınızı görüntüleyin, ekleyin, düzenleyin ve yönetin</p>
+          </div>
+          <button className="add-button" onClick={handleAddClick}>
             <FaUserPlus /> Yeni Çalışan Ekle
           </button>
         </motion.div>
@@ -208,32 +271,15 @@ const EmployeePage: React.FC = () => {
           <div className="filter-box">
             <FaFilter />
             <select
-              value={filterDepartment}
-              onChange={(e) => setFilterDepartment(e.target.value)}
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
             >
-              <option value="">Tüm Departmanlar</option>
-              <option value="IT">IT</option>
-              <option value="İK">İK</option>
-              <option value="Finans">Finans</option>
-              <option value="Pazarlama">Pazarlama</option>
+              <option value="all">Tüm Çalışanlar</option>
+              <option value="active">Aktif Çalışanlar</option>
+              <option value="inactive">Pasif Çalışanlar</option>
             </select>
           </div>
         </motion.div>
-
-        <EmployeeTable
-          employees={filteredEmployees}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onToggleActive={handleToggleActive}
-        />
-
-        <EmployeeModal
-          show={showModal}
-          onHide={() => setShowModal(false)}
-          employee={selectedEmployee}
-          onSave={handleSave}
-        />
-      </div>
 
         <div className="filter-box">
           <FaFilter />
@@ -248,25 +294,21 @@ const EmployeePage: React.FC = () => {
             <option value="Pazarlama">Pazarlama</option>
           </select>
         </div>
-      </motion.div>
 
-      <EmployeeTable
-        employees={employees}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        onToggleActive={handleToggleActive}
-      />
+        <EmployeeTable
+          employees={filteredEmployees}
+          onEdit={handleEditClick}
+          onDelete={handleDeleteClick}
+          onToggleStatus={handleToggleStatus}
+        />
 
-      {/* Add the PendingLeaveRequests component */}
-      <PendingLeaveRequests />
-
-      <EmployeeModal
-        show={showModal}
-        onHide={() => setShowModal(false)}
-        employee={selectedEmployee}
-        onSave={handleSave}
-      />
-
+        <EmployeeModal
+          show={showModal}
+          onHide={() => setShowModal(false)}
+          employee={editingEmployee}
+          onSubmit={handleSubmit}
+        />
+      </div>
     </div>
   );
 };

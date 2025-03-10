@@ -21,14 +21,14 @@ interface EmployeeTableProps {
   employees: Employee[];
   onEdit: (employee: Employee) => void;
   onDelete: (id: number) => void;
-  onToggleActive: (id: number) => void;
+  onToggleStatus: (id: number) => void;
 }
 
 const EmployeeTable: React.FC<EmployeeTableProps> = ({
   employees,
   onEdit,
   onDelete,
-  onToggleActive
+  onToggleStatus
 }) => {
   return (
     <div className="table-container">
@@ -59,7 +59,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
               <td>
                 <button
                   className={`status-button ${employee.active ? 'active' : 'inactive'}`}
-                  onClick={() => onToggleActive(employee.id)}
+                  onClick={() => onToggleStatus(employee.id)}
                 >
                   {employee.active ? <FaToggleOn /> : <FaToggleOff />}
                   {employee.active ? 'Aktif' : 'Pasif'}

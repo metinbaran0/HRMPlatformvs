@@ -43,7 +43,6 @@ export interface CreateEmployeeRequest {
   position: string;
 }
 
-
 export interface UpdateEmployeeRequest {
   name?: string;
   surname?: string;
@@ -51,8 +50,6 @@ export interface UpdateEmployeeRequest {
   phone?: string;
   position?: string;
 }
-
-
 
 export interface PartialEmployee {
   id: number;
@@ -64,7 +61,6 @@ export interface PartialEmployee {
   active: boolean;
 }
 
-// Yorumlar için Comment arayüzü eklendi
 export interface Comment {
   id: number;
   content: string;
@@ -73,7 +69,6 @@ export interface Comment {
   postId: number;
 }
 
-// Çalışanlar için API yanıt formatı
 interface GetEmployeesResponse extends BaseResponse<{
   content: Employee[];
   totalElements: number;
@@ -82,7 +77,6 @@ interface GetEmployeesResponse extends BaseResponse<{
   number: number;
 }> {}
 
-// Axios instance oluştur
 const api: AxiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json'
@@ -157,36 +151,32 @@ const ApiService = {
     }
   },
 
-  
   updateEmployee: async (id: number, employeeData: UpdateEmployeeRequest): Promise<void> => {
     try {
       await api.put<BaseResponse<PartialEmployee>>(`${apis.employeeService}/update-employee/${id}`, employeeData);
-      // Başarılı işlem sonrası hiçbir şey döndürmeden işlem tamamlanır
+    } catch (error) {
+      throw error;
+    }
+  },
 
-
-  // Yorumları çekme API çağrısı
   getAllComments: async (page: number = 1, size: number = 10): Promise<Comment[]> => {
     try {
       const response = await api.get<BaseResponse<{ content: Comment[] }>>(
         `${apis.getAllComments}?page=${page}&size=${size}`
       );
       return response.data.data.content;
-
     } catch (error) {
       throw error;
     }
   },
 
-  
   toggleEmployeeStatus: async (id: number): Promise<void> => {
     try {
-      // Token'ı manuel olarak alıp header'a ekleyelim
       const token = TokenService.getToken();
       if (!token) {
         throw new Error("Oturum açmanız gerekiyor");
       }
       
-      // Doğru endpoint'i kullanarak isteği gönderelim
       await api.put<void>(`${apis.employeeService}/change-/${id}/status`, {}, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -200,13 +190,11 @@ const ApiService = {
   
   deleteEmployee: async (id: number): Promise<void> => {
     try {
-      // Token'ı manuel olarak alıp header'a ekleyelim
       const token = TokenService.getToken();
       if (!token) {
         throw new Error("Oturum açmanız gerekiyor");
       }
       
-      // DELETE isteği gönderelim - endpoint'i kontrol edelim
       await api.delete<string>(`${apis.employeeService}/delete-employee/${id}`, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -217,11 +205,7 @@ const ApiService = {
       throw error;
     }
   },
-  
-  // Diğer API çağrıları buraya eklenebilir
 
-
-  // Yeni yorum ekleme API çağrısı
   createComment: async (commentContent: string): Promise<Comment> => {
     try {
       const response = await api.post<BaseResponse<Comment>>(apis.createComment, {
@@ -232,7 +216,6 @@ const ApiService = {
       throw error;
     }
   },
-
 };
 
 export default ApiService;
