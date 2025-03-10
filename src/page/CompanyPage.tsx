@@ -1,61 +1,233 @@
 import React, { useEffect, useState } from 'react';
-import Sidebar from "../components/organisms/Sidebar";
-import PendingCompanies from "../components/organisms/PendingCompanies";
-import CompanyList from "../components/organisms/CompanyList";
-import CompanyDashboard from "../components/organisms/CompanyDashboard";
-//burada bir yorum var
-import "./CompanyPage.css";
+import { motion } from 'framer-motion';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../store';
 import { fetchCompanies } from '../store/feature/companySlice';
+import { 
+  FaBuilding, 
+  FaSearch, 
+  FaFilter, 
+  FaPlusCircle, 
+  FaCheckCircle,
+  FaTimesCircle,
+  FaHourglassHalf
+} from 'react-icons/fa';
+import './CompanyPage.css';
 
 const CompanyPage: React.FC = () => {
-  const [activeSection, setActiveSection] = useState("dashboard");
-  const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
-  const { companies, loading, error } = useSelector((state: RootState) => state.companies);
   const dispatch: AppDispatch = useDispatch();
-
-  const plans = [
-    { id: 1, name: 'Aylık', price: 100 },
-    { id: 2, name: 'Yıllık', price: 1000 }
-  ];
+  const { companies, loading, error } = useSelector((state: RootState) => state.companies);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterSector, setFilterSector] = useState('');
 
   useEffect(() => {
     dispatch(fetchCompanies());
   }, [dispatch]);
 
-  const handlePlanChange = (planId: number) => {
-    setSelectedPlan(planId);
-    // Üyelik planı güncelleme işlemi burada yapılabilir
+  // Filtreleme işlemi
+  const filteredCompanies = companies.filter(company => {
+    const matchesSearch = company.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                         company.email.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = filterStatus === 'all' ? true : company.status === filterStatus;
+    const matchesSector = filterSector ? company.sector === filterSector : true;
+    
+    return matchesSearch && matchesStatus && matchesSector;
+  });
+
+  // Tarih formatı
+  const formatDate = (dateString: string) => {
+    const options: Intl.DateTimeFormatOptions = { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    };
+    return new Date(dateString).toLocaleDateString('tr-TR', options);
   };
 
-  const renderContent = () => {
-    switch (activeSection) {
-      case "dashboard":
-        return <CompanyDashboard />;
-      case "companies":
-        return <CompanyList companies={companies} loading={loading} error={error} />;
-      case "pending":
-        return <PendingCompanies />;
+  // Durum ikonu
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'approved':
+        return <FaCheckCircle className="status-icon approved" />;
+      case 'rejected':
+        return <FaTimesCircle className="status-icon rejected" />;
+      case 'pending':
+        return <FaHourglassHalf className="status-icon pending" />;
       default:
-        return <CompanyDashboard />;
+        return null;
+    }
+  };
+
+  // Durum metni
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'approved':
+        return 'Onaylandı';
+      case 'rejected':
+        return 'Reddedildi';
+      case 'pending':
+        return 'Onay Bekliyor';
+      default:
+        return '';
     }
   };
 
   if (loading) {
-    return <div>Yükleniyor...</div>;
+    return (
+      <div className="company-page">
+        <div className="company-content">
+          <div className="loading-container">
+            <div className="loading-spinner"></div>
+            <p className="loading-text">Şirketler yükleniyor...</p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (error) {
-    return <div>Hata: {error}</div>;
+    return (
+      <div className="company-page">
+        <div className="company-content">
+          <div className="error-container">
+            <h2>Hata!</h2>
+            <p>{error}</p>
+            <button className="retry-button" onClick={() => dispatch(fetchCompanies())}>Tekrar Dene</button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="company-page">
-      
-      <Sidebar activeSection={activeSection} setActiveSection={setActiveSection} />
-      <div className="main-content">
-        {renderContent()}
+      <div className="company-content">
+        <motion.div 
+          className="company-header"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="header-content">
+            <div>
+              <h1>Şirket Yönetimi</h1>
+              <p>Şirketlerinizi görüntüleyin, ekleyin ve yönetin</p>
+            </div>
+            <button className="add-company-btn">
+              <FaPlusCircle /> Yeni Şirket Ekle
+            </button>
+          </div>
+        </motion.div>
+
+        <motion.div 
+          className="search-filter-container"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+        >
+          <div className="search-box">
+            <FaSearch />
+            <input
+              type="text"
+              placeholder="Şirket ara..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
+          <div className="filter-box">
+            <FaFilter />
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+            >
+              <option value="all">Tüm Durumlar</option>
+              <option value="approved">Onaylanmış</option>
+              <option value="pending">Onay Bekleyen</option>
+              <option value="rejected">Reddedilmiş</option>
+            </select>
+          </div>
+
+          <div className="filter-box">
+            <FaFilter />
+            <select
+              value={filterSector}
+              onChange={(e) => setFilterSector(e.target.value)}
+            >
+              <option value="">Tüm Sektörler</option>
+              <option value="Teknoloji">Teknoloji</option>
+              <option value="Finans">Finans</option>
+              <option value="Sağlık">Sağlık</option>
+              <option value="Eğitim">Eğitim</option>
+              <option value="Üretim">Üretim</option>
+            </select>
+          </div>
+        </motion.div>
+
+        <motion.div 
+          className="company-grid"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+        >
+          {filteredCompanies.map((company) => (
+            <motion.div 
+              key={company.id} 
+              className="company-card"
+              whileHover={{ y: -5, boxShadow: '0 10px 20px rgba(0,0,0,0.1)' }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="company-logo">
+                <span>{company.name.charAt(0)}</span>
+              </div>
+              <div className="company-name">
+                <h3>{company.name}</h3>
+                <div className={`status-badge ${company.status}`}>
+                  {getStatusIcon(company.status)}
+                  <span>{getStatusText(company.status)}</span>
+                </div>
+              </div>
+              
+              <div className="company-info">
+                <div className="info-item">
+                  <span className="info-label">E-posta</span>
+                  <span className="info-value">{company.email}</span>
+                </div>
+                <div className="info-item">
+                  <span className="info-label">Telefon</span>
+                  <span className="info-value">{company.phone}</span>
+                </div>
+                <div className="info-item">
+                  <span className="info-label">Sektör</span>
+                  <span className="info-value">{company.sector}</span>
+                </div>
+                <div className="info-item">
+                  <span className="info-label">Çalışan Sayısı</span>
+                  <span className="info-value">{company.employeeCount}</span>
+                </div>
+                <div className="info-item">
+                  <span className="info-label">Kayıt Tarihi</span>
+                  <span className="info-value">{formatDate(company.createdAt)}</span>
+                </div>
+              </div>
+              
+              {company.status === 'pending' && (
+                <div className="company-actions">
+                  <button className="action-button approve">
+                    <FaCheckCircle /> Onayla
+                  </button>
+                  <button className="action-button reject">
+                    <FaTimesCircle /> Reddet
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          ))}
+        </motion.div>
       </div>
     </div>
   );

@@ -25,6 +25,8 @@ const apis = {
 
   getAllComments: server + '/comment/get-all-comments',
   createComment: server + '/comment/create-comment',
+
+  shiftService: server + '/shift',
 };
 
   

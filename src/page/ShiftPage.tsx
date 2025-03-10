@@ -225,10 +225,7 @@ const ShiftPage: React.FC = () => {
 
           {/* İçerik kısmı */}
           {activeTab === 0 && (
-            <VardiyaYonetimi 
-              shifts={shifts} 
-              handleNewShift={handleNewShift} 
-            />
+            <VardiyaYonetimi />
           )}
           
           {activeTab === 1 && (
