@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FaUserPlus, FaSearch, FaFilter, FaUsers, FaUserTie, FaUserClock, FaUserCheck, FaHome, FaBuilding, FaUserCircle, FaCalendarAlt, FaClock, FaExchangeAlt, FaBoxOpen, FaMoneyBillWave, FaCalendarCheck } from 'react-icons/fa';
+import { FaUserPlus, FaSearch, FaFilter, FaUsers, FaUserTie, FaUserClock, FaUserCheck, FaHome, FaBuilding, FaUserCircle, FaCalendarAlt, FaClock, FaExchangeAlt, FaBoxOpen, FaMoneyBillWave, FaCalendarCheck, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import EmployeeTable from '../components/organisms/EmployeeTable';
 import EmployeeModal from '../components/organisms/EmployeeModal';
 import './EmployeePage.css';
@@ -12,7 +12,6 @@ import {
   toggleEmployeeStatus,
   createEmployeeThunk,
   updateEmployeeThunk,
-
 } from '../store/feature/employeeSlice';
 import { useNavigate } from 'react-router-dom';
 
@@ -37,10 +36,13 @@ const EmployeePage: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterDepartment, setFilterDepartment] = useState('');
-  const [activeSection, setActiveSection] = useState('all'); // Aktif sol menü seçeneği
+  const [activeSection, setActiveSection] = useState('all');
   const [editingEmployee, setEditingEmployee] = useState<any>(null);
   const [filterStatus, setFilterStatus] = useState('all');
+  
+  // Sayfalama için state'ler
+  const [currentPage, setCurrentPage] = useState(0);
+  const itemsPerPage = 10; // Sabit 10 öğe
   
   const navigate = useNavigate();
 
@@ -121,15 +123,22 @@ const EmployeePage: React.FC = () => {
       employee.surname.toLowerCase().includes(searchTerm.toLowerCase()) ||
       employee.email.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesDepartment = filterDepartment ? employee.position === filterDepartment : true;
+    const matchesStatus = 
+      filterStatus === 'all' ? true : 
+      filterStatus === 'active' ? employee.active : 
+      !employee.active;
     
-    // Sol menü filtreleme
-    if (activeSection === 'all') return matchesSearch && matchesDepartment;
-    if (activeSection === 'active') return matchesSearch && matchesDepartment && employee.active;
-    if (activeSection === 'inactive') return matchesSearch && matchesDepartment && !employee.active;
-    
-    return matchesSearch && matchesDepartment;
+    return matchesSearch && matchesStatus;
   });
+
+  // Toplam sayfa sayısını hesapla
+  const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage);
+
+  // Sayfalanmış çalışanlar
+  const paginatedEmployees = filteredEmployees.slice(
+    currentPage * itemsPerPage,
+    (currentPage + 1) * itemsPerPage
+  );
 
   const handleAddClick = () => {
     setEditingEmployee(null);
@@ -248,55 +257,76 @@ const EmployeePage: React.FC = () => {
           </button>
         </motion.div>
 
-        <motion.div 
-          className="search-filter-section"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-        >
-          <div className="search-box">
-            <FaSearch />
-            <input
-              type="text"
-              placeholder="Çalışan ara..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-
-          <div className="filter-box">
-            <FaFilter />
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-            >
-              <option value="all">Tüm Çalışanlar</option>
-              <option value="active">Aktif Çalışanlar</option>
-              <option value="inactive">Pasif Çalışanlar</option>
-            </select>
-          </div>
-        </motion.div>
-
-        <div className="filter-box">
-          <FaFilter />
-          <select
-            value={filterDepartment}
-            onChange={(e) => setFilterDepartment(e.target.value)}
+        <div className="content-card">
+          <motion.div 
+            className="search-filter-section"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
           >
-            <option value="">Tüm Departmanlar</option>
-            <option value="IT">IT</option>
-            <option value="İK">İK</option>
-            <option value="Finans">Finans</option>
-            <option value="Pazarlama">Pazarlama</option>
-          </select>
-        </div>
+            <div className="search-box">
+              <FaSearch />
+              <input
+                type="text"
+                placeholder="Çalışan ara..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
 
-        <EmployeeTable
-          employees={filteredEmployees}
-          onEdit={handleEditClick}
-          onDelete={handleDeleteClick}
-          onToggleStatus={handleToggleStatus}
-        />
+            <div className="filter-box">
+              <FaFilter />
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+              >
+                <option value="all">Tüm Çalışanlar</option>
+                <option value="active">Aktif Çalışanlar</option>
+                <option value="inactive">Pasif Çalışanlar</option>
+              </select>
+            </div>
+          </motion.div>
+
+          {/* Çalışan tablosu */}
+          <EmployeeTable
+            employees={paginatedEmployees}
+            onEdit={handleEditClick}
+            onDelete={handleDeleteClick}
+            onToggleStatus={handleToggleStatus}
+          />
+          
+          {/* Zarif Sayfalama */}
+          {filteredEmployees.length > 0 && (
+            <div className="pagination-container">
+              <div className="pagination-info">
+                {currentPage * itemsPerPage + 1}-
+                {Math.min((currentPage + 1) * itemsPerPage, filteredEmployees.length)} / 
+                {filteredEmployees.length} çalışan
+              </div>
+              <div className="pagination">
+                <button 
+                  className="pagination-arrow"
+                  onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
+                  disabled={currentPage === 0}
+                >
+                  <FaChevronLeft />
+                </button>
+                
+                <span className="page-indicator">
+                  Sayfa {currentPage + 1} / {totalPages}
+                </span>
+                
+                <button 
+                  className="pagination-arrow"
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))}
+                  disabled={currentPage === totalPages - 1}
+                >
+                  <FaChevronRight />
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
 
         <EmployeeModal
           show={showModal}
