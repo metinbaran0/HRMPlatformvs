@@ -7,14 +7,15 @@ import EmployeePage from './page/EmployeePage'
 import EmployeeProfile from './page/EmployeeProfile'
 import GetQuote from './page/GetQuote'
 
+
 import ShiftPage from './page/ShiftPage'
 import CompanyAdminComments from './components/CompanyAdminComments'
-
 
 
 import { Add } from '@mui/icons-material'
 import PendingLeaveRequests from './components/organisms/PendingLeaveRequests'
 import LeaveRequestForm from './components/organisms/LeaveRequestForm'
+
 
 
 import MolaYonetimi from './page/MolaYonetimi'
@@ -24,6 +25,7 @@ import VardiyaAtama from './page/VardiyaAtama'
 
 
 import AssetForm from './components/organisms/AssetForm'
+
 
 
 
@@ -40,8 +42,16 @@ function RouterPage() {
         <Route path='/employeeProfile' element={<EmployeeProfile/>}/>
         <Route path='/get-quote' element={<GetQuote />} />
 
+
         <Route path='/tum-hikayeler' element={<CompanyAdminComments />} />
         <Route path='/shift' element={<ShiftPage />} />
+
+
+  
+
+
+
+
         <Route path='/shift/molalar' element={
           <MolaYonetimi 
             breaks={[]} 
@@ -62,6 +72,7 @@ function RouterPage() {
 
         <Route path='/pending-leaves' element={<PendingLeaveRequests/>} />
         <Route path='/leave-request' element={<LeaveRequestForm/>} />
+
 
         <Route path='/shift' element={<ShiftPage />} />
 
