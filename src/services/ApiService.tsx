@@ -77,6 +77,23 @@ interface GetEmployeesResponse extends BaseResponse<{
   number: number;
 }> {}
 
+// Vardiya tipi için enum
+export enum ShiftType {
+  MORNING = "MORNING",
+  AFTERNOON = "AFTERNOON",
+  NIGHT = "NIGHT",
+  CUSTOM = "CUSTOM"
+}
+
+// Vardiya DTO tipi
+export interface ShiftDto {
+  id?: string;
+  shiftName: string;
+  startTime: string; // LocalDate formatında string olarak
+  endTime: string; // LocalDate formatında string olarak
+  shiftType: ShiftType;
+}
+
 const api: AxiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json'
@@ -213,6 +230,109 @@ const ApiService = {
       });
       return response.data.data;
     } catch (error) {
+      throw error;
+    }
+  },
+
+  createShift: async (shiftData: ShiftDto): Promise<ShiftDto> => {
+    try {
+      const token = TokenService.getToken();
+      if (!token) {
+        throw new Error("Oturum açmanız gerekiyor");
+      }
+      
+      console.log("Token:", token);
+      console.log("Gönderilen veri:", shiftData);
+      
+      const response = await api.post<BaseResponse<ShiftDto>>(
+        `${apis.shiftService}/create-shift`,
+        shiftData,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      if (response.data.success) {
+        return response.data.data;
+      } else {
+        throw new Error(response.data.message);
+      }
+    } catch (error: any) {
+      console.error("Vardiya oluşturma hatası:", error);
+      console.error("Hata detayı:", error.response?.data);
+      throw error;
+    }
+  },
+
+  getAllShifts: async (): Promise<ShiftDto[]> => {
+    try {
+      const token = TokenService.getToken();
+      if (!token) {
+        throw new Error("Oturum açmanız gerekiyor");
+      }
+      
+      const response = await api.get<BaseResponse<ShiftDto[]>>(
+        `${apis.shiftService}/getshift-by-company-id`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+      
+      if (response.data.success) {
+        console.log("Vardiyalar başarıyla alındı:", response.data.data);
+        return response.data.data;
+      } else {
+        throw new Error(response.data.message);
+      }
+    } catch (error: any) {
+      console.error("Vardiyaları getirme hatası:", error);
+      console.error("Hata detayı:", error.response?.data);
+      throw error;
+    }
+  },
+
+  updateShift: async (id: string, shiftData: Partial<ShiftDto>): Promise<ShiftDto> => {
+    try {
+      const token = TokenService.getToken();
+      if (!token) {
+        throw new Error("Oturum açmanız gerekiyor");
+      }
+      
+      console.log("Güncellenen vardiya ID:", id);
+      console.log("Güncellenen veri:", shiftData);
+      
+      // Backend'in beklediği formatta veri gönder
+      const requestData: ShiftDto = {
+        shiftName: shiftData.shiftName || '',
+        startTime: shiftData.startTime || '',
+        endTime: shiftData.endTime || '',
+        shiftType: shiftData.shiftType || ShiftType.MORNING
+      };
+      
+      const response = await api.put<BaseResponse<ShiftDto>>(
+        `${apis.shiftService}/update-shift/${id}`,
+        requestData,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      if (response.data.success) {
+        return response.data.data;
+      } else {
+        throw new Error(response.data.message);
+      }
+    } catch (error: any) {
+      console.error("Vardiya güncelleme hatası:", error);
+      console.error("Hata detayı:", error.response?.data);
       throw error;
     }
   },

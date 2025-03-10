@@ -1,4 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import ApiService, { ShiftDto, ShiftType } from "../../services/ApiService";
+import { RootState } from "..";
+import Swal from 'sweetalert2';
 
 // API İşlevleri
 const BASE_URL = "http://localhost:9090/v1/dev/shift";
@@ -97,7 +100,7 @@ interface Shift {
 }
 
 interface ShiftState {
-  shifts: Shift[];
+  shifts: ShiftDto[];
   loading: boolean;
   error: string | null;
 }
@@ -120,23 +123,63 @@ export const addShiftAsync = createAsyncThunk(
   }
 );
 
-// Tüm vardiyaları çekme asenkron işlem
-export const fetchShiftsAsync = createAsyncThunk("shifts/fetchShifts", async (_, { rejectWithValue }) => {
-  try {
-    return await fetchShifts();
-  } catch (error) {
-    return rejectWithValue("Vardiyalar getirilemedi.");
-  }
-});
-
-// Vardiya güncelleme asenkron işlem
-export const updateShiftAsync = createAsyncThunk(
-  "shifts/updateShift",
-  async ({ id, updatedShiftData }: { id: string; updatedShiftData: Partial<Shift> }, { rejectWithValue }) => {
+// Vardiyaları getirme thunk'ı
+export const fetchShiftsAsync = createAsyncThunk<
+  ShiftDto[],
+  void,
+  { rejectValue: string }
+>(
+  'shifts/fetchShifts',
+  async (_, { rejectWithValue }) => {
     try {
-      return await updateShift(id, updatedShiftData);
-    } catch (error) {
-      return rejectWithValue("Vardiya güncellenemedi.");
+      // ApiService üzerinden vardiyaları getir
+      const shifts = await ApiService.getAllShifts();
+      return shifts;
+    } catch (error: any) {
+      // Hata durumunda SweetAlert ile bildirim göster
+      Swal.fire({
+        icon: 'error',
+        title: 'Hata!',
+        text: error.message || "Vardiyalar yüklenirken bir hata oluştu",
+      });
+      return rejectWithValue(error.message || "Vardiyalar yüklenirken bir hata oluştu");
+    }
+  }
+);
+
+// Vardiya güncelleme thunk'ı
+export const updateShiftThunk = createAsyncThunk<
+  ShiftDto,
+  { id: string; shiftData: Partial<ShiftDto> },
+  { rejectValue: string }
+>(
+  'shifts/updateShift',
+  async ({ id, shiftData }, { rejectWithValue, dispatch }) => {
+    try {
+      const updatedShift = await ApiService.updateShift(id, shiftData);
+      
+      // Başarılı bildirim göster
+      Swal.fire({
+        icon: 'success',
+        title: 'Başarılı!',
+        text: 'Vardiya başarıyla güncellendi',
+        timer: 2000,
+        showConfirmButton: false
+      });
+      
+      // Vardiyaları yeniden yükle
+      dispatch(fetchShiftsAsync());
+      
+      return updatedShift;
+    } catch (error: any) {
+      // Hata bildirim göster
+      Swal.fire({
+        icon: 'error',
+        title: 'Hata!',
+        text: error.message || 'Vardiya güncellenirken bir hata oluştu',
+      });
+      
+      return rejectWithValue(error.message || "Vardiya güncellenirken bir hata oluştu");
     }
   }
 );
@@ -150,13 +193,50 @@ export const deleteShiftAsync = createAsyncThunk("shifts/deleteShift", async (id
   }
 });
 
+// Vardiya ekleme thunk'ı
+export const createShiftThunk = createAsyncThunk<
+  ShiftDto,
+  { shiftName: string; startTime: string; endTime: string; shiftType: ShiftType },
+  { rejectValue: string }
+>(
+  'shifts/createShift',
+  async (shiftData, { rejectWithValue, dispatch }) => {
+    try {
+      const newShift = await ApiService.createShift(shiftData);
+      
+      // Başarılı bildirim göster
+      Swal.fire({
+        icon: 'success',
+        title: 'Başarılı!',
+        text: 'Vardiya başarıyla oluşturuldu',
+        timer: 2000,
+        showConfirmButton: false
+      });
+      
+      // Vardiyaları yeniden yükle
+      dispatch(fetchShiftsAsync());
+      
+      return newShift;
+    } catch (error: any) {
+      // Hata bildirim göster
+      Swal.fire({
+        icon: 'error',
+        title: 'Hata!',
+        text: error.message || 'Vardiya oluşturulurken bir hata oluştu',
+      });
+      
+      return rejectWithValue(error.message || "Vardiya oluşturulurken bir hata oluştu");
+    }
+  }
+);
+
 // Vardiya Redux Slice
 const shiftSlice = createSlice({
   name: "shifts",
   initialState,
   reducers: {
     // Vardiya listesi güncelleme
-    setShifts: (state, action: PayloadAction<Shift[]>) => {
+    setShifts: (state, action: PayloadAction<ShiftDto[]>) => {
       state.shifts = action.payload;
     },
   },
@@ -190,17 +270,18 @@ const shiftSlice = createSlice({
       })
 
       // Vardiya güncelleme işlemi
-      .addCase(updateShiftAsync.pending, (state) => {
+      .addCase(updateShiftThunk.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
-      .addCase(updateShiftAsync.fulfilled, (state, action) => {
+      .addCase(updateShiftThunk.fulfilled, (state, action) => {
         state.loading = false;
         const index = state.shifts.findIndex((shift) => shift.id === action.payload.id);
         if (index !== -1) {
           state.shifts[index] = action.payload;
         }
       })
-      .addCase(updateShiftAsync.rejected, (state, action) => {
+      .addCase(updateShiftThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
@@ -214,6 +295,20 @@ const shiftSlice = createSlice({
         state.shifts = state.shifts.filter((shift) => shift.id !== action.payload.id);
       })
       .addCase(deleteShiftAsync.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+
+      // Vardiya ekleme
+      .addCase(createShiftThunk.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createShiftThunk.fulfilled, (state) => {
+        state.loading = false;
+        // Vardiyalar fetchShifts ile yeniden yüklenecek
+      })
+      .addCase(createShiftThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

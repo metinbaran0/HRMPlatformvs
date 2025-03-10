@@ -1,4 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../store';
+import { createShiftThunk, fetchShiftsAsync, updateShiftThunk } from '../store/feature/ShiftSlice';
+import { ShiftType, ShiftDto } from '../services/ApiService';
 import { Shift } from '../types/shift';
 import ShiftForm from '../components/molecules/ShiftForm';
 import { 
@@ -11,23 +15,103 @@ import {
   CardActions, 
   Paper,
   Divider,
-  Chip
+  Chip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  IconButton,
+  CircularProgress
 } from '@mui/material';
 import { 
   Add as AddIcon, 
   Edit as EditIcon, 
   Delete as DeleteIcon, 
   AccessTime as AccessTimeIcon,
-  Group as GroupIcon
+  Group as GroupIcon,
+  Close as CloseIcon
 } from '@mui/icons-material';
+import { SelectChangeEvent } from '@mui/material/Select';
 
-interface VardiyaYonetimiProps {
-  shifts: Shift[];
-  handleNewShift: (newShift: { name: string; startTime: string; endTime: string }) => void;
-}
+const VardiyaYonetimi: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { shifts, loading, error } = useSelector((state: RootState) => state.shift);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [selectedShiftId, setSelectedShiftId] = useState<string | null>(null);
+  const [newShift, setNewShift] = useState({
+    shiftName: '',
+    startTime: '',
+    endTime: '',
+    shiftType: ShiftType.MORNING
+  });
 
-const VardiyaYonetimi: React.FC<VardiyaYonetimiProps> = ({ shifts, handleNewShift }) => {
-  const [showForm, setShowForm] = useState(false);
+  // Sayfa yüklendiğinde vardiyaları getir
+  useEffect(() => {
+    dispatch(fetchShiftsAsync());
+  }, [dispatch]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }> | SelectChangeEvent<ShiftType>) => {
+    const { name, value } = e.target;
+    setNewShift({
+      ...newShift,
+      [name as string]: value
+    });
+  };
+
+  const handleSubmit = () => {
+    if (editMode && selectedShiftId) {
+      // Vardiya güncelleme
+      dispatch(updateShiftThunk({
+        id: selectedShiftId,
+        shiftData: newShift
+      }));
+    } else {
+      // Yeni vardiya ekleme
+      dispatch(createShiftThunk(newShift));
+    }
+    
+    setDialogOpen(false);
+    setEditMode(false);
+    setSelectedShiftId(null);
+    
+    // Form alanlarını temizle
+    setNewShift({
+      shiftName: '',
+      startTime: '',
+      endTime: '',
+      shiftType: ShiftType.MORNING
+    });
+  };
+
+  const handleEditClick = (shift: ShiftDto) => {
+    setEditMode(true);
+    setSelectedShiftId(shift.id || null);
+    setNewShift({
+      shiftName: shift.shiftName,
+      startTime: shift.startTime,
+      endTime: shift.endTime,
+      shiftType: shift.shiftType
+    });
+    setDialogOpen(true);
+  };
+
+  const handleAddClick = () => {
+    setEditMode(false);
+    setSelectedShiftId(null);
+    setNewShift({
+      shiftName: '',
+      startTime: '',
+      endTime: '',
+      shiftType: ShiftType.MORNING
+    });
+    setDialogOpen(true);
+  };
 
   return (
     <div>
@@ -39,100 +123,123 @@ const VardiyaYonetimi: React.FC<VardiyaYonetimiProps> = ({ shifts, handleNewShif
           variant="contained" 
           color="primary" 
           startIcon={<AddIcon />}
-          onClick={() => setShowForm(!showForm)}
-          sx={{ 
-            px: 3, 
-            py: 1, 
-            borderRadius: 2,
-            boxShadow: '0 4px 12px rgba(63, 81, 181, 0.2)'
-          }}
+          onClick={handleAddClick}
         >
-          {showForm ? 'Formu Kapat' : 'Yeni Vardiya Ekle'}
+          Yeni Vardiya Ekle
         </Button>
       </Box>
 
-      {showForm && (
-        <Paper 
-          elevation={0} 
-          sx={{ 
-            p: 3, 
-            mb: 4, 
-            borderRadius: 2,
-            boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
-            border: '1px solid #e0e0e0'
-          }}
-        >
-          <Typography variant="h6" component="h3" gutterBottom color="primary">
-            Yeni Vardiya Oluştur
-          </Typography>
-          <Divider sx={{ mb: 3 }} />
-          <ShiftForm onSubmit={handleNewShift} />
-        </Paper>
+      {/* Vardiya Ekleme/Düzenleme Dialog */}
+      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>
+          {editMode ? 'Vardiya Düzenle' : 'Yeni Vardiya Ekle'}
+          <IconButton
+            aria-label="close"
+            onClick={() => setDialogOpen(false)}
+            sx={{ position: 'absolute', right: 8, top: 8 }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent dividers>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
+            <TextField
+              name="shiftName"
+              label="Vardiya Adı"
+              fullWidth
+              value={newShift.shiftName}
+              onChange={handleInputChange}
+              required
+            />
+            <TextField
+              name="startTime"
+              label="Başlangıç Tarihi"
+              type="date"
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+              value={newShift.startTime}
+              onChange={handleInputChange}
+              required
+            />
+            <TextField
+              name="endTime"
+              label="Bitiş Tarihi"
+              type="date"
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+              value={newShift.endTime}
+              onChange={handleInputChange}
+              required
+            />
+            <TextField
+              name="shiftType"
+              label="Vardiya Tipi"
+              fullWidth
+              value={newShift.shiftType}
+              onChange={handleInputChange}
+              required
+              helperText="Örnek: MORNING, AFTERNOON, NIGHT, CUSTOM"
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDialogOpen(false)} color="inherit">
+            İptal
+          </Button>
+          <Button 
+            onClick={handleSubmit} 
+            color="primary" 
+            variant="contained"
+            disabled={!newShift.shiftName || !newShift.startTime || !newShift.endTime}
+          >
+            {editMode ? 'Güncelle' : 'Kaydet'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Yükleme durumu */}
+      {loading && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
+          <CircularProgress />
+        </Box>
       )}
 
+      {/* Hata durumu */}
+      {error && (
+        <Box sx={{ my: 4, p: 2, bgcolor: '#ffebee', borderRadius: 1 }}>
+          <Typography color="error">{error}</Typography>
+          <Button 
+            variant="outlined" 
+            color="error" 
+            sx={{ mt: 2 }}
+            onClick={() => dispatch(fetchShiftsAsync())}
+          >
+            Tekrar Dene
+          </Button>
+        </Box>
+      )}
+
+      {/* Vardiya Listesi */}
       <Grid container spacing={3}>
-        {shifts.map(shift => (
+        {shifts.map((shift) => (
           <Grid item xs={12} sm={6} md={4} key={shift.id}>
-            <Card 
-              elevation={0} 
-              sx={{ 
-                height: '100%',
-                transition: 'transform 0.3s, box-shadow 0.3s',
-                '&:hover': {
-                  transform: 'translateY(-5px)',
-                  boxShadow: '0 12px 20px rgba(0,0,0,0.1)'
-                },
-                position: 'relative',
-                overflow: 'visible',
-                border: '1px solid #e0e0e0'
-              }}
-            >
-              <Box 
-                sx={{ 
-                  position: 'absolute', 
-                  top: -15, 
-                  left: 20, 
-                  bgcolor: 'primary.main', 
-                  color: 'white',
-                  borderRadius: 2,
-                  px: 2,
-                  py: 0.5,
-                  fontWeight: 600,
-                  fontSize: '0.875rem',
-                  boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
-                }}
-              >
-                Vardiya #{shift.id}
-              </Box>
-              <CardContent sx={{ pt: 4 }}>
-                <Typography variant="h6" component="h3" gutterBottom sx={{ fontWeight: 600, color: 'primary.main' }}>
-                  {shift.name}
+            <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+              <CardContent sx={{ flexGrow: 1 }}>
+                <Typography variant="h6" component="h3" gutterBottom>
+                  {shift.shiftName}
                 </Typography>
                 
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, color: 'text.secondary' }}>
-                  <AccessTimeIcon fontSize="small" sx={{ mr: 1, color: 'primary.light' }} />
-                  <Typography variant="body2">
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <AccessTimeIcon sx={{ color: 'primary.main', mr: 1, fontSize: 20 }} />
+                  <Typography variant="body2" color="text.secondary">
                     {shift.startTime} - {shift.endTime}
                   </Typography>
                 </Box>
                 
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, color: 'text.secondary' }}>
-                  <GroupIcon fontSize="small" sx={{ mr: 1, color: 'primary.light' }} />
-                  <Typography variant="body2">
-                    {shift.employeeCount} Çalışan
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    Vardiya Tipi: {getShiftTypeText(shift.shiftType)}
                   </Typography>
-                </Box>
-                
-                <Divider sx={{ my: 2 }} />
-                
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-                  <Chip 
-                    label={`${Math.round((parseInt(shift.endTime.split(':')[0])*60 + parseInt(shift.endTime.split(':')[1]) - 
-                      (parseInt(shift.startTime.split(':')[0])*60 + parseInt(shift.startTime.split(':')[1])))/60 * 10)/10} saat`} 
-                    size="small" 
-                    color="primary" 
-                    variant="outlined"
-                  />
                 </Box>
               </CardContent>
               <CardActions sx={{ px: 2, pb: 2, pt: 0 }}>
@@ -140,6 +247,7 @@ const VardiyaYonetimi: React.FC<VardiyaYonetimiProps> = ({ shifts, handleNewShif
                   size="small" 
                   startIcon={<EditIcon />}
                   sx={{ mr: 1 }}
+                  onClick={() => handleEditClick(shift)}
                 >
                   Düzenle
                 </Button>
@@ -157,6 +265,22 @@ const VardiyaYonetimi: React.FC<VardiyaYonetimiProps> = ({ shifts, handleNewShif
       </Grid>
     </div>
   );
+};
+
+// Vardiya tipini Türkçe metne çeviren yardımcı fonksiyon
+const getShiftTypeText = (shiftType: ShiftType): string => {
+  switch (shiftType) {
+    case ShiftType.MORNING:
+      return 'Sabah';
+    case ShiftType.AFTERNOON:
+      return 'Öğleden Sonra';
+    case ShiftType.NIGHT:
+      return 'Gece';
+    case ShiftType.CUSTOM:
+      return 'Özel';
+    default:
+      return '';
+  }
 };
 
 export default VardiyaYonetimi; 

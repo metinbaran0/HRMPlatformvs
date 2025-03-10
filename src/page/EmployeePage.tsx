@@ -190,10 +190,6 @@ const EmployeePage: React.FC = () => {
             <FaUsers className="menu-icon" />
             <span>Çalışanlar</span>
           </div>
-          <div className="menu-item" onClick={() => handleNavigation('/company')}>
-            <FaBuilding className="menu-icon" />
-            <span>Şirketler</span>
-          </div>
           <div className="menu-item" onClick={() => handleNavigation('/profile')}>
             <FaUserCircle className="menu-icon" />
             <span>Profil</span>
