@@ -71,7 +71,6 @@ export const fetchComments = createAsyncThunk<
   }
 );
 
-
 // Redux state
 const commentSlice = createSlice({
   name: "comments",

@@ -30,7 +30,7 @@ const CompanyAdminComments: React.FC<CompanyAdminCommentsProps> = ({
         <h2 className="company-admin-comments-title">Şirket Yöneticilerinin Yorumları</h2>
         <p className="company-admin-comments-subtitle">Yöneticilerimizin projeler ve hikayeler hakkındaki değerlendirmeleri</p>
       </div>
-
+      
       {loading ? (
         <div className="company-admin-comments-loading">
           <div className="spinner"></div>
