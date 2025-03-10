@@ -1,12 +1,15 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import swal from "sweetalert"; 
 
-// API Logic within AssetSlice
-const BASE_URL = "http://localhost:9090/v1/dev/asset";
+
+
+
 
 /**
  * Yeni bir zimmet ekler.
  */
 const createAsset = async (assetData: {
+  id?: number; 
   employeeId: number;
   assetName: string;
   assetType: string;
@@ -14,10 +17,12 @@ const createAsset = async (assetData: {
   assignedDate: string;
   returnDate?: string;
 }) => {
+  const token = localStorage.getItem('authToken');
   try {
-    const response = await fetch(`${BASE_URL}/add`, {
+    const response = await fetch(`http://localhost:9090/v1/api/asset/add`, {
       method: "POST",
       headers: {
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(assetData),
@@ -33,13 +38,19 @@ const createAsset = async (assetData: {
     throw error;
   }
 };
-
 /**
  * Tüm zimmetleri getirir.
  */
 const fetchAssets = async () => {
+  const token = localStorage.getItem('authToken');
   try {
-    const response = await fetch(`${BASE_URL}/all`);
+    const response = await fetch(`http://localhost:9090/v1/api/asset/all`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
     if (!response.ok) {
       throw new Error("Zimmetler alınırken hata oluştu.");
     }
@@ -54,11 +65,13 @@ const fetchAssets = async () => {
 /**
  * Belirli bir zimmeti günceller.
  */
-const updateAsset = async (assetId: string, updatedAssetData: Partial<{ assetName: string; assetType: string; returnDate: string }>) => {
+const updateAsset = async (assetId: number, updatedAssetData: Partial<{ assetName: string; assetType: string; returnDate: string }>) => {
+  const token = localStorage.getItem('authToken');
   try {
-    const response = await fetch(`${BASE_URL}/update/${assetId}`, {
-      method: "PATCH",
+    const response = await fetch(`http://localhost:9090/v1/api/asset/update/${assetId}`, {
+      method: "PUT",
       headers: {
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(updatedAssetData),
@@ -78,10 +91,15 @@ const updateAsset = async (assetId: string, updatedAssetData: Partial<{ assetNam
 /**
  * Bir zimmeti siler.
  */
-const deleteAsset = async (assetId: string) => {
+const deleteAsset = async (assetId: number) => {
+  const token = localStorage.getItem('authToken');
   try {
-    const response = await fetch(`${BASE_URL}/delete/${assetId}`, {
+    const response = await fetch(`http://localhost:9090/v1/api/asset/delete/${assetId}`, {
       method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
     });
 
     if (!response.ok) {
@@ -96,7 +114,7 @@ const deleteAsset = async (assetId: string) => {
 };
 
 interface Asset {
-  id: string;
+  id: number;
   employeeId: number;
   assetName: string;
   assetType: string;
@@ -124,12 +142,20 @@ export const addAssetAsync = createAsyncThunk(
   "assets/addAsset",
   async (assetData: Omit<Asset, "id">, { rejectWithValue }) => {
     try {
-      return await createAsset(assetData);
+      const response = await createAsset(assetData);
+      if (response.success) {
+        swal("Başarılı!", "Yeni zimmet başarıyla eklendi.", "success");
+      } else {
+        swal("Hata!", "Zimmet eklenirken bir hata oluştu. Lütfen tekrar deneyin.", "error");
+      }
+      return response;
     } catch (error) {
+      swal("Hata!", "Zimmet eklenemedi.", "error");
       return rejectWithValue("Zimmet eklenemedi.");
     }
   }
 );
+
 
 // Tüm zimmetleri çekme
 export const fetchAssetsAsync = createAsyncThunk("assets/fetchAssets", async (_, { rejectWithValue }) => {
@@ -143,23 +169,42 @@ export const fetchAssetsAsync = createAsyncThunk("assets/fetchAssets", async (_,
 // Zimmet güncelleme
 export const updateAssetAsync = createAsyncThunk(
   "assets/updateAsset",
-  async ({ id, updatedAssetData }: { id: string; updatedAssetData: Partial<Asset> }, { rejectWithValue }) => {
+  async ({ id, updatedAssetData }: { id: number; updatedAssetData: Partial<Asset> }, { rejectWithValue }) => {
     try {
-      return await updateAsset(id, updatedAssetData);
+      const response = await updateAsset(id, updatedAssetData);
+      if (response.success) {
+        swal("Başarılı!", "Zimmet başarıyla güncellendi.", "success");
+      } else {
+        swal("Hata!", "Zimmet güncellenirken bir hata oluştu.", "error");
+      }
+      return response;
     } catch (error) {
+      swal("Hata!", "Zimmet güncellenemedi.", "error");
       return rejectWithValue("Zimmet güncellenemedi.");
     }
   }
 );
 
+
 // Zimmet silme
-export const deleteAssetAsync = createAsyncThunk("assets/deleteAsset", async (id: string, { rejectWithValue }) => {
-  try {
-    return await deleteAsset(id);
-  } catch (error) {
-    return rejectWithValue("Zimmet silinemedi.");
+export const deleteAssetAsync = createAsyncThunk(
+  "assets/deleteAsset",
+  async (id: number, { rejectWithValue }) => {
+    try {
+      const response = await deleteAsset(id);
+      if (response.success) {
+        swal("Başarılı!", "Zimmet başarıyla silindi.", "success");
+      } else {
+        swal("Hata!", "Zimmet silinirken bir hata oluştu.", "error");
+      }
+      return response;
+    } catch (error) {
+      swal("Hata!", "Zimmet silinemedi.", "error");
+      return rejectWithValue("Zimmet silinemedi.");
+    }
   }
-});
+);
+
 
 // Asset slice
 

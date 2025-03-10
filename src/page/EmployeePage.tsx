@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FaUserPlus, FaSearch, FaFilter, FaUsers, FaUserTie, FaUserClock, FaUserCheck, FaHome, FaBuilding, FaUserCircle, FaCalendarAlt, FaClock, FaExchangeAlt } from 'react-icons/fa';
+import { FaUserPlus, FaSearch, FaFilter, FaUsers, FaUserTie, FaUserClock, FaUserCheck, FaHome, FaBuilding, FaUserCircle, FaCalendarAlt, FaClock, FaExchangeAlt, FaBoxOpen, FaMoneyBillWave, FaCalendarCheck } from 'react-icons/fa';
 import EmployeeTable from '../components/organisms/EmployeeTable';
 import EmployeeModal from '../components/organisms/EmployeeModal';
 import './EmployeePage.css';
@@ -215,6 +215,23 @@ const EmployeePage: React.FC = () => {
             <FaExchangeAlt className="menu-icon" />
             <span>Vardiya Atamaları</span>
           </div>
+          
+          {/* Yeni Menü Bölümü */}
+          <div className="menu-section">
+            <h3>Diğer İşlemler</h3>
+          </div>
+          <div className="menu-item" onClick={() => handleNavigation('/assets')}>
+            <FaBoxOpen className="menu-icon" />
+            <span>Demirbaşlar</span>
+          </div>
+          <div className="menu-item" onClick={() => handleNavigation('/expenses')}>
+            <FaMoneyBillWave className="menu-icon" />
+            <span>Harcamalar</span>
+          </div>
+          <div className="menu-item" onClick={() => handleNavigation('/leave-requests')}>
+            <FaCalendarCheck className="menu-icon" />
+            <span>İzin Talepleri</span>
+          </div>
         </div>
       </div>
 
@@ -264,6 +281,20 @@ const EmployeePage: React.FC = () => {
           </div>
         </motion.div>
 
+        <div className="filter-box">
+          <FaFilter />
+          <select
+            value={filterDepartment}
+            onChange={(e) => setFilterDepartment(e.target.value)}
+          >
+            <option value="">Tüm Departmanlar</option>
+            <option value="IT">IT</option>
+            <option value="İK">İK</option>
+            <option value="Finans">Finans</option>
+            <option value="Pazarlama">Pazarlama</option>
+          </select>
+        </div>
+
         <EmployeeTable
           employees={filteredEmployees}
           onEdit={handleEditClick}
@@ -282,4 +313,4 @@ const EmployeePage: React.FC = () => {
   );
 };
 
-export default EmployeePage; 
+export default EmployeePage;
