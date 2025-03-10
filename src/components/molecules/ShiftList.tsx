@@ -1,9 +1,9 @@
 import React from 'react';
-import { EmployeeShift } from '../../types/shift';
+import { ShiftListItem } from '../../types/shift';
 import './ShiftList.css';
 
 interface ShiftListProps {
-  shifts: EmployeeShift[];
+  shifts: ShiftListItem[];
 }
 
 const ShiftList: React.FC<ShiftListProps> = ({ shifts }) => {
@@ -13,7 +13,7 @@ const ShiftList: React.FC<ShiftListProps> = ({ shifts }) => {
       <ul>
         {shifts.map(shift => (
           <li key={shift.id}>
-            <div>
+            <div className="shift-info">
               <strong>{shift.shiftName}</strong>
               <div className="shift-time">
                 {shift.startTime} - {shift.endTime}

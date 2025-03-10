@@ -1,18 +1,18 @@
 import React from 'react';
-import './ShiftList.css'
 import { EmployeeShift } from '../../types/shift';
+import './EmployeeShiftList.css';
 
-interface ShiftListProps {
-  shifts: EmployeeShift[];
+interface EmployeeShiftListProps {
+  employeeShifts: EmployeeShift[];
 }
 
-const ShiftList: React.FC<ShiftListProps> = ({ shifts }) => {
+const EmployeeShiftList: React.FC<EmployeeShiftListProps> = ({ employeeShifts }) => {
   return (
-    <div>
+    <div className="employee-shift-list">
       <ul>
-        {shifts.map(shift => (
+        {employeeShifts.map(shift => (
           <li key={shift.id}>
-            <strong>{shift.shiftName}</strong> - {shift.startTime} - {shift.endTime} (Çalışan Sayısı: {shift.employeeCount})
+            <strong>{shift.employeeName}</strong> - {shift.shiftName} - {shift.date}
           </li>
         ))}
       </ul>
@@ -20,4 +20,4 @@ const ShiftList: React.FC<ShiftListProps> = ({ shifts }) => {
   );
 };
 
-export default ShiftList;
+export default EmployeeShiftList;

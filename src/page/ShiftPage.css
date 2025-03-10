@@ -1,0 +1,67 @@
+.shift-page {
+  background-color: #f5f7fa;
+  min-height: 100vh;
+  padding: 20px 0;
+}
+
+/* Animasyonlar */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.MuiCard-root {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Özel stil ayarları */
+.MuiButton-containedPrimary {
+  background-image: linear-gradient(135deg, #3f51b5 0%, #5c6bc0 100%);
+}
+
+.MuiButton-containedSecondary {
+  background-image: linear-gradient(135deg, #f50057 0%, #ff4081 100%);
+}
+
+/* Form stilleri */
+.break-form, .shift-form {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Responsive ayarlar */
+@media (max-width: 600px) {
+  .MuiTab-root {
+    min-width: auto;
+    padding: 8px;
+  }
+  
+  .MuiTab-wrapper {
+    flex-direction: column;
+  }
+}
+
+.MuiPaper-root {
+  border-radius: 8px !important;
+}
+
+.MuiTab-root {
+  min-width: 120px !important;
+}
+
+.MuiTab-wrapper {
+  flex-direction: column !important;
+}
+
+.MuiTab-labelIcon .MuiTab-wrapper > *:first-child {
+  margin-bottom: 8px !important;
+}
+
+.MuiCard-root:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+.MuiCardContent-root {
+  padding-bottom: 16px !important;
+} 
