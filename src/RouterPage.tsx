@@ -18,6 +18,8 @@ import LeaveRequestForm from './components/organisms/LeaveRequestForm'
 
 import TumHikayeler from './pages/tum-hikayeler'
 import ShiftPage from './page/ShiftPage'
+import AssetForm from './components/organisms/AssetForm'
+
 
 
 function RouterPage() {
@@ -40,11 +42,10 @@ function RouterPage() {
 
         <Route path='/pending-leaves' element={<PendingLeaveRequests/>} />
         <Route path='/leave-request' element={<LeaveRequestForm/>} />
-       
-     
-
+    
         <Route path='/tum-hikayeler' element={<TumHikayeler />} />
         <Route path='/shift' element={<ShiftPage />} />
+
 
 
        
