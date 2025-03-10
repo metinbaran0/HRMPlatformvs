@@ -94,33 +94,41 @@
 .testimonial-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 4rem;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
 }
 
 .header-content {
   flex: 0 0 300px;
-  text-align: center;
-  margin-top: 4rem; /* Header'ı card ile hizalamak için */
+  margin-right: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .testimonial-title {
   font-size: 2.5rem;
   font-weight: 700;
-  color: #7c3aed; /* Mor tonu */
-  margin-bottom: 1rem;
+  color: #7c3aed;
+  margin-bottom: 0.5rem;
   background: linear-gradient(135deg, #8b5cf6, #6d28d9);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  text-align: center;
+  text-align: left;
+  width: 100%;
 }
 
 .testimonial-subtitle {
   font-size: 1.1rem;
   color: #6d28d9;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   line-height: 1.6;
-  text-align: center;
+  text-align: left;
+  display: block;
+  width: 100%;
+  clear: both;
+  order: 1;
 }
 
 .view-all-button {
@@ -133,6 +141,8 @@
   font-weight: 500;
   transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
+  order: 2;
+  align-self: flex-start;
 }
 
 .view-all-button:hover {
@@ -146,7 +156,6 @@
   display: flex;
   align-items: center;
   gap: 2rem;
-  margin-left: 4rem;
 }
 
 .testimonial-card {
@@ -358,16 +367,17 @@
 @media (max-width: 1024px) {
   .testimonial-header {
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
   }
 
   .header-content {
-    margin-top: 0;
+    margin-right: 0;
     margin-bottom: 2rem;
+    width: 100%;
   }
 
   .testimonial-slider {
-    margin-left: 0;
+    width: 100%;
   }
 }
 

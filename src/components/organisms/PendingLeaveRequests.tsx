@@ -2,15 +2,14 @@ import React, { useEffect } from "react";
 import { FaCheckCircle, FaTimesCircle, FaCalendar, FaUser } from "react-icons/fa";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../store";
-import { 
-  fetchPendingLeavesForManagerAsync, 
-  approveLeaveByManagerAsync, 
-  rejectLeaveByManagerAsync 
+import {
+  fetchPendingLeavesForManagerAsync,
+  approveLeaveByManagerAsync,
+  rejectLeaveByManagerAsync
 } from "../../store/feature/LeaveSlice";
-
 import swal from "sweetalert";
 import "./PendingLeaveRequests.css";
-import { ThunkDispatch } from "redux-thunk";  // ThunkDispatch'i import et
+import { ThunkDispatch } from "redux-thunk"; // ThunkDispatch'i import et
 
 const PendingLeaveRequests: React.FC = () => {
   const dispatch = useDispatch<ThunkDispatch<RootState, void, any>>();  // ThunkDispatch tipi ekleyin
@@ -23,14 +22,14 @@ const PendingLeaveRequests: React.FC = () => {
     }
   }, [dispatch, managerId]);
 
-  const handleApprove = (id: number) => {
+  const handleApprove = (id: string) => {
     if (managerId) {
-      dispatch(approveLeaveByManagerAsync(id)) // Sadece employeeId gönderiyoruz
+      dispatch(approveLeaveByManagerAsync(parseInt(id))) // ID'yi number'a dönüştür
         .then(() => dispatch(fetchPendingLeavesForManagerAsync(managerId)));
     }
   };
 
-  const handleReject = (id: number) => {
+  const handleReject = (id: string) => {
     swal({
       title: "İzin talebini reddetmek istediğinizden emin misiniz?",
       text: "Bu işlemi geri alamazsınız!",
@@ -39,7 +38,7 @@ const PendingLeaveRequests: React.FC = () => {
       dangerMode: true,
     }).then((willDelete) => {
       if (willDelete && managerId) {
-        dispatch(rejectLeaveByManagerAsync(id)) // Yine sadece employeeId gönderiyoruz
+        dispatch(rejectLeaveByManagerAsync(parseInt(id))) // ID'yi number'a dönüştür
           .then(() => dispatch(fetchPendingLeavesForManagerAsync(managerId)));
       }
     });
@@ -73,24 +72,24 @@ const PendingLeaveRequests: React.FC = () => {
           <div key={request.id} className="pending-card">
             <div className="card-header">
               <FaUser className="user-icon" />
-              <h3>{request.employeeName}</h3>
+              <h3>{request.employeeName || "Bilinmeyen Çalışan"}</h3> {/* Varsayılan değer ekleyin */}
             </div>
 
             <div className="card-content">
               <div className="info-item">
                 <FaCalendar className="info-icon" />
                 <span>
-                  {request.type} ({new Date(request.startDate).toLocaleDateString("tr-TR")} - 
+                  {request.leaveType || "Bilinmeyen İzin Tipi"} ({new Date(request.startDate).toLocaleDateString("tr-TR")} - 
                   {new Date(request.endDate).toLocaleDateString("tr-TR")})
                 </span>
               </div>
             </div>
 
             <div className="card-actions">
-              <button className="action-button approve" onClick={() => handleApprove(request.id)}>
+              <button className="action-button approve" onClick={() => handleApprove(request.id.toString())}>
                 <FaCheckCircle /> Onayla
               </button>
-              <button className="action-button reject" onClick={() => handleReject(request.id)}>
+              <button className="action-button reject" onClick={() => handleReject(request.id.toString())}>
                 <FaTimesCircle /> Reddet
               </button>
             </div>
