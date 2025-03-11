@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Container, CircularProgress, Alert } from "@mui/material";
 import axios from "axios";
+import swal from "sweetalert"; // SweetAlert'ı import ediyoruz
 
 const VerifyEmail = () => {
   const [searchParams] = useSearchParams();
@@ -29,13 +30,21 @@ const VerifyEmail = () => {
             } else {
               navigate("/"); // Belirsiz rol -> Ana sayfa
             }
+
+            // Başarılı başvuru sonrası SweetAlert mesajı
+            swal("Başvurunuz Alındı", "Hesabınızı onaylamak için lütfen e-posta adresinizi kontrol edin.", "success");
           } else {
             setStatus("error");
+            swal("Hata!", "Geçersiz veya süresi dolmuş doğrulama linki.", "error");  // Hata durumu için SweetAlert
           }
         })
-        .catch(() => setStatus("error"));
+        .catch(() => {
+          setStatus("error");
+          swal("Bir hata oluştu!", "Lütfen tekrar deneyin.", "error");  // Hata durumu için SweetAlert
+        });
     } else {
       setStatus("error");
+      swal("Hata!", "Geçersiz doğrulama token'ı.", "error");  // Token bulunamadığında hata mesajı
     }
   }, [searchParams, navigate]);
 

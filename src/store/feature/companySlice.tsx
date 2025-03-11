@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { RootState } from "..";
 import { createSelector } from 'reselect';
 import { Company } from '../../types/Company';
+import Swal from 'sweetalert2';
 
 // Define the CompanyState type
 interface CompanyState {
@@ -247,5 +248,69 @@ export const selectCompanyOptions = createSelector(
     }));
   }
 );
+
+// Şirket onaylama işlemi için SweetAlert2 ile onay kutusu
+export const approveCompanyWithConfirmation = (companyId: number) => async (dispatch: any) => {
+  try {
+    const result = await Swal.fire({
+      title: 'Şirketi onaylamak istediğinize emin misiniz?',
+      text: "Bu işlem şirketin aktif olmasını sağlayacaktır.",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Evet, Onayla',
+      cancelButtonText: 'İptal'
+    });
+
+    if (result.isConfirmed) {
+      await dispatch(approveCompany(companyId));
+      
+      Swal.fire(
+        'Onaylandı!',
+        'Şirket başarıyla onaylandı.',
+        'success'
+      );
+    }
+  } catch (error) {
+    console.error('Onaylama işlemi sırasında hata oluştu:', error);
+  }
+};
+
+// Şirket reddetme işlemi için SweetAlert2 ile onay kutusu
+export const rejectCompanyWithConfirmation = (companyId: number) => async (dispatch: any) => {
+  try {
+    const { value: rejectReason, isConfirmed } = await Swal.fire({
+      title: 'Şirketi reddetmek istediğinize emin misiniz?',
+      text: "Lütfen red sebebini belirtin:",
+      input: 'textarea',
+      inputPlaceholder: 'Red sebebi...',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Evet, Reddet',
+      cancelButtonText: 'İptal',
+      inputValidator: (value) => {
+        if (!value) {
+          return 'Red sebebi belirtmelisiniz!';
+        }
+        return null;
+      }
+    });
+
+    if (isConfirmed) {
+      await dispatch(rejectCompany(companyId));
+      
+      Swal.fire(
+        'Reddedildi!',
+        'Şirket başarıyla reddedildi.',
+        'success'
+      );
+    }
+  } catch (error) {
+    console.error('Reddetme işlemi sırasında hata oluştu:', error);
+  }
+};
 
 export default companySlice.reducer;
