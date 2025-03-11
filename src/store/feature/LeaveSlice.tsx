@@ -1,17 +1,17 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import Swal from 'sweetalert2';
-import { RootState } from "../../store";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import Swal from "sweetalert2";
+import { RootState } from "..";
 
+// İzin durumu tipi
 interface LeaveRequest {
-  id: number;
-  employeeId: number;
-  employeeName?: string; 
-  type: string;
+  id: string;
+  employeeName: string; // Burada employeeName ekleniyor
   startDate: string;
   endDate: string;
-  status: "pending" | "approved" | "rejected";
-  description: string;
-  responseMessage?: string;
+  leaveType: string;
+  reason: string;
+  status: string;
+  responseMessage: string;
 }
 
 interface LeaveState {
@@ -28,23 +28,56 @@ const initialState: LeaveState = {
   error: null,
 };
 
-// Kullanıcıya ait izin taleplerini çekme
+// 1. **POST İstek: `leaverequest` (İzin Talebi Gönderme)**
+export const submitLeaveRequestAsync = createAsyncThunk(
+  "leave/submitLeaveRequest",
+  async ({ startDate, endDate, leaveType, reason }: { startDate: string, endDate: string, leaveType: string, reason: string }, { getState, rejectWithValue }) => {
+    try {
+      const state = getState() as RootState;
+      const token = state.user.token;
+
+      if (!token) {
+        throw new Error("Token bulunamadı.");
+      }
+
+      const response = await fetch("http://localhost:9090/v1/api/leave/leaverequest", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ startDate, endDate, leaveType, reason }),
+      });
+
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        throw new Error(errorMessage || "İzin talebi gönderilirken hata oluştu.");
+      }
+
+      return await response.json();
+    } catch (error: any) {
+      return rejectWithValue(error.message || "İzin talebi gönderilemedi.");
+    }
+  }
+);
+
+// 2. **GET İstek: `leavebyuserid` (Çalışanın İzin Talepleri)**
 export const fetchLeaveRequestsByUserIdAsync = createAsyncThunk(
   "leave/fetchLeaveRequestsByUserId",
   async (employeeId: number, { getState, rejectWithValue }) => {
     try {
       const state = getState() as RootState;
-      const token = state.user.token; // Redux store'dan token alıyoruz
+      const token = state.user.token;
 
       if (!token) {
         throw new Error("Token bulunamadı.");
       }
 
       const response = await fetch(`http://localhost:9090/v1/api/leave/leavebyuserid/${employeeId}`, {
-        method: 'GET', // GET metodu belirtiliyor
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`, // Token ile doğrulama yapıyoruz
+          'Authorization': `Bearer ${token}`,
         },
       });
 
@@ -60,24 +93,23 @@ export const fetchLeaveRequestsByUserIdAsync = createAsyncThunk(
   }
 );
 
-
-// Yönetici için bekleyen izin taleplerini çekme
+// 3. **GET İstek: `pending` (Bekleyen İzin Talepleri)**
 export const fetchPendingLeavesForManagerAsync = createAsyncThunk(
   "leave/fetchPendingLeavesForManager",
   async (managerId: number, { getState, rejectWithValue }) => {
     try {
       const state = getState() as RootState;
-      const token = state.user.token; // Redux store'dan token alıyoruz
+      const token = state.user.token;
 
       if (!token) {
         throw new Error("Token bulunamadı.");
       }
 
-      const response = await fetch(`http://localhost:9090/v1/api/leave/manager/${managerId}/pending-leaves`, {
-        method: 'GET', // GET metodu belirtiliyor
+      const response = await fetch(`http://localhost:9090/v1/api/leave/pending`, {
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`, // Token ile doğrulama yapıyoruz
+          'Authorization': `Bearer ${token}`,
         },
       });
 
@@ -93,30 +125,31 @@ export const fetchPendingLeavesForManagerAsync = createAsyncThunk(
   }
 );
 
-
-
-// Yönetici tarafından bir çalışan için izin onaylama
+// 4. **POST İstek: `accept` (İzin Onaylama)**
 export const approveLeaveByManagerAsync = createAsyncThunk(
   "leave/approveLeaveByManager",
   async (employeeId: number, { getState, rejectWithValue }) => {
     try {
       const state = getState() as RootState;
-      const managerId = state.user.userId;
-      const token = state.user.token; // Redux store'dan token alıyoruz
-      if (!managerId) throw new Error("Yönetici kimliği bulunamadı.");
-      if (!token) throw new Error("Token bulunamadı.");
+      const token = state.user.token;
 
-      const response = await fetch(`http://localhost:9090/v1/api/leave/manager/${managerId}/approve/${employeeId}`, {
-        method: "PUT", // PUT metodu belirtiliyor
+      if (!token) {
+        throw new Error("Token bulunamadı.");
+      }
+
+      const response = await fetch(`http://localhost:9090/v1/api/leave/accept/${employeeId}`, {
+        method: "POST",
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`, // Token ile doğrulama yapıyoruz
+          'Authorization': `Bearer ${token}`,
         },
       });
+
       if (!response.ok) {
         const errorMessage = await response.text();
         throw new Error(errorMessage || "İzin onaylanırken hata oluştu.");
       }
+
       return await response.json();
     } catch (error: any) {
       return rejectWithValue(error.message || "İzin onaylanamadı.");
@@ -124,29 +157,31 @@ export const approveLeaveByManagerAsync = createAsyncThunk(
   }
 );
 
-
-// Yönetici tarafından bir çalışan için izin reddetme
+// 5. **POST İstek: `reject` (İzin Reddetme)**
 export const rejectLeaveByManagerAsync = createAsyncThunk(
   "leave/rejectLeaveByManager",
   async (employeeId: number, { getState, rejectWithValue }) => {
     try {
       const state = getState() as RootState;
-      const managerId = state.user.userId;
-      const token = state.user.token; // Redux store'dan token alıyoruz
-      if (!managerId) throw new Error("Yönetici kimliği bulunamadı.");
-      if (!token) throw new Error("Token bulunamadı.");
+      const token = state.user.token;
 
-      const response = await fetch(`http://localhost:9090/v1/api/leave/manager/${managerId}/reject/${employeeId}`, {
-        method: "PUT", 
+      if (!token) {
+        throw new Error("Token bulunamadı.");
+      }
+
+      const response = await fetch(`http://localhost:9090/v1/api/leave/reject/${employeeId}`, {
+        method: "POST",
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`, 
+          'Authorization': `Bearer ${token}`,
         },
       });
+
       if (!response.ok) {
         const errorMessage = await response.text();
         throw new Error(errorMessage || "İzin reddedilirken hata oluştu.");
       }
+
       return await response.json();
     } catch (error: any) {
       return rejectWithValue(error.message || "İzin reddedilemedi.");
@@ -154,14 +189,30 @@ export const rejectLeaveByManagerAsync = createAsyncThunk(
   }
 );
 
-
-
+// Redux slice
 const leaveSlice = createSlice({
   name: "leave",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
+      // **Yorum Talebi**
+      .addCase(submitLeaveRequestAsync.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(submitLeaveRequestAsync.fulfilled, (state, action) => {
+        state.loading = false;
+        state.leaveRequests.push(action.payload);
+        Swal.fire("Başarı", "İzin talebiniz başarıyla gönderildi.", "success");
+      })
+      .addCase(submitLeaveRequestAsync.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        Swal.fire("Hata", action.payload as string, "error");
+      })
+
+      // **İzin Talepleri Çekme**
       .addCase(fetchLeaveRequestsByUserIdAsync.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -175,6 +226,7 @@ const leaveSlice = createSlice({
         state.error = action.payload as string;
       })
 
+      // **Bekleyen Talepleri Çekme**
       .addCase(fetchPendingLeavesForManagerAsync.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -188,18 +240,20 @@ const leaveSlice = createSlice({
         state.error = action.payload as string;
       })
 
+      // **İzin Onaylama**
       .addCase(approveLeaveByManagerAsync.fulfilled, (state, action) => {
         state.loading = false;
-        const leaveRequest = state.leaveRequests.find((req) => req.id === action.payload.id);
+        const leaveRequest = state.pendingLeaveRequests.find((req) => req.id === action.payload.id);
         if (leaveRequest) {
           leaveRequest.status = "approved";
           leaveRequest.responseMessage = action.payload.responseMessage;
         }
-        Swal.fire("Başarı", "İzin talebi onaylandı!", "success");
+        Swal.fire("Başarı", "İzin talebi onaylandı.", "success");
       })
+      // **İzin Reddetme**
       .addCase(rejectLeaveByManagerAsync.fulfilled, (state, action) => {
         state.loading = false;
-        const leaveRequest = state.leaveRequests.find((req) => req.id === action.payload.id);
+        const leaveRequest = state.pendingLeaveRequests.find((req) => req.id === action.payload.id);
         if (leaveRequest) {
           leaveRequest.status = "rejected";
           leaveRequest.responseMessage = action.payload.responseMessage;
