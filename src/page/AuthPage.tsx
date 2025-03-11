@@ -49,7 +49,7 @@ const AuthPage = () => {
         if (result?.token && result?.role) {
           switch (result.role) {
             case "SITE_ADMIN":
-              navigate("/company");
+              navigate("/dashboard");
               break;
             case "COMPANY_ADMIN":
               navigate("/employee");

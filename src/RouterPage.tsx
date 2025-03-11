@@ -25,6 +25,7 @@ import VardiyaAtama from './page/VardiyaAtama'
 
 
 import AssetForm from './components/organisms/AssetForm'
+import DashboardPage from './page/DashboardPage'
 
 
 
@@ -75,6 +76,7 @@ function RouterPage() {
 
 
         <Route path='/shift' element={<ShiftPage />} />
+        <Route path='/dashboard' element={<DashboardPage />} />
 
 
 
