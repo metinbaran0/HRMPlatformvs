@@ -15,19 +15,14 @@ import { ThunkDispatch } from "redux-thunk";  // ThunkDispatch'i import et
 const PendingLeaveRequests: React.FC = () => {
   const dispatch = useDispatch<ThunkDispatch<RootState, void, any>>();  // ThunkDispatch tipi ekleyin
   const { pendingLeaveRequests, loading, error } = useSelector((state: RootState) => state.leave);
-  const managerId = useSelector((state: RootState) => state.user.userId);
 
   useEffect(() => {
-    if (managerId) {
-      dispatch(fetchPendingLeavesForManagerAsync(managerId));
-    }
-  }, [dispatch, managerId]);
+    dispatch(fetchPendingLeavesForManagerAsync());
+  }, [dispatch]);
 
   const handleApprove = (id: number) => {
-    if (managerId) {
-      dispatch(approveLeaveByManagerAsync(id)) // Sadece employeeId gönderiyoruz
-        .then(() => dispatch(fetchPendingLeavesForManagerAsync(managerId)));
-    }
+    dispatch(approveLeaveByManagerAsync(id)) // Sadece employeeId gönderiyoruz
+      .then(() => dispatch(fetchPendingLeavesForManagerAsync()));
   };
 
   const handleReject = (id: number) => {
@@ -38,9 +33,9 @@ const PendingLeaveRequests: React.FC = () => {
       buttons: ["İptal", "Evet, Reddet"],
       dangerMode: true,
     }).then((willDelete) => {
-      if (willDelete && managerId) {
+      if (willDelete) {
         dispatch(rejectLeaveByManagerAsync(id)) // Yine sadece employeeId gönderiyoruz
-          .then(() => dispatch(fetchPendingLeavesForManagerAsync(managerId)));
+          .then(() => dispatch(fetchPendingLeavesForManagerAsync()));
       }
     });
   };

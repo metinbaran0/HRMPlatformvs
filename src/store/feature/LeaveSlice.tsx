@@ -61,23 +61,24 @@ export const fetchLeaveRequestsByUserIdAsync = createAsyncThunk(
 );
 
 
-// Yönetici için bekleyen izin taleplerini çekme
+// Yönetici için bekleyen izin taleplerini çekme ve çalışan isimlerini alma
 export const fetchPendingLeavesForManagerAsync = createAsyncThunk(
   "leave/fetchPendingLeavesForManager",
-  async (managerId: number, { getState, rejectWithValue }) => {
+  async (_, { getState, rejectWithValue }) => {
     try {
       const state = getState() as RootState;
-      const token = state.user.token; // Redux store'dan token alıyoruz
+      const token = state.user.token;
 
       if (!token) {
         throw new Error("Token bulunamadı.");
       }
 
-      const response = await fetch(`http://localhost:9090/v1/api/leave/manager/${managerId}/pending-leaves`, {
-        method: 'GET', // GET metodu belirtiliyor
+      // İzin taleplerini al
+      const response = await fetch(`http://localhost:9090/v1/api/leave/manager/{{managerId}}/pending-leaves`, {
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`, // Token ile doğrulama yapıyoruz
+          'Authorization': `Bearer ${token}`,
         },
       });
 
@@ -86,7 +87,11 @@ export const fetchPendingLeavesForManagerAsync = createAsyncThunk(
         throw new Error(errorMessage || "Bekleyen izin talepleri alınırken hata oluştu.");
       }
 
-      return await response.json();
+      const responseData = await response.json();
+      const leaveRequests = responseData.data;
+      
+      // Çalışan isimlerini ekle
+      return leaveRequests;
     } catch (error: any) {
       return rejectWithValue(error.message || "Bekleyen izin talepleri getirilemedi.");
     }

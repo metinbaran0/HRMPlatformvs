@@ -89,7 +89,7 @@ const EmployeeProfile: React.FC = () => {
         case 0: // Profil
           return <EmployeeForm />;
         case 1: // İzinler
-          return <LeaveRequestForm />;
+          return <LeaveRequestForm onClose={() => setActiveTab(0)} />;
         case 2: // Zimmetler
           return <AssetForm onSubmit={() => {}} />;
         case 3: // Harcamalar
