@@ -20,10 +20,9 @@ const PendingLeaveRequests: React.FC = () => {
   }, [dispatch]);
 
 
-  const handleApprove = (id: number) => {
-    dispatch(approveLeaveByManagerAsync(id)) // Sadece employeeId gönderiyoruz
+  const handleApprove = (id: string) => {
+    dispatch(approveLeaveByManagerAsync(parseInt(id))) // String'i number'a dönüştürüyoruz
       .then(() => dispatch(fetchPendingLeavesForManagerAsync()));
-
   };
 
   const handleReject = (id: string) => {
@@ -36,7 +35,7 @@ const PendingLeaveRequests: React.FC = () => {
     }).then((willDelete) => {
 
       if (willDelete) {
-        dispatch(rejectLeaveByManagerAsync(id)) // Yine sadece employeeId gönderiyoruz
+        dispatch(rejectLeaveByManagerAsync(parseInt(id))) // String'i number'a dönüştürüyoruz
           .then(() => dispatch(fetchPendingLeavesForManagerAsync()));
 
       }
@@ -78,7 +77,7 @@ const PendingLeaveRequests: React.FC = () => {
               <div className="info-item">
                 <FaCalendar className="info-icon" />
                 <span>
-                  {request.leaveType || "Bilinmeyen İzin Tipi"} ({new Date(request.startDate).toLocaleDateString("tr-TR")} - 
+                  {request.type || "Bilinmeyen İzin Tipi"} ({new Date(request.startDate).toLocaleDateString("tr-TR")} - 
                   {new Date(request.endDate).toLocaleDateString("tr-TR")})
                 </span>
               </div>

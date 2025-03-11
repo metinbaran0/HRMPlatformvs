@@ -8,14 +8,18 @@ import Swal from 'sweetalert2';
 interface CompanyState {
   companies: Company[];
   expiringSoonCompanies: Company[];
+  companyDetails: any | null;
   loading: boolean;
+  detailsLoading: boolean;
   error: string | null;
 }
 
 const initialState: CompanyState = {
   companies: [],
   expiringSoonCompanies: [],
+  companyDetails: null,
   loading: false,
+  detailsLoading: false,
   error: null,
 };
 
@@ -164,6 +168,44 @@ export const fetchExpiringSoonCompanies = createAsyncThunk(
   }
 );
 
+// Şirket detaylarını getirme
+export const fetchCompanyDetailsAsync = createAsyncThunk(
+  "companies/fetchCompanyDetails",
+  async (companyId: number, { getState, rejectWithValue }) => {
+    try {
+      if (!companyId) {
+        return rejectWithValue("Geçersiz şirket ID'si");
+      }
+      
+      const state = getState() as RootState;
+      const token = state.user.token;
+
+      if (!token) {
+        throw new Error("Token bulunamadı.");
+      }
+
+      console.log("Detayları getirilen şirket ID:", companyId);
+      
+      const response = await fetch(`http://localhost:9090/v1/api/company/companies/${companyId}`, {
+        method: "GET",
+        headers: {
+          "Authorization": "Bearer " + token,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        return data.data;
+      } else {
+        return rejectWithValue(data.message);
+      }
+    } catch (error: any) {
+      return rejectWithValue("Şirket detayları çekilirken hata oluştu: " + error.message);
+    }
+  }
+);
+
 // Redux state
 const companySlice = createSlice({
   name: "companies",
@@ -231,6 +273,20 @@ const companySlice = createSlice({
       })
       .addCase(fetchExpiringSoonCompanies.rejected, (state, action) => {
         state.loading = false;
+        state.error = action.payload as string;
+      })
+      
+      // Şirket detayları
+      .addCase(fetchCompanyDetailsAsync.pending, (state) => {
+        state.detailsLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchCompanyDetailsAsync.fulfilled, (state, action) => {
+        state.detailsLoading = false;
+        state.companyDetails = action.payload;
+      })
+      .addCase(fetchCompanyDetailsAsync.rejected, (state, action) => {
+        state.detailsLoading = false;
         state.error = action.payload as string;
       });
   },
