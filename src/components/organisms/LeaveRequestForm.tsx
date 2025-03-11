@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import './LeaveRequestForm.css'; // CSS dosyasını import ediyoruz
+import { useNavigate } from 'react-router-dom';
+import { FaCalendarAlt, FaClipboardList, FaTimes, FaPaperPlane } from 'react-icons/fa';
+import './LeaveRequestForm.css';
 
 interface LeaveRequest {
   startDate: string;
@@ -10,26 +12,29 @@ interface LeaveRequest {
   reason: string;
 }
 
-const LeaveRequestForm: React.FC = () => {
-  const token = useSelector((state: any) => state.user.token); // Redux üzerinden token alınıyor
+interface LeaveRequestFormProps {
+  onClose: () => void;
+}
+
+const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({ onClose }) => {
+  const navigate = useNavigate();
+  const token = useSelector((state: any) => state.user.token);
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   const [leaveType, setLeaveType] = useState<'ANNUAL' | 'MARRIAGE' | 'MATERNITY' | 'UNPAID'>('ANNUAL');
-  const [employeeId, setEmployeeId] = useState<number>(0); // Default employeeId, daha sonra set edilecek
+  const [employeeId, setEmployeeId] = useState<number>(0);
   const [reason, setReason] = useState<string>('');
   const [responseMessage, setResponseMessage] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(true);
 
-  // Bu useEffect fonksiyonu, modal açıldığında body kaydırmayı engeller
   useEffect(() => {
     if (isModalOpen) {
-      document.body.style.overflow = 'hidden';  // Modal açıkken body kaydırmayı engelle
+      document.body.style.overflow = 'hidden';
     } else {
-      document.body.style.overflow = 'auto';  // Modal kapandığında kaydırma izni ver
+      document.body.style.overflow = 'auto';
     }
   }, [isModalOpen]);
 
-  // Form gönderildiğinde çalışacak fonksiyon
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
@@ -51,7 +56,7 @@ const LeaveRequestForm: React.FC = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`, 
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(leaveRequestData),
       });
@@ -60,6 +65,9 @@ const LeaveRequestForm: React.FC = () => {
 
       if (response.ok) {
         setResponseMessage('İzin talebiniz başarıyla oluşturulmuştur!');
+        setTimeout(() => {
+          navigate('/employee');
+        }, 2000);
       } else {
         setResponseMessage(result.message || 'İzin talebi oluşturulurken hata oluştu.');
       }
@@ -68,18 +76,40 @@ const LeaveRequestForm: React.FC = () => {
     }
   };
 
-  // Modal'ı kapatma fonksiyonu
   const closeModal = () => {
     setIsModalOpen(false);
+    onClose();
+  };
+
+  const getLeaveTypeLabel = (type: string) => {
+    const types = {
+      ANNUAL: 'Yıllık İzin',
+      MARRIAGE: 'Evlilik İzni',
+      MATERNITY: 'Doğum İzni',
+      UNPAID: 'Ücretsiz İzin'
+    };
+    return types[type as keyof typeof types];
   };
 
   return (
     <div className={`modal-overlay ${isModalOpen ? 'open' : ''}`}>
       <div className="leave-request-form">
-        <h2>İzin Talebi Oluştur</h2>
+        <button className="close-modal-button" onClick={closeModal}>
+          <FaTimes />
+        </button>
+        
+        <div className="form-header">
+          <FaCalendarAlt className="form-icon" />
+          <h2>İzin Talebi Oluştur</h2>
+          <p>Lütfen izin bilgilerinizi doldurun</p>
+        </div>
+
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="startDate">Başlangıç Tarihi:</label>
+            <label htmlFor="startDate">
+              <FaCalendarAlt className="input-icon" />
+              Başlangıç Tarihi
+            </label>
             <input
               type="date"
               id="startDate"
@@ -90,7 +120,10 @@ const LeaveRequestForm: React.FC = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="endDate">Bitiş Tarihi:</label>
+            <label htmlFor="endDate">
+              <FaCalendarAlt className="input-icon" />
+              Bitiş Tarihi
+            </label>
             <input
               type="date"
               id="endDate"
@@ -101,35 +134,52 @@ const LeaveRequestForm: React.FC = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="leaveType">İzin Türü:</label>
+            <label htmlFor="leaveType">
+              <FaClipboardList className="input-icon" />
+              İzin Türü
+            </label>
             <select
               id="leaveType"
               value={leaveType}
               onChange={(e) => setLeaveType(e.target.value as 'ANNUAL' | 'MARRIAGE' | 'MATERNITY' | 'UNPAID')}
               required
             >
-              <option value="ANNUAL">Yıllık İzin</option>
-              <option value="MARRIAGE">Evlilik İzni</option>
-              <option value="MATERNITY">Doğum İzni</option>
-              <option value="UNPAID">Ücretsiz İzin</option>
+              {Object.entries({
+                ANNUAL: 'Yıllık İzin',
+                MARRIAGE: 'Evlilik İzni',
+                MATERNITY: 'Doğum İzni',
+                UNPAID: 'Ücretsiz İzin'
+              }).map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
             </select>
           </div>
 
           <div className="form-group">
-            <label htmlFor="reason">Sebep:</label>
+            <label htmlFor="reason">
+              <FaClipboardList className="input-icon" />
+              İzin Nedeni
+            </label>
             <textarea
               id="reason"
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-            ></textarea>
+              placeholder="İzin talebinizin nedenini açıklayın..."
+              required
+            />
           </div>
 
-          <button type="submit" className="submit-button">İzin Talebi Gönder</button>
+          <button type="submit" className="submit-button">
+            <FaPaperPlane className="button-icon" />
+            İzin Talebi Gönder
+          </button>
         </form>
 
-        {responseMessage && <div className="response-message"><p>{responseMessage}</p></div>}
-
-        <button className="close-modal-button" onClick={closeModal}>Kapat</button>
+        {responseMessage && (
+          <div className="response-message">
+            <p>{responseMessage}</p>
+          </div>
+        )}
       </div>
     </div>
   );

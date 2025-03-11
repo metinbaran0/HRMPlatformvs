@@ -1,0 +1,113 @@
+.dashboard-container {
+  padding: 20px;
+}
+
+.card {
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.summary-card {
+  padding: 20px;
+  color: white;
+  height: 140px;
+  display: flex;
+  flex-direction: column;
+}
+
+.summary-card.blue {
+  background: linear-gradient(135deg, #3f51b5 0%, #5c6bc0 100%);
+}
+
+.summary-card.red {
+  background: linear-gradient(135deg, #f50057 0%, #ff4081 100%);
+}
+
+.summary-card.green {
+  background: linear-gradient(135deg, #4caf50 0%, #81c784 100%);
+}
+
+.summary-card.orange {
+  background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%);
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.card-title svg {
+  margin-right: 8px;
+}
+
+.card-value {
+  font-size: 2.5rem;
+  font-weight: 600;
+}
+
+.card-subtitle {
+  margin-top: auto;
+  font-size: 0.875rem;
+  opacity: 0.8;
+}
+
+.chart-container {
+  height: 350px;
+  padding: 20px;
+}
+
+.list-container {
+  padding: 20px;
+}
+
+.list-item {
+  border-bottom: 1px solid #eee;
+  padding: 12px 0;
+}
+
+.list-item:last-child {
+  border-bottom: none;
+}
+
+.list-item-icon {
+  margin-right: 16px;
+}
+
+.list-item-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.list-item-title {
+  font-weight: 500;
+}
+
+.list-item-subtitle {
+  color: #666;
+  font-size: 0.875rem;
+}
+
+.action-button {
+  margin-top: 20px;
+}
+
+@media (max-width: 768px) {
+  .summary-card {
+    height: 120px;
+  }
+  
+  .card-value {
+    font-size: 2rem;
+  }
+  
+  .chart-container {
+    height: 300px;
+  }
+} 

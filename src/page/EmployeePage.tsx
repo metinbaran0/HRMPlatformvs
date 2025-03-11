@@ -233,7 +233,7 @@ const EmployeePage: React.FC = () => {
             <FaMoneyBillWave className="menu-icon" />
             <span>Harcamalar</span>
           </div>
-          <div className="menu-item" onClick={() => handleNavigation('/leave-requests')}>
+          <div className="menu-item" onClick={() => handleNavigation('/leave-request')}>
             <FaCalendarCheck className="menu-icon" />
             <span>İzin Talepleri</span>
           </div>

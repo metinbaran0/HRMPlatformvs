@@ -7,4 +7,5 @@ export interface Company {
     employeeCount: number;
     createdAt: string;
     sector: string;
+    subscriptionEndDate: string;
 } 

@@ -1,109 +1,230 @@
 /* Modal Overlay */
 .modal-overlay {
-  display: none;
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  right: 0;
+  bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
   transition: all 0.3s ease;
 }
 
 .modal-overlay.open {
-  display: flex;
+  opacity: 1;
+  visibility: visible;
 }
 
 /* Leave Request Form */
 .leave-request-form {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  width: 400px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  width: 80%;
+  max-width: 500px;
+  max-height: 90vh;
   position: relative;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  transform: translateY(20px);
+  transition: all 0.3s ease;
+  animation: slideIn 0.3s ease;
+  overflow-y: auto;
 }
 
-h2 {
+.modal-overlay.open .leave-request-form {
+  transform: translateY(0);
+}
+
+.form-header {
   text-align: center;
-  color: #333;
+  margin-bottom: 1.5rem;
+  padding-top: 0.5rem;
+}
+
+.form-header h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 1.5rem;
 }
 
 .form-group label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  color: #2d3436;
   font-weight: 500;
-  font-size: 1rem;
-  color: #555;
+  font-size: 0.95rem;
 }
 
 .form-group input,
 .form-group select,
 .form-group textarea {
   width: 100%;
-  padding: 10px;
+  padding: 0.8rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
   font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  margin-top: 5px;
+  transition: all 0.3s ease;
+  background-color: #f8f9fa;
 }
 
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
-  border-color: #007bff;
   outline: none;
+  border-color: #6c5ce7;
+  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+  background-color: #fff;
+}
+
+.form-group textarea {
+  min-height: 120px;
+  resize: vertical;
 }
 
 .submit-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
-  padding: 12px;
-  background-color: #007bff;
+  padding: 1rem;
+  background: #6c5ce7;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  margin-top: 10px;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
 }
 
 .submit-button:hover {
-  background-color: #0056b3;
-}
-
-.response-message {
-  text-align: center;
-  font-size: 1rem;
-  color: #28a745;
-  margin-top: 15px;
+  background: #5f4dd0;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(108, 92, 231, 0.2);
 }
 
 .close-modal-button {
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 1rem;
+  right: 1rem;
+  background: #ff4757;
+  border: none;
+  font-size: 1.2rem;
+  color: white;
   cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0.5rem;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
 }
 
 .close-modal-button:hover {
-  background-color: #c82333;
+  background: #ff6b81;
+  transform: scale(1.1);
+}
+
+.response-message {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.response-message.success {
+  background-color: #e3f7e8;
+  color: #2d3436;
+  border: 1px solid #a8e6c1;
+}
+
+.response-message.error {
+  background-color: #ffe3e3;
+  color: #e74c3c;
+  border: 1px solid #ffa8a8;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Responsive Design */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .leave-request-form {
     width: 90%;
-    padding: 15px;
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+  
+  .form-header h2 {
+    font-size: 1.3rem;
+  }
+}
+
+/* Mevcut CSS'e eklenecek yeni stiller */
+
+.form-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.form-icon {
+  font-size: 2.5rem;
+  color: #6c5ce7;
+  margin-bottom: 1rem;
+}
+
+.form-header p {
+  color: #636e72;
+  font-size: 1rem;
+  margin-top: 0.5rem;
+}
+
+.input-icon {
+  margin-right: 0.5rem;
+  color: #6c5ce7;
+}
+
+.button-icon {
+  margin-right: 0.5rem;
+}
+
+/* Hover efektleri için ek stiller */
+.form-group input:hover,
+.form-group select:hover,
+.form-group textarea:hover {
+  border-color: #6c5ce7;
+}
+
+/* Animasyon için ek keyframes */
+@keyframes slideIn {
+  from {
+    transform: translateY(-100px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
   }
 }
