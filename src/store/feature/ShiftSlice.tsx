@@ -124,25 +124,15 @@ export const addShiftAsync = createAsyncThunk(
 );
 
 // Vardiyaları getirme thunk'ı
-export const fetchShiftsAsync = createAsyncThunk<
-  ShiftDto[],
-  void,
-  { rejectValue: string }
->(
-  'shifts/fetchShifts',
+export const fetchShiftsAsync = createAsyncThunk(
+  'shift/fetchShifts',
   async (_, { rejectWithValue }) => {
     try {
-      // ApiService üzerinden vardiyaları getir
+      // Use the existing getAllShifts method
       const shifts = await ApiService.getAllShifts();
       return shifts;
     } catch (error: any) {
-      // Hata durumunda SweetAlert ile bildirim göster
-      Swal.fire({
-        icon: 'error',
-        title: 'Hata!',
-        text: error.message || "Vardiyalar yüklenirken bir hata oluştu",
-      });
-      return rejectWithValue(error.message || "Vardiyalar yüklenirken bir hata oluştu");
+      return rejectWithValue(error.message || 'Vardiyalar alınırken bir hata oluştu');
     }
   }
 );
@@ -185,13 +175,22 @@ export const updateShiftThunk = createAsyncThunk<
 );
 
 // Vardiya silme asenkron işlem
-export const deleteShiftAsync = createAsyncThunk("shifts/deleteShift", async (id: string, { rejectWithValue }) => {
-  try {
-    return await deleteShift(id);
-  } catch (error) {
-    return rejectWithValue("Vardiya silinemedi.");
+export const deleteShiftAsync = createAsyncThunk(
+  "shifts/deleteShift", 
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const response = await ApiService.deleteShift(id);
+      
+      if (response.success) {
+        return { id }; // Silinen vardiya ID'sini döndür
+      } else {
+        return rejectWithValue(response.message || 'Vardiya silinemedi');
+      }
+    } catch (error: any) {
+      return rejectWithValue(error.message || 'Vardiya silme işlemi başarısız oldu');
+    }
   }
-});
+);
 
 // Vardiya ekleme thunk'ı
 export const createShiftThunk = createAsyncThunk<

@@ -1,24 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { RootState, AppDispatch } from '../store';
 import { 
   fetchCompanies, 
   fetchPendingCompanies, 
-  fetchAprovedCompanies,
+  fetchApprovedCompanies,
   approveCompany,
   rejectCompany,
   approveCompanyWithConfirmation,
   rejectCompanyWithConfirmation,
   fetchCompanyDetailsAsync
 } from '../store/feature/companySlice';
+import { logout } from '../store/feature/userSlice';
 import { 
   FaBuilding, 
   FaSearch, 
   FaFilter, 
   FaCheckCircle,
   FaTimesCircle,
-  FaHourglassHalf
+  FaHourglassHalf,
+  FaSignOutAlt,
+  FaArrowLeft
 } from 'react-icons/fa';
 import './CompanyPage.css';
 import { Button } from '@mui/material';
@@ -43,9 +47,12 @@ import {
   Group as GroupIcon,
   CalendarToday as CalendarIcon
 } from '@mui/icons-material';
+import { Company } from '../types/Company';
+import Swal from 'sweetalert2';
 
 const CompanyPage: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
+  const navigate = useNavigate();
   const { companies, loading, error, companyDetails, detailsLoading } = useSelector((state: RootState) => state.companies);
   const [pendingCompanies, setPendingCompanies] = useState<any[]>([]);
   const [approvedCompanies, setApprovedCompanies] = useState<any[]>([]);
@@ -60,45 +67,32 @@ const CompanyPage: React.FC = () => {
     // Tüm şirketleri getir
     dispatch(fetchCompanies())
       .unwrap()
-      .then((data) => {
+      .then((data: any[]) => {
         setAllCompanies(data);
       })
-      .catch((error) => {
+      .catch((error: Error) => {
         console.error("Tüm şirketler alınırken hata:", error);
       });
     
-    // Onay bekleyen şirketleri getir
-    const fetchPending = async () => {
-      try {
-        const response = await fetch("http://localhost:9090/v1/api/company/pending-company", {
-          method: "GET",
-          headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token"),
-            "Content-Type": "application/json",
-          },
-        });
-        
-        const data = await response.json();
-        if (data.success) {
-          setPendingCompanies(data.data);
-        }
-      } catch (error) {
-        console.error("Onay bekleyen şirketler alınırken hata:", error);
-      }
-    };
-    
-    // Onaylanmış şirketleri getir - Redux thunk kullanarak
-    dispatch(fetchAprovedCompanies())
+    // Onay bekleyen şirketleri getir - Redux thunk kullanarak
+    dispatch(fetchPendingCompanies())
       .unwrap()
-      .then((data) => {
-        console.log("Onaylanmış şirketler:", data); // Tüm şirket verilerini kontrol et
-        setApprovedCompanies(data);
+      .then((data: any[]) => {
+        setPendingCompanies(data);
       })
-      .catch((error) => {
-        console.error("Onaylanmış şirketler alınırken hata:", error);
+      .catch((error: Error) => {
+        console.error("Onay bekleyen şirketler alınırken hata:", error);
       });
     
-    fetchPending();
+    // Onaylanmış şirketleri getir - Redux thunk kullanarak
+    dispatch(fetchApprovedCompanies())
+      .unwrap()
+      .then((data: Company[]) => {
+        setApprovedCompanies(data);
+      })
+      .catch((error: Error) => {
+        console.error("Onaylanmış şirketler alınırken hata:", error);
+      });
   }, [dispatch]);
 
   // Filtreleme işlemi
@@ -163,7 +157,7 @@ const CompanyPage: React.FC = () => {
             setAllCompanies(data);
           });
         
-        dispatch(fetchAprovedCompanies())
+        dispatch(fetchApprovedCompanies())
           .unwrap()
           .then((data) => {
             setApprovedCompanies(data);
@@ -208,17 +202,39 @@ const CompanyPage: React.FC = () => {
       });
   };
 
-  // Şirket detayları görüntüleme fonksiyonu
-  const handleViewDetails = (companyId: number) => {
-    console.log("Görüntülenen şirket ID:", companyId); // ID'yi kontrol etmek için
-    if (companyId && companyId !== undefined) {
-      dispatch(fetchCompanyDetailsAsync(companyId));
-      setOpenDetailsDialog(true);
-    } else {
-      console.error("Geçersiz şirket ID'si:", companyId);
-      // Kullanıcıya hata mesajı gösterebilirsiniz
-      alert("Şirket detayları görüntülenirken bir hata oluştu: Geçersiz şirket ID'si");
+  // Şirket detaylarını görüntüleme fonksiyonu
+  const handleViewCompanyDetails = (companyId: number) => {
+    console.log("Detay görüntüleme isteği, ID:", companyId);
+    
+    if (!companyId) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Hata',
+        text: 'Şirket ID bulunamadı!'
+      });
+      return;
     }
+    
+    dispatch({ type: 'companies/setDetailsLoading', payload: true });
+    
+    dispatch(fetchCompanyDetailsAsync(companyId))
+      .unwrap()
+      .then((data) => {
+        console.log("Şirket detayları başarıyla alındı:", data);
+        dispatch({ type: 'companies/setCompanyDetails', payload: data });
+        setOpenDetailsDialog(true);
+      })
+      .catch((error) => {
+        console.error("Şirket detayları alınırken hata:", error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Hata',
+          text: `Şirket detayları alınamadı: ${error}`
+        });
+      })
+      .finally(() => {
+        dispatch({ type: 'companies/setDetailsLoading', payload: false });
+      });
   };
 
   // Şirket detayları dialog'u
@@ -349,6 +365,51 @@ const CompanyPage: React.FC = () => {
     );
   };
 
+  // Çıkış yapma fonksiyonu
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/');
+  };
+
+  // Geri gitme fonksiyonu
+  const handleGoBack = () => {
+    navigate('/dashboard');
+  };
+
+  // Tab değiştiğinde şirketleri yeniden yükleme
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    
+    if (tab === 'all' && filteredCompanies.length === 0) {
+      dispatch(fetchCompanies())
+        .unwrap()
+        .then((data: any[]) => {
+          setAllCompanies(data);
+        })
+        .catch((error: Error) => {
+          console.error("Tüm şirketler alınırken hata:", error);
+        });
+    } else if (tab === 'approved' && approvedCompanies.length === 0) {
+      dispatch(fetchApprovedCompanies())
+        .unwrap()
+        .then((data: Company[]) => {
+          setApprovedCompanies(data);
+        })
+        .catch((error: Error) => {
+          console.error("Onaylanmış şirketler alınırken hata:", error);
+        });
+    } else if (tab === 'pending' && pendingCompanies.length === 0) {
+      dispatch(fetchPendingCompanies())
+        .unwrap()
+        .then((data: any[]) => {
+          setPendingCompanies(data);
+        })
+        .catch((error: Error) => {
+          console.error("Onay bekleyen şirketler alınırken hata:", error);
+        });
+    }
+  };
+
   if (loading) {
     return (
       <div className="company-page">
@@ -385,25 +446,60 @@ const CompanyPage: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <div className="header-content">
-            <div>
-              <h1>Şirket Yönetimi</h1>
-              <p>Şirketlerinizi görüntüleyin ve yönetin</p>
-            </div>
-          </div>
+          {/* Sol üst köşeye geri butonu */}
+          <button 
+            onClick={handleGoBack}
+            style={{ 
+              position: 'absolute', 
+              left: '15px', 
+              top: '15px',
+              background: 'none',
+              border: 'none',
+              color: 'white',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              fontSize: '14px'
+            }}
+          >
+            <FaArrowLeft />
+          </button>
+          
+          <FaBuilding className="header-icon" />
+          <h1>Şirket Yönetimi</h1>
+          <p>Şirketleri görüntüleyin, onaylayın veya reddedin</p>
+          
+          {/* Sağ üst köşeye çıkış butonu */}
+          <button 
+            onClick={handleLogout}
+            style={{ 
+              position: 'absolute', 
+              right: '15px', 
+              top: '15px',
+              background: 'none',
+              border: 'none',
+              color: 'white',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              fontSize: '14px'
+            }}
+          >
+            <FaSignOutAlt style={{ marginRight: '5px' }} /> Çıkış
+          </button>
         </motion.div>
 
         {/* Tab Seçenekleri */}
         <div className="company-tabs">
           <button 
             className={`tab-button ${activeTab === 'all' ? 'active' : ''}`}
-            onClick={() => setActiveTab('all')}
+            onClick={() => handleTabChange('all')}
           >
             Tüm Şirketler
           </button>
           <button 
             className={`tab-button ${activeTab === 'approved' ? 'active' : ''}`}
-            onClick={() => setActiveTab('approved')}
+            onClick={() => handleTabChange('approved')}
           >
             Onaylanmış Şirketler
             {approvedCompanies.length > 0 && (
@@ -412,7 +508,7 @@ const CompanyPage: React.FC = () => {
           </button>
           <button 
             className={`tab-button ${activeTab === 'pending' ? 'active' : ''}`}
-            onClick={() => setActiveTab('pending')}
+            onClick={() => handleTabChange('pending')}
           >
             Onay Bekleyen Şirketler
             {pendingCompanies.length > 0 && (
@@ -427,42 +523,15 @@ const CompanyPage: React.FC = () => {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
         >
-          <div className="search-box">
+          <div className="search-box" style={{ width: '100%', maxWidth: '600px' }}>
             <FaSearch />
             <input
               type="text"
               placeholder="Şirket ara..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ width: '100%' }}
             />
-          </div>
-
-          <div className="filter-box">
-            <FaFilter />
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-            >
-              <option value="all">Tüm Durumlar</option>
-              <option value="approved">Onaylanmış</option>
-              <option value="pending">Onay Bekleyen</option>
-              <option value="rejected">Reddedilmiş</option>
-            </select>
-          </div>
-
-          <div className="filter-box">
-            <FaFilter />
-            <select
-              value={filterSector}
-              onChange={(e) => setFilterSector(e.target.value)}
-            >
-              <option value="">Tüm Sektörler</option>
-              <option value="Teknoloji">Teknoloji</option>
-              <option value="Finans">Finans</option>
-              <option value="Sağlık">Sağlık</option>
-              <option value="Eğitim">Eğitim</option>
-              <option value="Üretim">Üretim</option>
-            </select>
           </div>
         </motion.div>
 
@@ -470,18 +539,18 @@ const CompanyPage: React.FC = () => {
           className="company-grid"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
+          transition={{ delay: 0.1, duration: 0.3 }}
         >
           {activeTab === 'all' ? (
             // Tüm şirketleri göster
-            filteredCompanies.map((company) => (
+            filteredCompanies.map((company, index) => (
               <motion.div 
                 key={company.id} 
                 className="company-card"
                 whileHover={{ y: -5, boxShadow: '0 10px 20px rgba(0,0,0,0.1)' }}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
+                transition={{ duration: 0.2, delay: index * 0.05 }}
               >
                 <div className="company-logo">
                   <span>{company.name?.charAt(0)}</span>
@@ -520,14 +589,14 @@ const CompanyPage: React.FC = () => {
             ))
           ) : activeTab === 'approved' ? (
             // Onaylanmış şirketleri göster
-            approvedCompanies.map((company) => (
+            approvedCompanies.map((company, index) => (
               <motion.div 
                 key={company.id} 
                 className="company-card"
                 whileHover={{ y: -5, boxShadow: '0 10px 20px rgba(0,0,0,0.1)' }}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
+                transition={{ duration: 0.2, delay: index * 0.05 }}
               >
                 <div className="company-logo">
                   <span>{company.name?.charAt(0)}</span>
@@ -564,36 +633,28 @@ const CompanyPage: React.FC = () => {
                 </div>
                 
                 <div className="company-actions">
-                  <button 
-                    className="action-button view"
-                    onClick={() => {
-                      console.log("Şirket:", company); // Tüm şirket nesnesini kontrol et
-                      console.log("Şirket ID:", company.id);
-                      
-                      // ID'nin geçerli olduğundan emin olalım
-                      const companyId = company?.id;
-                      if (companyId) {
-                        handleViewDetails(Number(companyId));
-                      } else {
-                        alert("Şirket ID'si bulunamadı!");
-                      }
-                    }}
+                  <Button 
+                    variant="contained" 
+                    color="primary" 
+                    startIcon={<BusinessIcon />}
+                    onClick={() => handleViewCompanyDetails(company.companyId || company.id)}
+                    size="small"
                   >
                     Detayları Görüntüle
-                  </button>
+                  </Button>
                 </div>
               </motion.div>
             ))
           ) : (
             // Onay bekleyen şirketleri göster
-            pendingCompanies.map((company) => (
+            pendingCompanies.map((company, index) => (
               <motion.div 
                 key={company.id} 
                 className="company-card"
                 whileHover={{ y: -5, boxShadow: '0 10px 20px rgba(0,0,0,0.1)' }}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
+                transition={{ duration: 0.2, delay: index * 0.05 }}
               >
                 <div className="company-logo">
                   <span>{company.name?.charAt(0)}</span>

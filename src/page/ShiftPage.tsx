@@ -20,6 +20,10 @@ import {
   People as PeopleIcon
 } from '@mui/icons-material';
 import './ShiftPage.css';
+import { deleteShiftAsync } from '../store/feature/ShiftSlice';
+import Swal from 'sweetalert2';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '../store';
 
 // Material UI için özel tema oluşturma
 const theme = createTheme({
@@ -80,6 +84,7 @@ const ShiftPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState(0);
+  const dispatch = useDispatch<AppDispatch>();
 
   // URL'ye göre aktif sekmeyi belirle
   useEffect(() => {
@@ -169,6 +174,39 @@ const ShiftPage: React.FC = () => {
         break;
       default:
         navigate('/shift');
+    }
+  };
+
+  // Silme butonuna tıklandığında çağrılacak fonksiyon
+  const handleDeleteShift = async (id: string) => {
+    try {
+      // Silme işlemi için onay al
+      const result = await Swal.fire({
+        title: 'Vardiyayı silmek istediğinize emin misiniz?',
+        text: "Bu işlem geri alınamaz!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Evet, sil!',
+        cancelButtonText: 'İptal'
+      });
+
+      if (result.isConfirmed) {
+        await dispatch(deleteShiftAsync(id)).unwrap();
+        
+        Swal.fire(
+          'Silindi!',
+          'Vardiya başarıyla silindi.',
+          'success'
+        );
+      }
+    } catch (error) {
+      Swal.fire(
+        'Hata!',
+        `Vardiya silinemedi: ${error}`,
+        'error'
+      );
     }
   };
 
