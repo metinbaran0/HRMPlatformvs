@@ -9,7 +9,8 @@ import {
   approveCompany,
   rejectCompany,
   approveCompanyWithConfirmation,
-  rejectCompanyWithConfirmation
+  rejectCompanyWithConfirmation,
+  fetchCompanyDetailsAsync
 } from '../store/feature/companySlice';
 import { 
   FaBuilding, 
@@ -22,10 +23,30 @@ import {
 import './CompanyPage.css';
 import { Button } from '@mui/material';
 import { CheckCircle as CheckCircleIcon, Cancel as CancelIcon } from '@mui/icons-material';
+import { 
+  Dialog, 
+  DialogTitle, 
+  DialogContent, 
+  DialogActions, 
+  Typography, 
+  Grid, 
+  Divider, 
+  Box,
+  CircularProgress
+} from '@mui/material';
+import { 
+  Business as BusinessIcon,
+  Email as EmailIcon,
+  Phone as PhoneIcon,
+  Person as PersonIcon,
+  Category as CategoryIcon,
+  Group as GroupIcon,
+  CalendarToday as CalendarIcon
+} from '@mui/icons-material';
 
 const CompanyPage: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
-  const { companies, loading, error } = useSelector((state: RootState) => state.companies);
+  const { companies, loading, error, companyDetails, detailsLoading } = useSelector((state: RootState) => state.companies);
   const [pendingCompanies, setPendingCompanies] = useState<any[]>([]);
   const [approvedCompanies, setApprovedCompanies] = useState<any[]>([]);
   const [allCompanies, setAllCompanies] = useState<any[]>([]);
@@ -33,6 +54,7 @@ const CompanyPage: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterSector, setFilterSector] = useState('');
   const [activeTab, setActiveTab] = useState('all'); // 'all', 'pending' veya 'approved'
+  const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
 
   useEffect(() => {
     // Tüm şirketleri getir
@@ -69,6 +91,7 @@ const CompanyPage: React.FC = () => {
     dispatch(fetchAprovedCompanies())
       .unwrap()
       .then((data) => {
+        console.log("Onaylanmış şirketler:", data); // Tüm şirket verilerini kontrol et
         setApprovedCompanies(data);
       })
       .catch((error) => {
@@ -183,6 +206,147 @@ const CompanyPage: React.FC = () => {
         console.error("Şirket reddedilirken hata:", error);
         alert("Şirket reddedilirken bir hata oluştu: " + error);
       });
+  };
+
+  // Şirket detayları görüntüleme fonksiyonu
+  const handleViewDetails = (companyId: number) => {
+    console.log("Görüntülenen şirket ID:", companyId); // ID'yi kontrol etmek için
+    if (companyId && companyId !== undefined) {
+      dispatch(fetchCompanyDetailsAsync(companyId));
+      setOpenDetailsDialog(true);
+    } else {
+      console.error("Geçersiz şirket ID'si:", companyId);
+      // Kullanıcıya hata mesajı gösterebilirsiniz
+      alert("Şirket detayları görüntülenirken bir hata oluştu: Geçersiz şirket ID'si");
+    }
+  };
+
+  // Şirket detayları dialog'u
+  const renderCompanyDetailsDialog = () => {
+    return (
+      <Dialog 
+        open={openDetailsDialog} 
+        onClose={() => setOpenDetailsDialog(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle sx={{ bgcolor: '#f5f5f5', display: 'flex', alignItems: 'center' }}>
+          <BusinessIcon sx={{ mr: 1, color: '#1976d2' }} />
+          <Typography variant="h6">
+            Şirket Detayları
+          </Typography>
+        </DialogTitle>
+        
+        <DialogContent dividers>
+          {detailsLoading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
+              <CircularProgress />
+            </Box>
+          ) : companyDetails ? (
+            <Grid container spacing={3}>
+              <Grid item xs={12}>
+                <Typography variant="h5" gutterBottom sx={{ color: '#1976d2', fontWeight: 'bold' }}>
+                  {companyDetails.name}
+                </Typography>
+                <Divider sx={{ mb: 2 }} />
+              </Grid>
+              
+              <Grid item xs={12} md={6}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <EmailIcon sx={{ mr: 1, color: '#757575' }} />
+                  <Typography variant="body1">
+                    <strong>E-posta:</strong> {companyDetails.email}
+                  </Typography>
+                </Box>
+                
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <PhoneIcon sx={{ mr: 1, color: '#757575' }} />
+                  <Typography variant="body1">
+                    <strong>Telefon:</strong> {companyDetails.phone}
+                  </Typography>
+                </Box>
+                
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <PersonIcon sx={{ mr: 1, color: '#757575' }} />
+                  <Typography variant="body1">
+                    <strong>İletişim Kişisi:</strong> {companyDetails.contactPerson}
+                  </Typography>
+                </Box>
+                
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <CategoryIcon sx={{ mr: 1, color: '#757575' }} />
+                  <Typography variant="body1">
+                    <strong>Sektör:</strong> {companyDetails.sector}
+                  </Typography>
+                </Box>
+              </Grid>
+              
+              <Grid item xs={12} md={6}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <GroupIcon sx={{ mr: 1, color: '#757575' }} />
+                  <Typography variant="body1">
+                    <strong>Çalışan Sayısı:</strong> {companyDetails.employeeCount}
+                  </Typography>
+                </Box>
+                
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <CalendarIcon sx={{ mr: 1, color: '#757575' }} />
+                  <Typography variant="body1">
+                    <strong>Oluşturulma Tarihi:</strong> {new Date(companyDetails.createdAt).toLocaleDateString('tr-TR')}
+                  </Typography>
+                </Box>
+                
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <CalendarIcon sx={{ mr: 1, color: '#757575' }} />
+                  <Typography variant="body1">
+                    <strong>Abonelik Bitiş Tarihi:</strong> {new Date(companyDetails.subscriptionEndDate).toLocaleDateString('tr-TR')}
+                  </Typography>
+                </Box>
+                
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  {companyDetails.isActive ? (
+                    <CheckCircleIcon sx={{ mr: 1, color: 'green' }} />
+                  ) : (
+                    <CancelIcon sx={{ mr: 1, color: 'red' }} />
+                  )}
+                  <Typography variant="body1">
+                    <strong>Durum:</strong> {companyDetails.isActive ? 'Aktif' : 'Pasif'}
+                  </Typography>
+                </Box>
+              </Grid>
+              
+              <Grid item xs={12}>
+                <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 'bold', mt: 2 }}>
+                  Adres
+                </Typography>
+                <Typography variant="body1" paragraph>
+                  {companyDetails.address}
+                </Typography>
+              </Grid>
+              
+              <Grid item xs={12}>
+                <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 'bold' }}>
+                  Abonelik Planı
+                </Typography>
+                <Typography variant="body1" paragraph>
+                  {companyDetails.subscriptionPlan}
+                </Typography>
+              </Grid>
+            </Grid>
+          ) : (
+            <Typography variant="body1" color="error" align="center">
+              Şirket detayları bulunamadı.
+            </Typography>
+          )}
+        </DialogContent>
+        
+        <DialogActions>
+          <Button onClick={() => setOpenDetailsDialog(false)} color="primary">
+            Kapat
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
   };
 
   if (loading) {
@@ -402,7 +566,18 @@ const CompanyPage: React.FC = () => {
                 <div className="company-actions">
                   <button 
                     className="action-button view"
-                    onClick={() => console.log('Şirket detayları:', company.id)}
+                    onClick={() => {
+                      console.log("Şirket:", company); // Tüm şirket nesnesini kontrol et
+                      console.log("Şirket ID:", company.id);
+                      
+                      // ID'nin geçerli olduğundan emin olalım
+                      const companyId = company?.id;
+                      if (companyId) {
+                        handleViewDetails(Number(companyId));
+                      } else {
+                        alert("Şirket ID'si bulunamadı!");
+                      }
+                    }}
                   >
                     Detayları Görüntüle
                   </button>
@@ -475,6 +650,7 @@ const CompanyPage: React.FC = () => {
           )}
         </motion.div>
       </div>
+      {renderCompanyDetailsDialog()}
     </div>
   );
 };
