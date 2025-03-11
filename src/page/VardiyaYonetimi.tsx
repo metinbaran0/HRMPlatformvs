@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../store';
-import { createShiftThunk, fetchShiftsAsync, updateShiftThunk } from '../store/feature/ShiftSlice';
+import { createShiftThunk, fetchShiftsAsync, updateShiftThunk, deleteShiftAsync } from '../store/feature/ShiftSlice';
 import { ShiftType, ShiftDto } from '../services/ApiService';
 import { Shift } from '../types/shift';
 import ShiftForm from '../components/molecules/ShiftForm';
@@ -37,6 +37,8 @@ import {
   Close as CloseIcon
 } from '@mui/icons-material';
 import { SelectChangeEvent } from '@mui/material/Select';
+import Swal from 'sweetalert2';
+import ApiService from '../services/ApiService';
 
 const VardiyaYonetimi: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -111,6 +113,39 @@ const VardiyaYonetimi: React.FC = () => {
       shiftType: ShiftType.MORNING
     });
     setDialogOpen(true);
+  };
+
+  // Silme işlemi için yeni fonksiyon
+  const handleDeleteShift = async (id: string) => {
+    try {
+      // Silme işlemi için onay al
+      const result = await Swal.fire({
+        title: 'Vardiyayı silmek istediğinize emin misiniz?',
+        text: "Bu işlem geri alınamaz!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Evet, sil!',
+        cancelButtonText: 'İptal'
+      });
+
+      if (result.isConfirmed) {
+        await dispatch(deleteShiftAsync(id)).unwrap();
+        
+        Swal.fire(
+          'Silindi!',
+          'Vardiya başarıyla silindi.',
+          'success'
+        );
+      }
+    } catch (error) {
+      Swal.fire(
+        'Hata!',
+        `Vardiya silinemedi: ${error}`,
+        'error'
+      );
+    }
   };
 
   return (
@@ -255,6 +290,55 @@ const VardiyaYonetimi: React.FC = () => {
                   size="small" 
                   color="error"
                   startIcon={<DeleteIcon />}
+                  onClick={() => {
+                    // shift.id'nin varlığını kontrol et
+                    if (shift.id !== undefined) {
+                      console.log(`Silme butonu tıklandı: ID=${shift.id}`);
+                      
+                      // Silme işlemi için onay al
+                      Swal.fire({
+                        title: 'Vardiyayı silmek istediğinize emin misiniz?',
+                        text: "Bu işlem geri alınamaz!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Evet, sil!',
+                        cancelButtonText: 'İptal'
+                      }).then((result) => {
+                        if (result.isConfirmed) {
+                          console.log(`Silme onaylandı: ID=${shift.id}`);
+                          
+                          // Doğrudan API'yi çağır
+                          ApiService.deleteShift(shift.id!.toString())
+                            .then((response) => {
+                              console.log(`API yanıtı:`, response);
+                              
+                              if (response.success) {
+                                Swal.fire(
+                                  'Silindi!',
+                                  'Vardiya başarıyla silindi.',
+                                  'success'
+                                );
+                                // Vardiyaları yeniden yükle
+                                dispatch(fetchShiftsAsync());
+                              } else {
+                                throw new Error(response.message || 'Vardiya silinemedi');
+                              }
+                            })
+                            .catch((error) => {
+                              console.error(`Silme hatası:`, error);
+                              
+                              Swal.fire(
+                                'Hata!',
+                                `Vardiya silinemedi: ${error.message}`,
+                                'error'
+                              );
+                            });
+                        }
+                      });
+                    }
+                  }}
                 >
                   Sil
                 </Button>

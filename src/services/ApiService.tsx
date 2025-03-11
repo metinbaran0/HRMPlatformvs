@@ -269,26 +269,23 @@ const ApiService = {
 
   getAllShifts: async (): Promise<ShiftDto[]> => {
     try {
-      const token = TokenService.getToken();
+      const token = localStorage.getItem('token');
       if (!token) {
-        throw new Error("Oturum açmanız gerekiyor");
+        throw new Error('Token bulunamadı');
       }
       
       const response = await api.get<BaseResponse<ShiftDto[]>>(
-        `${apis.shiftService}/getshift-by-company-id`,
+        `${apis.shiftService}/active-shift`,
         {
           headers: {
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
           }
         }
       );
       
-      if (response.data.success) {
-        console.log("Vardiyalar başarıyla alındı:", response.data.data);
-        return response.data.data;
-      } else {
-        throw new Error(response.data.message);
-      }
+      console.log("Vardiyalar başarıyla alındı:", response.data.data);
+      return response.data.data;
     } catch (error: any) {
       console.error("Vardiyaları getirme hatası:", error);
       console.error("Hata detayı:", error.response?.data);
@@ -333,6 +330,47 @@ const ApiService = {
     } catch (error: any) {
       console.error("Vardiya güncelleme hatası:", error);
       console.error("Hata detayı:", error.response?.data);
+      throw error;
+    }
+  },
+
+  deleteShift: async (id: string): Promise<any> => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('Token bulunamadı');
+      }
+
+      console.log(`Vardiya silme isteği gönderiliyor: ID=${id}`);
+      
+      const response = await fetch(`http://localhost:9090/v1/api/shift/delete-shift/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      console.log(`Vardiya silme yanıtı: Status=${response.status}`);
+
+      // 204 No Content yanıtı için
+      if (response.status === 204) {
+        return { success: true, id };
+      }
+
+      // Diğer yanıtlar için
+      try {
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        // JSON parse hatası (muhtemelen boş yanıt)
+        if (response.ok) {
+          return { success: true, id };
+        }
+        throw new Error('Sunucudan geçersiz yanıt alındı');
+      }
+    } catch (error) {
+      console.error('Vardiya silme hatası:', error);
       throw error;
     }
   },

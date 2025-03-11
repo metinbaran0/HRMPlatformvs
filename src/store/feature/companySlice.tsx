@@ -27,33 +27,53 @@ export const fetchCompanies = createAsyncThunk(
   "companies/fetchCompanies",
   async (_, { rejectWithValue }) => {
     try {
+      console.log("Tüm şirketleri getirme isteği gönderiliyor...");
+      
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Token bulunamadı");
+      }
+      
       const response = await fetch("http://localhost:9090/v1/api/company/find-all-company", {
         method: "GET",
         headers: {
-          "Authorization": "Bearer " + localStorage.getItem("token"),
+          "Authorization": "Bearer " + token,
           "Content-Type": "application/json",
         },
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
+      console.log("Tüm şirketler API yanıtı:", data);
+      
       if (data.success) {
         return data.data;
       } else {
-        return rejectWithValue(data.message);
+        return rejectWithValue(data.message || "Şirketleri getirme başarısız");
       }
-    } catch (error) {
-      return rejectWithValue("Şirketleri çekerken hata oluştu.");
+    } catch (error: any) {
+      console.error("Şirketleri getirme hatası:", error);
+      return rejectWithValue(error.message || "Şirketleri çekerken hata oluştu.");
     }
   }
 );
+
 export const fetchPendingCompanies = createAsyncThunk(
-  "companies/fetchCompanies",
+  "companies/fetchPendingCompanies",
   async (_, { rejectWithValue }) => {
     try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Token bulunamadı");
+      }
+      
       const response = await fetch("http://localhost:9090/v1/api/company/pending-company", {
         method: "GET",
         headers: {
-          "Authorization": "Bearer " + localStorage.getItem("token"),
+          "Authorization": "Bearer " + token,
           "Content-Type": "application/json",
         },
       });
@@ -64,19 +84,25 @@ export const fetchPendingCompanies = createAsyncThunk(
       } else {
         return rejectWithValue(data.message);
       }
-    } catch (error) {
-      return rejectWithValue("Şirketleri çekerken hata oluştu.");
+    } catch (error: any) {
+      return rejectWithValue(error.message || "Onay bekleyen şirketleri çekerken hata oluştu.");
     }
   }
 );
-export const fetchAprovedCompanies = createAsyncThunk(
-  "companies/fetchCompanies",
+
+export const fetchApprovedCompanies = createAsyncThunk(
+  "companies/fetchApprovedCompanies",
   async (_, { rejectWithValue }) => {
     try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Token bulunamadı");
+      }
+      
       const response = await fetch("http://localhost:9090/v1/api/company/approved", {
         method: "GET",
         headers: {
-          "Authorization": "Bearer " + localStorage.getItem("token"),
+          "Authorization": "Bearer " + token,
           "Content-Type": "application/json",
         },
       });
@@ -87,8 +113,8 @@ export const fetchAprovedCompanies = createAsyncThunk(
       } else {
         return rejectWithValue(data.message);
       }
-    } catch (error) {
-      return rejectWithValue("Şirketleri çekerken hata oluştu.");
+    } catch (error: any) {
+      return rejectWithValue(error.message || "Onaylanmış şirketleri çekerken hata oluştu.");
     }
   }
 );
@@ -168,40 +194,46 @@ export const fetchExpiringSoonCompanies = createAsyncThunk(
   }
 );
 
-// Şirket detaylarını getirme
+// Şirket detaylarını getirme thunk'ını düzenleyelim
 export const fetchCompanyDetailsAsync = createAsyncThunk(
   "companies/fetchCompanyDetails",
-  async (companyId: number, { getState, rejectWithValue }) => {
+  async (companyId: number, { rejectWithValue }) => {
     try {
-      if (!companyId) {
-        return rejectWithValue("Geçersiz şirket ID'si");
-      }
-      
-      const state = getState() as RootState;
-      const token = state.user.token;
-
+      const token = localStorage.getItem('token');
       if (!token) {
-        throw new Error("Token bulunamadı.");
+        throw new Error('Token bulunamadı');
       }
 
       console.log("Detayları getirilen şirket ID:", companyId);
       
-      const response = await fetch(`http://localhost:9090/v1/api/company/companies/${companyId}`, {
+      // Backend'in doğru endpoint'ini kullanıyoruz
+      const response = await fetch(`http://localhost:9090/v1/api/company/${companyId}`, {
         method: "GET",
         headers: {
-          "Authorization": "Bearer " + token,
-          "Content-Type": "application/json",
-        },
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
       });
 
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("API Hata Yanıtı:", errorText);
+        throw new Error(errorText || 'Şirket detayları getirilemedi');
+      }
+
+      // Backend doğrudan Company nesnesini döndürüyor, BaseResponse formatında değil
       const data = await response.json();
-      if (data.success) {
-        return data.data;
+      console.log("Şirket detayları yanıtı:", data);
+      
+      // Yanıt formatını kontrol et
+      if (data) {
+        return data; // Doğrudan Company nesnesini döndür
       } else {
-        return rejectWithValue(data.message);
+        throw new Error("Geçersiz yanıt formatı");
       }
     } catch (error: any) {
-      return rejectWithValue("Şirket detayları çekilirken hata oluştu: " + error.message);
+      console.error("Şirket detayları getirme hatası:", error);
+      return rejectWithValue(error.message);
     }
   }
 );
@@ -210,7 +242,14 @@ export const fetchCompanyDetailsAsync = createAsyncThunk(
 const companySlice = createSlice({
   name: "companies",
   initialState,
-  reducers: {},
+  reducers: {
+    setCompanyDetails: (state, action) => {
+      state.companyDetails = action.payload;
+    },
+    setDetailsLoading: (state, action) => {
+      state.detailsLoading = action.payload;
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchCompanies.pending, (state) => {
