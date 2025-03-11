@@ -7,7 +7,9 @@ import {
   fetchPendingCompanies, 
   fetchAprovedCompanies,
   approveCompany,
-  rejectCompany
+  rejectCompany,
+  approveCompanyWithConfirmation,
+  rejectCompanyWithConfirmation
 } from '../store/feature/companySlice';
 import { 
   FaBuilding, 
@@ -18,6 +20,8 @@ import {
   FaHourglassHalf
 } from 'react-icons/fa';
 import './CompanyPage.css';
+import { Button } from '@mui/material';
+import { CheckCircle as CheckCircleIcon, Cancel as CancelIcon } from '@mui/icons-material';
 
 const CompanyPage: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -447,18 +451,24 @@ const CompanyPage: React.FC = () => {
                 </div>
                 
                 <div className="company-actions">
-                  <button 
-                    className="action-button approve"
-                    onClick={() => handleApproveCompany(company.id)}
+                  <Button 
+                    variant="contained" 
+                    color="success" 
+                    startIcon={<CheckCircleIcon />}
+                    onClick={() => dispatch(approveCompanyWithConfirmation(company.id))}
+                    size="small"
                   >
-                    <FaCheckCircle /> Onayla
-                  </button>
-                  <button 
-                    className="action-button reject"
-                    onClick={() => handleRejectCompany(company.id)}
+                    Onayla
+                  </Button>
+                  <Button 
+                    variant="contained" 
+                    color="error" 
+                    startIcon={<CancelIcon />}
+                    onClick={() => dispatch(rejectCompanyWithConfirmation(company.id))}
+                    size="small"
                   >
-                    <FaTimesCircle /> Reddet
-                  </button>
+                    Reddet
+                  </Button>
                 </div>
               </motion.div>
             ))

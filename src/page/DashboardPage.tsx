@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../store';
 import { fetchExpiringSoonCompanies } from '../store/feature/companySlice';
+import { fetchDashboardSummaryAsync, fetchMonthlyStatsAsync } from '../store/feature/DashboardSlice';
 import { 
   Container, 
   Grid, 
@@ -16,7 +17,8 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
-  Button
+  Button,
+  CircularProgress
 } from '@mui/material';
 import {
   Business as BusinessIcon,
@@ -79,10 +81,13 @@ const formatDate = (dateString: string) => {
 const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const dispatch: AppDispatch = useDispatch();
-  const { expiringSoonCompanies, loading } = useSelector((state: RootState) => state.companies);
+  const { expiringSoonCompanies, loading: companyLoading } = useSelector((state: RootState) => state.companies);
+  const { summary, monthlyStats, loading: dashboardLoading, statsLoading } = useSelector((state: RootState) => state.dashboard);
 
   useEffect(() => {
+    dispatch(fetchDashboardSummaryAsync());
     dispatch(fetchExpiringSoonCompanies());
+    dispatch(fetchMonthlyStatsAsync(new Date().getFullYear()));
   }, [dispatch]);
 
   const goToCompanyPage = () => {
@@ -91,7 +96,7 @@ const DashboardPage: React.FC = () => {
 
   // Yaklaşan üyelik sonlandırmaları listesi
   const renderExpiringSubscriptions = () => {
-    if (loading) {
+    if (companyLoading) {
       return <div>Yükleniyor...</div>;
     }
 
@@ -129,6 +134,19 @@ const DashboardPage: React.FC = () => {
     );
   };
 
+  // Aylık istatistikleri grafiğe dönüştüren fonksiyon
+  const prepareMonthlyStatsData = () => {
+    if (!monthlyStats) return dashboardData.monthlyRegistrations;
+    
+    const months = Object.keys(monthlyStats);
+    
+    return months.map(month => ({
+      name: month.substring(0, 3), // İlk 3 harfi al (Oca, Şub, vb.)
+      companies: monthlyStats[month],
+      employees: 0 // API'den çalışan sayısı gelmediği için 0 olarak bırakıyoruz
+    }));
+  };
+
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
@@ -147,120 +165,82 @@ const DashboardPage: React.FC = () => {
       
       {/* Özet Kartlar */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper 
-            elevation={0} 
-            sx={{ 
-              p: 2, 
-              display: 'flex', 
-              flexDirection: 'column', 
-              height: 140,
-              borderRadius: 2,
-              border: '1px solid #eee',
-              background: 'linear-gradient(135deg, #3f51b5 0%, #5c6bc0 100%)',
-              color: 'white'
-            }}
-          >
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <BusinessIcon sx={{ mr: 1 }} />
-              <Typography variant="h6" component="div">
-                Şirketler
+        {/* Şirket Sayısı Kartı */}
+        <Grid item xs={12} sm={6} md={4}>
+          <Card sx={{ height: '100%', bgcolor: '#e3f2fd', borderRadius: 2 }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <BusinessIcon sx={{ fontSize: 40, color: '#1976d2', mr: 2 }} />
+                <Typography variant="h5" component="div">
+                  Şirketler
+                </Typography>
+              </Box>
+              {dashboardLoading ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', my: 2 }}>
+                  <CircularProgress size={30} />
+                </Box>
+              ) : (
+                <Typography variant="h3" component="div" sx={{ fontWeight: 'bold', color: '#1976d2' }}>
+                  {summary?.totalCompanies ?? dashboardData.companyCount}
+                </Typography>
+              )}
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                Toplam kayıtlı şirket sayısı
               </Typography>
-            </Box>
-            <Typography variant="h3" component="div" sx={{ fontWeight: 600 }}>
-              {dashboardData.companyCount}
-            </Typography>
-            <Typography variant="body2" sx={{ mt: 'auto' }}>
-              Toplam kayıtlı şirket
-            </Typography>
-          </Paper>
+            </CardContent>
+          </Card>
         </Grid>
         
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper 
-            elevation={0} 
-            sx={{ 
-              p: 2, 
-              display: 'flex', 
-              flexDirection: 'column', 
-              height: 140,
-              borderRadius: 2,
-              border: '1px solid #eee',
-              background: 'linear-gradient(135deg, #f50057 0%, #ff4081 100%)',
-              color: 'white'
-            }}
-          >
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <ManagerIcon sx={{ mr: 1 }} />
-              <Typography variant="h6" component="div">
-                Yöneticiler
+        {/* Yönetici Sayısı Kartı */}
+        <Grid item xs={12} sm={6} md={4}>
+          <Card sx={{ height: '100%', bgcolor: '#fff8e1', borderRadius: 2 }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <ManagerIcon sx={{ fontSize: 40, color: '#ff9800', mr: 2 }} />
+                <Typography variant="h5" component="div">
+                  Yöneticiler
+                </Typography>
+              </Box>
+              {dashboardLoading ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', my: 2 }}>
+                  <CircularProgress size={30} />
+                </Box>
+              ) : (
+                <Typography variant="h3" component="div" sx={{ fontWeight: 'bold', color: '#ff9800' }}>
+                  {summary?.totalAdmins ?? dashboardData.managerCount}
+                </Typography>
+              )}
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                Toplam kayıtlı yönetici sayısı
               </Typography>
-            </Box>
-            <Typography variant="h3" component="div" sx={{ fontWeight: 600 }}>
-              {dashboardData.managerCount}
-            </Typography>
-            <Typography variant="body2" sx={{ mt: 'auto' }}>
-              Toplam şirket yöneticisi
-            </Typography>
-          </Paper>
+            </CardContent>
+          </Card>
         </Grid>
         
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper 
-            elevation={0} 
-            sx={{ 
-              p: 2, 
-              display: 'flex', 
-              flexDirection: 'column', 
-              height: 140,
-              borderRadius: 2,
-              border: '1px solid #eee',
-              background: 'linear-gradient(135deg, #4caf50 0%, #81c784 100%)',
-              color: 'white'
-            }}
-          >
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <PeopleIcon sx={{ mr: 1 }} />
-              <Typography variant="h6" component="div">
-                Çalışanlar
+        {/* Çalışan Sayısı Kartı */}
+        <Grid item xs={12} sm={6} md={4}>
+          <Card sx={{ height: '100%', bgcolor: '#e8f5e9', borderRadius: 2 }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <PeopleIcon sx={{ fontSize: 40, color: '#4caf50', mr: 2 }} />
+                <Typography variant="h5" component="div">
+                  Çalışanlar
+                </Typography>
+              </Box>
+              {dashboardLoading ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', my: 2 }}>
+                  <CircularProgress size={30} />
+                </Box>
+              ) : (
+                <Typography variant="h3" component="div" sx={{ fontWeight: 'bold', color: '#4caf50' }}>
+                  {summary?.totalEmployees ?? dashboardData.employeeCount}
+                </Typography>
+              )}
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                Toplam kayıtlı çalışan sayısı
               </Typography>
-            </Box>
-            <Typography variant="h3" component="div" sx={{ fontWeight: 600 }}>
-              {dashboardData.employeeCount}
-            </Typography>
-            <Typography variant="body2" sx={{ mt: 'auto' }}>
-              Toplam kayıtlı personel
-            </Typography>
-          </Paper>
-        </Grid>
-        
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper 
-            elevation={0} 
-            sx={{ 
-              p: 2, 
-              display: 'flex', 
-              flexDirection: 'column', 
-              height: 140,
-              borderRadius: 2,
-              border: '1px solid #eee',
-              background: 'linear-gradient(135deg, #ff9800 0%, #ffb74d 100%)',
-              color: 'white'
-            }}
-          >
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <BusinessIcon sx={{ mr: 1 }} />
-              <Typography variant="h6" component="div">
-                Aktif Üyelikler
-              </Typography>
-            </Box>
-            <Typography variant="h3" component="div" sx={{ fontWeight: 600 }}>
-              {dashboardData.activeSubscriptions}
-            </Typography>
-            <Typography variant="body2" sx={{ mt: 'auto' }}>
-              Aktif şirket aboneliği
-            </Typography>
-          </Paper>
+            </CardContent>
+          </Card>
         </Grid>
       </Grid>
       
@@ -278,22 +258,27 @@ const DashboardPage: React.FC = () => {
             }}
           >
             <Typography variant="h6" gutterBottom>
-              Aylık Kayıt İstatistikleri
+              Aylık Şirket Kayıtları ({new Date().getFullYear()})
             </Typography>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart
-                data={dashboardData.monthlyRegistrations}
-                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="companies" name="Şirketler" fill="#3f51b5" />
-                <Bar dataKey="employees" name="Çalışanlar" fill="#f50057" />
-              </BarChart>
-            </ResponsiveContainer>
+            {statsLoading ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 300 }}>
+                <CircularProgress />
+              </Box>
+            ) : (
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart
+                  data={prepareMonthlyStatsData()}
+                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="companies" name="Şirketler" fill="#3f51b5" />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
           </Paper>
         </Grid>
         
