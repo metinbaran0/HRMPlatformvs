@@ -1,64 +1,69 @@
 import React, { useState } from 'react';
-import './BreakForm.css';
+import { 
+  Box, 
+  TextField, 
+  Button
+} from '@mui/material';
+import { BreakRequestDto } from '../../store/feature/breakSlice';
+import { Break } from '../../store/feature/breakSlice';
 
 interface BreakFormProps {
-  onSubmit: (breakData: { breakType: string; startTime: string; endTime: string }) => void;
+  onSubmit: (breakData: BreakRequestDto) => void;
+  initialData?: Break;
 }
 
-const BreakForm: React.FC<BreakFormProps> = ({ onSubmit }) => {
-  const [breakType, setBreakType] = useState('');
-  const [startTime, setStartTime] = useState('');
-  const [endTime, setEndTime] = useState('');
+const BreakForm: React.FC<BreakFormProps> = ({ onSubmit, initialData }) => {
+  const [formData, setFormData] = useState<BreakRequestDto>({
+    shiftId: initialData?.shiftId || 1,
+    breakName: initialData?.breakName || '',
+    startTime: initialData?.startTime || '',
+    endTime: initialData?.endTime || ''
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (breakType && startTime && endTime) {
-      onSubmit({ breakType, startTime, endTime });
-      // Form alanlarını temizle
-      setBreakType('');
-      setStartTime('');
-      setEndTime('');
+    if (formData.breakName && formData.startTime && formData.endTime) {
+      onSubmit(formData);
+      // Form'u temizle
+      setFormData({
+        shiftId: 1,
+        breakName: '',
+        startTime: '',
+        endTime: ''
+      });
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="break-form">
-      <div className="form-group">
-        <label htmlFor="breakType">Mola Tipi</label>
-        <input
-          type="text"
-          id="breakType"
-          value={breakType}
-          onChange={(e) => setBreakType(e.target.value)}
-          placeholder="Örn: Öğle Molası"
-          required
-        />
-      </div>
-      
-      <div className="form-group">
-        <label htmlFor="startTime">Başlangıç Saati</label>
-        <input
-          type="time"
-          id="startTime"
-          value={startTime}
-          onChange={(e) => setStartTime(e.target.value)}
-          required
-        />
-      </div>
-      
-      <div className="form-group">
-        <label htmlFor="endTime">Bitiş Saati</label>
-        <input
-          type="time"
-          id="endTime"
-          value={endTime}
-          onChange={(e) => setEndTime(e.target.value)}
-          required
-        />
-      </div>
-      
-      <button type="submit" className="submit-button">Mola Ekle</button>
-    </form>
+    <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <TextField
+        fullWidth
+        label="Mola Adı"
+        value={formData.breakName}
+        onChange={(e) => setFormData({ ...formData, breakName: e.target.value })}
+        required
+      />
+
+      <TextField
+        fullWidth
+        label="Başlangıç Zamanı"
+        type="datetime-local"
+        value={formData.startTime}
+        onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
+        InputLabelProps={{ shrink: true }}
+        required
+      />
+
+      <TextField
+        fullWidth
+        label="Bitiş Zamanı"
+        type="datetime-local"
+        value={formData.endTime}
+        onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
+        InputLabelProps={{ shrink: true }}
+        required
+      />
+    </Box>
   );
 };
 
