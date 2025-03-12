@@ -159,7 +159,39 @@ export const rejectLeaveByManagerAsync = createAsyncThunk(
   }
 );
 
+// Kullanıcı izin talebi oluşturma
+export const createLeaveRequestAsync = createAsyncThunk(
+  "leave/createLeaveRequest",
+  async (leaveData: { startDate: string; endDate: string; leaveType: string; reason: string }, { getState, rejectWithValue }) => {
+    try {
+      const state = getState() as RootState;
+      const token = state.user.token;
+      
+      if (!token) {
+        throw new Error("Token bulunamadı.");
+      }
 
+      const response = await fetch(`http://localhost:9090/v1/api/leave/leaverequest`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(leaveData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "İzin talebi oluşturulurken hata oluştu.");
+      }
+
+      const data = await response.json();
+      return data.data;
+    } catch (error: any) {
+      return rejectWithValue(error.message || "İzin talebi oluşturulamadı.");
+    }
+  }
+);
 
 const leaveSlice = createSlice({
   name: "leave",
@@ -210,6 +242,19 @@ const leaveSlice = createSlice({
           leaveRequest.responseMessage = action.payload.responseMessage;
         }
         Swal.fire("Başarı", "İzin talebi reddedildi.", "error");
+      })
+
+      .addCase(createLeaveRequestAsync.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createLeaveRequestAsync.fulfilled, (state, action) => {
+        state.loading = false;
+        state.leaveRequests.push(action.payload);
+      })
+      .addCase(createLeaveRequestAsync.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
   },
 });
