@@ -155,19 +155,7 @@ const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({ onClose }) => {
             </select>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="reason">
-              <FaClipboardList className="input-icon" />
-              İzin Nedeni
-            </label>
-            <textarea
-              id="reason"
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              placeholder="İzin talebinizin nedenini açıklayın..."
-              required
-            />
-          </div>
+         
 
           <button type="submit" className="submit-button">
             <FaPaperPlane className="button-icon" />
