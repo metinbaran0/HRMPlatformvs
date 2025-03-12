@@ -12,12 +12,14 @@ import {
   Tabs,
   Tab,
   ThemeProvider,
-  createTheme
+  createTheme,
+  Button
 } from '@mui/material';
 import { 
   Schedule as ScheduleIcon, 
   Coffee as CoffeeIcon, 
-  People as PeopleIcon
+  People as PeopleIcon,
+  ArrowBack as ArrowBackIcon
 } from '@mui/icons-material';
 import './ShiftPage.css';
 import { deleteShiftAsync } from '../store/feature/ShiftSlice';
@@ -227,6 +229,15 @@ const ShiftPage: React.FC = () => {
     <ThemeProvider theme={theme}>
       <div className="shift-page">
         <Container maxWidth="lg" sx={{ py: 4 }}>
+          <Box sx={{ mb: 2 }}>
+            <Button
+              startIcon={<ArrowBackIcon />}
+              onClick={() => navigate('/employee')}
+            >
+              Çalışanlara Dön
+            </Button>
+          </Box>
+
           <Paper 
             elevation={0} 
             sx={{ 
