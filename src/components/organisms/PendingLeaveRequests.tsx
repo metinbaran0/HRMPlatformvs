@@ -21,7 +21,7 @@ const PendingLeaveRequests: React.FC = () => {
 
 
   const handleApprove = (id: string) => {
-    dispatch(approveLeaveByManagerAsync(parseInt(id))) // String'i number'a dönüştürüyoruz
+    dispatch(approveLeaveByManagerAsync(parseInt(id)))
       .then(() => dispatch(fetchPendingLeavesForManagerAsync()));
   };
 
