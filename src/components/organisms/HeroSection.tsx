@@ -11,11 +11,11 @@ const HeroSection = () => {
   const opacity = useTransform(scrollY, [0, 300, 500], [1, 0.8, 0.6]);
 
   const images = [
-    { id: 1, src: "https://picsum.photos/200/150?random=1", direction: "left" },
-    { id: 2, src: "https://picsum.photos/200/150?random=2", direction: "right" },
-    { id: 3, src: "https://picsum.photos/200/150?random=3", direction: "left" },
-    { id: 4, src: "https://picsum.photos/200/150?random=4", direction: "none" },
-    { id: 5, src: "https://picsum.photos/200/150?random=5", direction: "right" }
+    { id: 1, src: "https://www.atikeryazilim.com.tr/upload/ck_6ac8d4e9-260f-451f-9c09-e2ff0714ab8e_Genel_1.jpg", direction: "left" },
+    { id: 2, src: "https://www.venusbilisim.com.tr/wp-content/uploads/2020/08/venus-bilisim-hrm.png", direction: "right" },
+    { id: 3, src: "https://luleburgazmyo.klu.edu.tr/dosyalar/birimler/luleburgazmyo/dosyalar/resimler/iky.jpg", direction: "left" },
+    { id: 4, src: "https://idenfit.com/blog/wp-content/uploads/2023/07/kuresel-iky-yaklasimi-696x348.jpg", direction: "none" },
+    { id: 5, src: "https://idenfit.com/blog/wp-content/uploads/2020/07/VARD%C4%B0YA-Y%C3%96NET%C4%B0M%C4%B0@3x-1.png", direction: "right" }
   ];
 
   return (
