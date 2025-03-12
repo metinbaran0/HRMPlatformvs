@@ -187,7 +187,7 @@ const Navbar = () => {
 
             {/* Diğer Bağlantılar */}
             <li className="nav-item me-4"><a className="nav-link" href="/tum-hikayeler">Kullanıcı Yorumları</a></li>
-            <li className="nav-item me-4"><a className="nav-link" href="#">Hakkımızda</a></li>
+            <li className="nav-item me-4"><a className="nav-link" href="about-us">Hakkımızda</a></li>
           </ul>
 
           {/* Butonlar */}
