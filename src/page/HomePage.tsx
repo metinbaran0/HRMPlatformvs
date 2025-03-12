@@ -27,8 +27,7 @@ const HomePage: React.FC = () => {
       <UygulamaSlider />
       <Yorum />
       <Footer />
-      <button onClick={handleLogin}>Login</button>
-      <button onClick={handleGetQuote}>Get Quote</button>
+  
     </div>
   );
 };

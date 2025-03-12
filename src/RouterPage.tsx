@@ -27,6 +27,7 @@ import VardiyaAtama from './page/VardiyaAtama'
 import AssetForm from './components/organisms/AssetForm'
 import DashboardPage from './page/DashboardPage'
 import LeaveRequestPage from './page/LeaveRequestPage'
+import AboutUs from './page/AboutUs'
 
 
 
@@ -73,7 +74,7 @@ function RouterPage() {
 
         <Route path='/pending-leaves' element={<PendingLeaveRequests/>} />
         <Route path='/leave-request' element={<LeaveRequestPage/>} />
-
+        <Route path='/about-us' element={<AboutUs/>} />
 
         <Route path='/shift' element={<ShiftPage />} />
         <Route path='/dashboard' element={<DashboardPage />} />

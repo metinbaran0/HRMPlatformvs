@@ -1,0 +1,85 @@
+/* Genel stil ayarları */
+.about-us-section {
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    margin: 0 auto;
+    padding: 40px 20px;
+    max-width: 900px;
+    background-color: #f5f7fa;  /* Hafif gri beyaz arka plan */
+    color: #333;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .about-us-header {
+    font-size: 3rem;
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 20px;
+    background-color: #34495e; /* Lacivert başlık arka planı */
+    color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .about-us-subheading {
+    font-size: 2rem;
+    margin-top: 40px;
+    color: #34495e;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding-bottom: 5px;
+    border-bottom: 3px solid #3498db; /* Lacivert alt çizgi */
+  }
+  
+  .about-us-section-content {
+    margin-bottom: 30px;
+  }
+  
+  .about-us-paragraph {
+    font-size: 1.1rem;
+    color: #555;
+    margin-top: 10px;
+  }
+  
+  .about-us-list {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .about-us-list-item {
+    margin: 12px 0;
+    font-size: 1.1rem;
+    color: #555;
+  }
+  
+  .about-us-list-item::before {
+    content: "•";
+    color: #3498db;  /* Lacivert madde işareti */
+    margin-right: 10px;
+  }
+  
+  /* Başlık ve paragraf arasına daha fazla boşluk eklemek */
+  .about-us-subheading + .about-us-paragraph {
+    margin-top: 15px;
+  }
+  
+  /* Responsive tasarım: Mobil uyumlu */
+  @media (max-width: 768px) {
+    .about-us-section {
+      padding: 20px;
+    }
+  
+    .about-us-header {
+      font-size: 2.2rem;
+    }
+  
+    .about-us-subheading {
+      font-size: 1.6rem;
+    }
+  
+    .about-us-paragraph {
+      font-size: 1rem;
+    }
+  }
+  
