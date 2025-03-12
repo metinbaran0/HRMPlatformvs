@@ -100,22 +100,22 @@ export const fetchPendingLeavesForManagerAsync = createAsyncThunk(
 
 
 
-// Yönetici tarafından bir çalışan için izin onaylama
+// Yönetici tarafından izin onaylama
 export const approveLeaveByManagerAsync = createAsyncThunk(
   "leave/approveLeaveByManager",
   async (employeeId: number, { getState, rejectWithValue }) => {
     try {
       const state = getState() as RootState;
       const managerId = state.user.userId;
-      const token = state.user.token; // Redux store'dan token alıyoruz
+      const token = state.user.token;
       if (!managerId) throw new Error("Yönetici kimliği bulunamadı.");
       if (!token) throw new Error("Token bulunamadı.");
 
       const response = await fetch(`http://localhost:9090/v1/api/leave/manager/${managerId}/approve/${employeeId}`, {
-        method: "PUT", // PUT metodu belirtiliyor
+        method: "POST",
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`, // Token ile doğrulama yapıyoruz
+          'Authorization': `Bearer ${token}`,
         },
       });
       if (!response.ok) {

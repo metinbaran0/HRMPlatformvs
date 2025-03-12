@@ -80,7 +80,7 @@ export const fetchBreaksAsync = createAsyncThunk(
         throw new Error('Token bulunamadı');
       }
 
-      const response = await fetch('http://localhost:9090/v1/api/break/get-all-break', {
+      const response = await fetch('http://localhost:9090/v1/api/break/all-active-breaks', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

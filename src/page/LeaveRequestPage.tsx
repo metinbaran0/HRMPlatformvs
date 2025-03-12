@@ -17,6 +17,7 @@ import {
 import { styled } from '@mui/material/styles';
 import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 // Özel stil bileşenleri
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -76,11 +77,38 @@ const LeaveRequestPage: React.FC = () => {
     }
   };
 
-  const handleApprove = (employeeId: number) => {
-    dispatch(approveLeaveByManagerAsync(employeeId))
-      .then(() => {
-        dispatch(fetchPendingLeavesForManagerAsync());
-      });
+  const handleApprove = (request: { id: number, employeeId: number }) => {
+    Swal.fire({
+      title: 'İzin talebini onaylamak istediğinize emin misiniz?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Evet, Onayla',
+      cancelButtonText: 'İptal'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        dispatch(approveLeaveByManagerAsync(request.employeeId))
+          .unwrap()
+          .then(() => {
+            Swal.fire({
+              icon: 'success',
+              title: 'Başarılı',
+              text: 'İzin talebi onaylandı',
+              timer: 2000,
+              showConfirmButton: false
+            });
+            // Listeyi yenile
+            dispatch(fetchPendingLeavesForManagerAsync());
+          })
+          .catch((error) => {
+            console.error('Onaylama hatası:', error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Hata',
+              text: error || 'İzin onaylanırken bir hata oluştu'
+            });
+          });
+      }
+    });
   };
 
   const handleReject = (employeeId: number) => {
@@ -163,7 +191,7 @@ const LeaveRequestPage: React.FC = () => {
                         size="small" 
                         color="success" 
                         variant="contained"
-                        onClick={() => handleApprove(request.id)}
+                        onClick={() => handleApprove({ id: request.id, employeeId: request.employeeId })}
                       >
                         Onayla
                       </Button>
