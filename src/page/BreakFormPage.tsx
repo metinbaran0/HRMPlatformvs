@@ -1,8 +1,9 @@
 import React from 'react';
 import BreakForm from '../components/organisms/BreakForm';
+import { BreakRequestDto } from '../store/feature/breakSlice';
 
 interface BreakFormPageProps {
-  onSubmit: (newBreak: { breakType: string; startTime: string; endTime: string }) => void;
+  onSubmit: (breakData: BreakRequestDto) => void;
 }
 
 const BreakFormPage: React.FC<BreakFormPageProps> = ({ onSubmit }) => {

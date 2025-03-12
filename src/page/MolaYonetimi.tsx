@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import BreakForm from '../components/organisms/BreakForm';
 import { 
   Typography, 
@@ -15,7 +15,11 @@ import {
   createTheme,
   Chip,
   IconButton,
-  Tooltip
+  Tooltip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions
 } from '@mui/material';
 import { 
   Add as AddIcon, 
@@ -25,6 +29,12 @@ import {
   ArrowBack as ArrowBackIcon
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { createBreakAsync, selectBreakLoading, BreakRequestDto, fetchBreaksAsync, selectAllBreaks, updateBreakAsync, Break, deleteBreakAsync } from '../store/feature/breakSlice';
+import { AppDispatch } from '../store';
+import Swal from 'sweetalert2';
+import { format } from 'date-fns';
+import { tr } from 'date-fns/locale';
 
 // Material UI için tema oluşturma
 const theme = createTheme({
@@ -79,20 +89,20 @@ const theme = createTheme({
 });
 
 interface MolaYonetimiProps {
-  breaks?: { id: number; breakType: string; startTime: string; endTime: string }[];
   handleNewBreak?: (newBreak: { breakType: string; startTime: string; endTime: string }) => void;
 }
 
-const MolaYonetimi: React.FC<MolaYonetimiProps> = ({ 
-  breaks = [
-    { id: 1, breakType: 'Öğle Molası', startTime: '12:00', endTime: '13:00' },
-    { id: 2, breakType: 'Çay Molası', startTime: '15:30', endTime: '15:45' },
-    { id: 3, breakType: 'Kahvaltı Molası', startTime: '09:30', endTime: '10:00' }
-  ], 
-  handleNewBreak = () => {} 
-}) => {
+const MolaYonetimi: React.FC<MolaYonetimiProps> = ({ handleNewBreak = () => {} }) => {
   const [showForm, setShowForm] = useState(false);
+  const [editingBreak, setEditingBreak] = useState<Break | null>(null);
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
+  const loading = useSelector(selectBreakLoading);
+  const breaks = useSelector(selectAllBreaks);
+
+  useEffect(() => {
+    dispatch(fetchBreaksAsync());
+  }, [dispatch]);
 
   // Mola süresini hesapla
   const calculateDuration = (startTime: string, endTime: string) => {
@@ -111,6 +121,87 @@ const MolaYonetimi: React.FC<MolaYonetimiProps> = ({
       return `${hours} saat`;
     } else {
       return `${hours} saat ${minutes} dakika`;
+    }
+  };
+
+  const handleEditClick = (breakItem: Break) => {
+    setEditingBreak(breakItem);
+    setShowForm(true);
+  };
+
+  const handleBreakSubmit = async (breakData: BreakRequestDto) => {
+    try {
+      if (editingBreak) {
+        // Güncelleme işlemi
+        await dispatch(updateBreakAsync({ 
+          breakId: editingBreak.id, 
+          breakData 
+        })).unwrap();
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Başarılı!',
+          text: 'Mola başarıyla güncellendi',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      } else {
+        // Yeni mola oluşturma
+        await dispatch(createBreakAsync(breakData)).unwrap();
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Başarılı!',
+          text: 'Mola başarıyla oluşturuldu',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      }
+      
+      // Listeyi güncelle ve formu kapat
+      dispatch(fetchBreaksAsync());
+      setShowForm(false);
+      setEditingBreak(null);
+      
+    } catch (error: any) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Hata!',
+        text: error.message || 'İşlem sırasında bir hata oluştu'
+      });
+    }
+  };
+
+  const handleDeleteClick = async (breakId: number) => {
+    try {
+      const result = await Swal.fire({
+        title: 'Emin misiniz?',
+        text: "Bu molayı silmek istediğinize emin misiniz?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Evet, sil!',
+        cancelButtonText: 'İptal'
+      });
+
+      if (result.isConfirmed) {
+        await dispatch(deleteBreakAsync(breakId)).unwrap();
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Başarılı!',
+          text: 'Mola başarıyla silindi',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      }
+    } catch (error: any) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Hata!',
+        text: error.message || 'Mola silinirken bir hata oluştu'
+      });
     }
   };
 
@@ -178,27 +269,51 @@ const MolaYonetimi: React.FC<MolaYonetimiProps> = ({
           </Button>
         </Paper>
 
-        {showForm && (
-          <Paper 
-            elevation={0} 
-            sx={{ 
-              p: 4, 
-              mb: 4, 
-              borderRadius: 2,
-              boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
-              border: '1px solid #e0e0e0'
-            }}
-          >
-            <Typography variant="h6" component="h3" gutterBottom color="primary">
-              Yeni Mola Oluştur
-            </Typography>
-            <Divider sx={{ mb: 3 }} />
-            <BreakForm onSubmit={handleNewBreak} />
-          </Paper>
-        )}
+        {/* Form Dialog'u */}
+        <Dialog 
+          open={showForm} 
+          onClose={() => {
+            setShowForm(false);
+            setEditingBreak(null);
+          }}
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle>
+            {editingBreak ? 'Mola Düzenle' : 'Yeni Mola Oluştur'}
+          </DialogTitle>
+          <DialogContent dividers>
+            <Box sx={{ pt: 2 }}>
+              <BreakForm 
+                onSubmit={handleBreakSubmit} 
+                initialData={editingBreak || undefined}
+              />
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button 
+              onClick={() => {
+                setShowForm(false);
+                setEditingBreak(null);
+              }}
+            >
+              İptal
+            </Button>
+            <Button 
+              variant="contained" 
+              color="primary"
+              onClick={() => {
+                const form = document.querySelector('form');
+                if (form) form.requestSubmit();
+              }}
+            >
+              {editingBreak ? 'Düzenle' : 'Kaydet'}
+            </Button>
+          </DialogActions>
+        </Dialog>
 
         <Grid container spacing={3}>
-          {breaks.map(breakItem => (
+          {breaks.map((breakItem) => (
             <Grid item xs={12} sm={6} md={4} key={breakItem.id}>
               <Card 
                 elevation={0} 
@@ -215,68 +330,37 @@ const MolaYonetimi: React.FC<MolaYonetimiProps> = ({
                   borderRadius: 3
                 }}
               >
-                <Box 
-                  sx={{ 
-                    position: 'absolute', 
-                    top: -15, 
-                    left: 20, 
-                    bgcolor: 'secondary.main', 
-                    color: 'white',
-                    borderRadius: 2,
-                    px: 2,
-                    py: 0.5,
-                    fontWeight: 600,
-                    fontSize: '0.875rem',
-                    boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
-                  }}
-                >
-                  Mola #{breakItem.id}
-                </Box>
-                <CardContent sx={{ pt: 4 }}>
-                  <Typography variant="h6" component="h3" gutterBottom sx={{ fontWeight: 600, color: 'secondary.main' }}>
-                    {breakItem.breakType}
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>
+                    {breakItem.breakName}
                   </Typography>
-                  
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, color: 'text.secondary' }}>
-                    <AccessTimeIcon fontSize="small" sx={{ mr: 1, color: 'secondary.light' }} />
-                    <Typography variant="body2">
-                      {breakItem.startTime} - {breakItem.endTime}
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                    <AccessTimeIcon sx={{ mr: 1, color: 'primary.main' }} />
+                    <Typography variant="body2" color="text.secondary">
+                      {format(new Date(breakItem.startTime), 'dd MMMM yyyy HH:mm', { locale: tr })}
                     </Typography>
                   </Box>
-                  
-                  <Divider sx={{ my: 2 }} />
-                  
-                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-                    <Chip 
-                      label={calculateDuration(breakItem.startTime, breakItem.endTime)}
-                      size="small" 
-                      color="secondary" 
-                      variant="outlined"
-                    />
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <AccessTimeIcon sx={{ mr: 1, color: 'error.main' }} />
+                    <Typography variant="body2" color="text.secondary">
+                      {format(new Date(breakItem.endTime), 'dd MMMM yyyy HH:mm', { locale: tr })}
+                    </Typography>
                   </Box>
                 </CardContent>
-                <CardActions sx={{ px: 2, pb: 2, pt: 0, justifyContent: 'space-between' }}>
+                <CardActions>
                   <Button 
                     size="small" 
                     startIcon={<EditIcon />}
-                    sx={{ 
-                      color: 'primary.main',
-                      '&:hover': {
-                        bgcolor: 'rgba(63, 81, 181, 0.08)'
-                      }
-                    }}
+                    sx={{ color: 'primary.main' }}
+                    onClick={() => handleEditClick(breakItem)}
                   >
                     Düzenle
                   </Button>
                   <Button 
                     size="small" 
-                    color="error"
                     startIcon={<DeleteIcon />}
-                    sx={{ 
-                      '&:hover': {
-                        bgcolor: 'rgba(245, 0, 87, 0.08)'
-                      }
-                    }}
+                    sx={{ color: 'error.main' }}
+                    onClick={() => handleDeleteClick(breakItem.id)}
                   >
                     Sil
                   </Button>

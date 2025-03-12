@@ -24,6 +24,7 @@ import { deleteShiftAsync } from '../store/feature/ShiftSlice';
 import Swal from 'sweetalert2';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../store';
+import { BreakRequestDto } from '../store/feature/breakSlice';
 
 // Material UI için özel tema oluşturma
 const theme = createTheme({
@@ -130,9 +131,21 @@ const ShiftPage: React.FC = () => {
   };
 
   // **Yeni mola ekleme fonksiyonu**
-  const handleNewBreak = (newBreak: { breakType: string; startTime: string; endTime: string }) => {
-    const breakWithId = { ...newBreak, id: breaks.length + 1 };
-    setBreaks([...breaks, breakWithId]);
+  const handleNewBreak = (formData: { breakType: string; startTime: string; endTime: string }) => {
+    const breakData: BreakRequestDto = {
+      shiftId: 1,
+      breakName: formData.breakType,
+      startTime: formData.startTime,
+      endTime: formData.endTime
+    };
+    
+    // Transform back to the expected breaks array format
+    setBreaks([...breaks, { 
+      id: breaks.length + 1,
+      breakType: breakData.breakName,
+      startTime: breakData.startTime,
+      endTime: breakData.endTime
+    }]);
   };
 
   // **Vardiya atama fonksiyonu**
@@ -268,7 +281,6 @@ const ShiftPage: React.FC = () => {
           
           {activeTab === 1 && (
             <MolaYonetimi 
-              breaks={breaks} 
               handleNewBreak={handleNewBreak} 
             />
           )}

@@ -8,6 +8,7 @@ import expenseReducer from './feature/ExpenseSlice';
 import companyReducer from "./feature/companySlice";
 import commentReducer from "./feature/CommentSlice";
 import dashboardReducer from "./feature/DashboardSlice";
+import breakReducer from './feature/breakSlice';
 
 export const store = configureStore({
   reducer: {
@@ -20,6 +21,7 @@ export const store = configureStore({
     companies: companyReducer,
     comment: commentReducer,
     dashboard: dashboardReducer,
+    break: breakReducer,
   },
 });
  

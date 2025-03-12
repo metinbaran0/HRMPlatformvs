@@ -56,7 +56,6 @@ function RouterPage() {
 
         <Route path='/shift/molalar' element={
           <MolaYonetimi 
-            breaks={[]} 
             handleNewBreak={(newBreak) => console.log(newBreak)} 
           />
         } />
