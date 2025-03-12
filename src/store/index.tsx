@@ -9,6 +9,7 @@ import companyReducer from "./feature/companySlice";
 import commentReducer from "./feature/CommentSlice";
 import dashboardReducer from "./feature/DashboardSlice";
 import breakReducer from './feature/breakSlice';
+import employeeShiftReducer from './feature/employeeShiftSlice';
 
 export const store = configureStore({
   reducer: {
@@ -22,6 +23,7 @@ export const store = configureStore({
     comment: commentReducer,
     dashboard: dashboardReducer,
     break: breakReducer,
+    employeeShift: employeeShiftReducer,
   },
 });
  
